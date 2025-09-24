@@ -1,0 +1,79 @@
+import QtQuick
+import Quickshell
+import "root:"
+
+Item { id: root
+	required property Item content
+
+	property bool scroll: content.width >root.width
+	property bool justify: true
+	property real contentWidth: content.width
+
+	property real speed: 100
+	property real offset: 20
+	property bool debug: false
+
+	onContentWidthChanged: restart();
+	onScrollChanged: restart();
+
+	function restart() {
+		if (scroll) {
+			animA.from = content.width +offset;
+			animA.to = 0;
+			animA.duration = (content.width /speed) *1000;
+			animA.running = true;
+			animA.complete();
+
+			labelB.visible = true;
+			animB.from = 0;
+			animB.to = -(content.width +offset);
+			animB.duration = (content.width /speed) *1000;
+			animB.running = true;
+			animB.complete();
+		} else {
+			labelB.visible = false;
+			animA.running = false;
+			justify? translateA.x = root.width /2 -content.width /2 : translateA.x = 0;
+		}
+	}
+
+	height: content.height
+	clip: true
+
+	ShaderEffectSource {
+		width: content.width
+		height: content.height
+		sourceItem: content
+		hideSource: true
+		transform: Translate { id: translateA }
+	}
+
+	ShaderEffectSource { id: labelB
+		width: content.width
+		height: content.height
+		sourceItem: content
+		hideSource: true
+		transform: Translate { id: translateB }
+
+		Rectangle {
+			anchors.verticalCenter: parent.verticalCenter
+			x: content.width +offset /2 -width /2
+			width: 3
+			height: width
+			radius: height /2
+			color: GlobalConfig.colour.foreground
+		}
+	}
+
+	NumberAnimation { id: animA
+		target: translateA
+		property: "x"
+		loops: Animation.Infinite
+	}
+
+	NumberAnimation { id: animB
+		target: translateB
+		property: "x"
+		loops: Animation.Infinite
+	}
+}

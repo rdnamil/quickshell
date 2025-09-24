@@ -49,6 +49,7 @@ ShellRoot {
 				// Tray {},
 				TrayNew {},
 				Separator {},
+				Caffeine {},
 				Weather {},
 				ClockNew {},
 				// Clock { dateFormat: "ddd d"; timeFormat: "hh:mm"; },
