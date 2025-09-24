@@ -12,41 +12,56 @@ ShellRoot {
 	// editing the config starts here
 	// bars and other items can be added here
 
-	Bar {	// this is the default standard bar
-		// properties for bars and widgets can be changed from here or
-		// can be set globally from GlobalConfig.qml
-		roundCorners: true
-		spacing: 12
-		padding: 14
+	Variants {	// creates the bar on all screens
+		model: Quickshell.screens
+		delegate: Bar {	// this is the default standard bar
+			required property var modelData
+			screen: modelData
+			// properties for bars and widgets can be changed from here or
+			// can be set globally from GlobalConfig.qml
+			roundCorners: true
+			spacing: 12
+			padding: 14
 
-		// widgets are listed within one of the three columns
+			// widgets are listed within one of the three columns
 
 			// left column
 			// ---
-		leftItems: [
-			Network {},
-			Bluetooth {},
-			PlayerMinimal {}
-		]
+			leftItems: [
+				NetworkNew {},
+				// Network {},
+				// Bluetooth {},
+				BluetoothNew {},
+				PlayerNew {}
+				// Player {}
+			]
 
 			// center column
 			// ---
-		centreItems: [
-			// NiriWorkspaces { command: ["niri", "msg", "action", "toggle-overview"]; },
-			NiriWorkspacesNew {}
-		]
+			centreItems: [
+				// NiriWorkspaces {},
+				NiriWorkspacesNew {}
+			]
 
 			// right column
 			// ---
-		rightItems: [
-			Tray {},
-			Clock { dateFormat: "d"; timeFormat: "hh:mm"; },
-			Battery { showPercentage: false; }
-			// QuickCenter {}
-		]
+			rightItems: [
+				// Tray {},
+				TrayNew {},
+				Separator {},
+				Weather {},
+				ClockNew {},
+				// Clock { dateFormat: "ddd d"; timeFormat: "hh:mm"; },
+				// Battery {},
+				BatteryNew {},
+				// Notification {}
+				NotificationNew {}
+				// Power {}
+				// QuickCenter {}
+			]
+		}
 	}
-	// // rounded screen corners
-	// ScreenCorners { corners: ["top-left", "top-right"] }
+
 	// volume and brightness OSDs
 	OSDVolume {}
 	OSDBrightness {}

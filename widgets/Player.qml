@@ -3,13 +3,14 @@
 -----------------------------------*/
 
 import QtQuick
-import QtQuick.Layouts
+import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Mpris
 import "root:"
-import "player"
+import "root:/tools"
+// import "player"
 
 Item { id:root
 	readonly property list<MprisPlayer> players: Mpris.players.values
@@ -25,15 +26,15 @@ Item { id:root
 		return players.length > 0 ? players[players.length - 1] : null
 	}
 
-	property bool displayArt: true
-	property int trackLength: 200
+	property int trackLength: 150
 	property int scrollSpeed: 45
-	property int scrollbarHeight: 6
-	property int artRadius: 4
+	property int scrollBarLength: 100
+	property int scrollBarHeight: 8
 	property int iconSize: GlobalConfig.iconSize
 	property int padding: GlobalConfig.spacing
 	property string colour: GlobalConfig.colour.foreground
-	property string barColour: GlobalConfig.colour.accent
+	property string colourMid: GlobalConfig.colour.midground
+	property string colourBar: GlobalConfig.colour.accent
 	property string fontFamily: GlobalConfig.font.sans
 	property int fontSize: GlobalConfig.font.small
 	property int fontWeight: GlobalConfig.font.semibold
@@ -41,11 +42,13 @@ Item { id:root
 	implicitWidth: layout.width
 	implicitHeight: layout.height
 
-	// format time from total seconds to minute:seconds
+	// format time from total seconds to hours:minutes:seconds
 	function formatTime(totalSeconds) {
-		var minutes = Math.floor(totalSeconds /60);
 		var seconds = totalSeconds %60;
-		return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+		var totalMinutes = Math.floor(totalSeconds /60);
+		var hours = Math.floor(totalMinutes /60);
+		var minutes = totalMinutes -(hours *60);
+		return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
 	}
 
 	// update the active player's position while playing
@@ -54,138 +57,339 @@ Item { id:root
 		onTriggered: activePlayer.positionChanged()
 	}
 
-	RowLayout { id: layout
-		visible: activePlayer
+	// blurred album art
+	Rectangle { id: artMask
+		width: root.width
+		height: root.height
+		color: "transparent"
+		layer.enabled: true
+		layer.effect: OpacityMask {
+			maskSource: Rectangle {
+				width: artMask.width
+				height: artMask.height
+				color: "transparent"
 
-		// display the album art when available
-		Item { id: albumArt
-			visible: root.displayArt
+				Rectangle {
+					width: parent.width
+					height: parent.height
+					gradient: Gradient {
+						orientation: Gradient.Horizontal
+						GradientStop { position: 0.0; color: "#ff000000" }
+						GradientStop { position: 0.5; color: "#60000000" }
+						GradientStop { position: 1.0; color: "#ff000000" }
+					}
+				}
 
-			width: player.height -root.padding
-			height: player.height -root.padding
+				Rectangle {
+					width: parent.width
+					height: parent.height
+					gradient: Gradient {
+						orientation: Gradient.Vertical
+						GradientStop { position: 0.0; color: "#ff000000" }
+						GradientStop { position: 0.4; color: "#00000000" }
+						GradientStop { position: 0.6; color: "#00000000" }
+						GradientStop { position: 1.0; color: "#ff000000" }
+					}
+				}
 
-			IconImage { id: placeholderArt
-				anchors.centerIn: parent
-
-				implicitSize: root.iconSize
-				source: "root:/player/icons/placeholder"
+				Rectangle {
+					anchors{ right: parent.right; rightMargin: 1; verticalCenter: parent.verticalCenter; }
+					width: scrollBarLength -2
+					height: scrollBarHeight -2
+					radius: height /2
+				}
 			}
-			IconImage { id: trackAlbumArt
-				anchors.centerIn: parent
+			invert: true
+		}
+		clip: true
 
-				implicitSize: albumArt.width
-				source: activePlayer.trackArtUrl
+		IconImage {
+			// visible: false
+			anchors.centerIn: parent
+			implicitSize: parent.width
+			source: activePlayer.trackArtUrl
+			layer.enabled: true
+			layer.effect: FastBlur { radius: 25; }
+		}
+	}
+
+	Row { id: layout
+		visible: activePlayer
+		spacing: 2
+
+		// play/pause button
+		SimpleButton {
+			anchors.verticalCenter: parent.verticalCenter
+			content: IconImage {
+				implicitSize: 16
+				source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
+			}
+			onClicked: activePlayer.togglePlaying()
+		}
+
+		// display the current track name and artist
+		Item { id: currentTrack
+			width: (root.trackLength > trackInfo.width) ? trackInfo.width : root.trackLength
+			height: GlobalConfig.barHeight
+
+			// clip the track name and artist to user-defined length
+			Rectangle { id: infoMask
+				anchors.fill: parent
+				color: "transparent"
 				layer.enabled: true
 				layer.effect: OpacityMask {
 					maskSource: Rectangle {
-						width: trackAlbumArt.width
-						height: trackAlbumArt.height
-						radius: root.artRadius
+						width: infoMask.width
+						height: infoMask.height
+						gradient: Gradient {
+							orientation: Gradient.Horizontal
+							GradientStop { position: 0.9; color: "#ff000000" }
+							GradientStop { position: 1.0; color: (root.trackLength > trackInfo.width) ? "#ff000000" : "#00000000" }
+						}
 					}
+				}
+				clip: true
+
+				Row { id: trackInfo
+					anchors.verticalCenter: parent.verticalCenter
+					spacing: 2
+
+					Text { id: track
+						text: activePlayer.trackTitle
+						color: colour
+						font { pointSize: fontSize; family: fontFamily; weight: 600; }
+					}
+					Text { id: seperator
+						visible: activePlayer.trackArtist
+						text: "•"
+						color: colour
+						font { pointSize: fontSize; family: fontFamily; }
+					}
+					Text { id: artist
+						text: activePlayer.trackArtist
+						color: colourMid
+						font { pointSize: fontSize; family: fontFamily; }
+					}
+					Item { id: spacer; width: 6; height: track.height; }
 				}
 			}
 
-			// play/pause track clicking on track album art
+			// scroll the track info if it's too long to fit
 			MouseArea {
 				anchors.fill: parent
 				hoverEnabled: true
-
-				onClicked: {
-					activePlayer.isPlaying ? activePlayer.pause() : activePlayer.play()
+				onEntered: {
+					if (trackInfo.width > infoMask.width) {
+						const distance = trackInfo.width -infoMask.width
+						const speed = root.scrollSpeed
+						scrollAnim.duration = (distance /speed) *1000
+						scrollAnim.from = 0
+						scrollAnim.to = infoMask.width -trackInfo.width
+						scrollAnim.running = true
+					}
 				}
+				onExited: {
+					scrollAnim.running = false
+					trackInfo.x = 0
+				}
+				onClicked: controls.toggle()
+			}
+			NumberAnimation { id: scrollAnim
+				target: trackInfo
+				property: "x"
+				easing.type: Easing.Linear
 			}
 		}
 
-		ColumnLayout { id: player
-			spacing: -2
+		// scroll bar showing elapsed track time
+		ProgressBar { id: progressBar
+			anchors.verticalCenter: parent.verticalCenter
+			width: scrollBarLength
+			height: scrollBarHeight
+			fill: activePlayer.position /activePlayer.length
+		}
+	}
 
-			// display the current track name and artist
-			Item { id: currentTrack
-				width: root.trackLength
-				height: trackInfo.height
+	// anchor for popout
+	// keeps popout from moving when track title length changes
+	Item { id: anchor
+		anchors { left: root.left; leftMargin: 140 -(width /2) }
+		width: 10
+		height: root.height
+	}
 
-				// clip the track name and artist to user-defined length
-				Rectangle { id: clipper
-					anchors.fill: parent
-					color: "transparent"
-					clip: true
+	// popout music controls
+	Popout { id: controls
+		anchor: anchor
+		content: Item { id: content
+			width: contentLayout.width
+			height: contentLayout.height
 
-					RowLayout { id: trackInfo
-						spacing: 2
+			RectangularShadow {
+				anchors.fill: headerBack
+				radius: headerBack.radius
+				spread: 0
+				blur: 30
+			}
 
-						Text { id: track
-							// text: activePlayer.trackTitle
-							text: activePlayer.trackArtUrl
+			Rectangle { id: headerBack
+				width: parent.width
+				height: parent.height -mediaControls.height
+				radius: GlobalConfig.cornerRadius
+				color: GlobalConfig.colour.surface
+			}
 
-							color: colour
-							verticalAlignment: Text.AlignBottom
-							font { pointSize: fontSize; family: fontFamily; weight: 600; }
-						}
-						Text { id: artist
-							text: activePlayer.trackArtist
+			Rectangle {
+				width: parent.width
+				height: parent.height
+				color: "transparent"
+				layer.enabled: true
+				layer.effect: OpacityMask {
+					maskSource: Rectangle {
+						width: contentLayout.width
+						height: contentLayout.height
+						radius: GlobalConfig.cornerRadius
+						border { color: "#c0000000"; width: 1; }
+						color: "transparent"
 
-							color: "#b8c0e0"
-							font { pointSize: fontSize; family: fontFamily; }
+						Rectangle {
+							width: parent.width
+							height: parent.height
+							gradient: Gradient {
+								orientation: Gradient.Vertical
+								GradientStop { position: 0.0; color: "#80000000" }
+								GradientStop { position: 0.9; color: "#ff000000" }
+							}
 						}
 					}
+					invert: true
 				}
+				clip: true
 
-				// scroll the track info if it's too long to fit
-				MouseArea {
-					anchors.fill: parent
-					hoverEnabled: true
-
-					onEntered: {
-						if (trackInfo.width > clipper.width) {
-							const distance = trackInfo.width - clipper.width
-							const speed = root.scrollSpeed
-							scrollAnim.duration = (distance / speed) *1000
-							scrollAnim.from = 0
-							scrollAnim.to = clipper.width - trackInfo.width
-							scrollAnim.running = true
-						}
-					}
-
-					onExited: {
-						scrollAnim.running = false
-						trackInfo.x = 0
-					}
-				}
-
-				NumberAnimation { id: scrollAnim
-					target: trackInfo
-					property: "x"
-					easing.type: Easing.Linear
+				IconImage {
+					anchors.centerIn: parent
+					implicitSize: content.height
+					source: topArt.source
+					layer.enabled: true
+					layer.effect: FastBlur { radius: 100; }
 				}
 			}
 
+			Column { id: contentLayout
+				leftPadding: 15
+				rightPadding: 15
+				topPadding: 10
+				// bottomPadding: 10
+				// spacing: 6
 
-			RowLayout {
-				spacing: root.padding
+				Rectangle { id: contentArt
+					width: 200
+					height: width
+					color: "transparent"
+					layer.enabled: true
+					layer.effect: OpacityMask {
+						maskSource: Rectangle {
+							width: contentArt.width
+							height: contentArt.height
+							radius: 4
+						}
+					}
 
-				// scroll bar showing elapsed track time
-				Rectangle { id: scrollBar
-					Layout.fillWidth: true
-					height: root.scrollbarHeight
-					radius: height /2
-					color: "#6e738d"
+					// placeholder album art
+					Image {
+						width: 200
+						height: width
+						source: "player/placeholder"
+						opacity: 0.5
+					}
 
-					Rectangle{
-						property int elapsed: scrollBar.width *(activePlayer.position/activePlayer.length);
+					// blurred album art; visible if album art isn't 1:1 proportions
+					Image {
+						width: 200
+						height: width
+						fillMode: Image.PreserveAspectCrop
+						source: topArt.source
+						layer.enabled: true
+						layer.effect: FastBlur { radius: 25; }
+					}
 
-						width: elapsed < (height) ? height : elapsed
-						height: scrollBar.height
-						radius: height /2
-						color: root.colour
+					RectangularShadow {
+						anchors.fill: topArt
+						spread: 0
+						blur: 30
+					}
+
+					// album art
+					Image { id: topArt
+						anchors.centerIn: parent
+						width: 200
+						fillMode: Image.PreserveAspectFit
+						source: activePlayer.trackArtUrl
 					}
 				}
 
-				// elapsed track time/track length
-				Text { id: time
-					text: formatTime(parseInt(activePlayer.position)) +" / " +formatTime(parseInt(activePlayer.length))
 
-					color: colour
-					font { pointSize: 7; family: fontFamily; }
+				Column { id: contentInfo
+					anchors.horizontalCenter: parent.horizontalCenter
+					topPadding: 6
+					bottomPadding: 6
+					spacing: 2
+
+					Text {
+						anchors.horizontalCenter: parent.horizontalCenter
+						width: contentArt.width
+						wrapMode: Text.WordWrap
+						horizontalAlignment: Text.AlignHCenter
+						text: activePlayer.trackTitle
+						color: colour
+						font { pointSize: fontSize; family: fontFamily; weight: 600; }
+					}
+
+					Text {
+						anchors.horizontalCenter: parent.horizontalCenter
+						text: activePlayer.trackArtist
+						color: colourMid
+						font { pointSize: fontSize; family: fontFamily; }
+					}
+
+					Text {
+						anchors.horizontalCenter: parent.horizontalCenter
+						text: formatTime(parseInt(activePlayer.position)) +" / " +formatTime(parseInt(activePlayer.length))
+						color: colourMid
+						font { pointSize: fontSize -2; family: GlobalConfig.font.mono; }
+					}
+				}
+
+				Row { id: mediaControls
+					topPadding: -3
+					anchors.horizontalCenter: parent.horizontalCenter
+					spacing: 0
+
+					SimpleButton {
+						anchors.verticalCenter: parent.verticalCenter
+						content: IconImage {
+							implicitSize: 24
+							source: Quickshell.iconPath("media-skip-backward")
+						}
+						onClicked: activePlayer.previous()
+					}
+
+					SimpleButton {
+						content: IconImage {
+							implicitSize: 44
+							source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
+						}
+						onClicked: activePlayer.togglePlaying()
+					}
+
+					SimpleButton {
+						anchors.verticalCenter: parent.verticalCenter
+						content: IconImage {
+							implicitSize: 24
+							source: Quickshell.iconPath("media-skip-forward")
+						}
+						onClicked: activePlayer.next()
+					}
 				}
 			}
 		}

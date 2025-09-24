@@ -31,6 +31,7 @@ PanelWindow { id: root
 	color: "transparent"
 
 	PanelWindow { id: shadow
+		screen: root.screen
 		anchors { top:true; left: true; }
 		implicitWidth: screen.width
 		implicitHeight: 30
@@ -39,10 +40,10 @@ PanelWindow { id: root
 
 		RectangularShadow {
 			anchors.fill: fill
-			offset: (0,0)
 			spread: 4
 			blur: 12
-			color: "#70000000"
+			color: "black"
+			opacity: 0.4
 		}
 
 		Rectangle { id: fill
@@ -53,7 +54,7 @@ PanelWindow { id: root
 	}
 
 	Item { id: bar
-		// anchors { horizontalCenter: parent.horizontalCenter; top: top.bottom; }
+		// anchors { horizontalCenter: parent.horizontalCenter; top: parent.bottom; }
 		width: root.width
 		height: root.height
 

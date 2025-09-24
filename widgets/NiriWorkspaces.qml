@@ -9,33 +9,28 @@ import "root:"
 import "niriWorkspaces"
 
 Item { id: root
-	// command to run on mouse pressed
-	property list<string> command: ["niri", "msg", "action", "focus-workspace", root.workspace]
-	property int spacing: GlobalConfig.spacing
-	property string activeColour: GlobalConfig.colour.foreground
-	property string inactiveColour: GlobalConfig.colour.grey
-	property Rectangle activePill: Rectangle {
-		width: 12
-		height: 8
-		radius: height /2
-		color: activeColour
-		border { width: 0; color: activeColour; }
+	property int workspaceSelected
+	property list<string> command: ["niri", "msg", "action", "focus-workspace", workspaceSelected]	// command to run on mouse pressed
+	property string style: "pills"	// options include 'named', '2tone', 'pills', and 'custom'
+	property list<string> workspaceNames: ["一", "二", "三", "四", "五"]
+	property bool showText: pillStyle.text
+	property QtObject pillStyle: {
+		switch (style) {
+			case "named":
+				return Styles.named
+				break;
+			case "pills":
+				return Styles.pills
+				break;
+		}
 	}
-	property Rectangle inactivePill: Rectangle {
-		width: 8
-		height: 8
-		radius: height /2
-		color: inactiveColour
-		border { width: 0; color: inactiveColour; }
-	}
-	property int workspace: 1
 
-	implicitWidth: layout.implicitWidth
-	implicitHeight: layout.implicitHeight
+	implicitWidth: layout.width
+	implicitHeight: layout.height
 
-	Behavior on implicitWidth { NumberAnimation { duration: 150; }}
+	Behavior on implicitWidth { NumberAnimation { duration: 750; easing.type: Easing.OutCirc; }}
 
-	Process { id: focusSpace
+	Process { id: runCommand
 		running: false
 		command: root.command
 	}
@@ -43,41 +38,44 @@ Item { id: root
 	Row { id: layout
 		anchors.verticalCenter: parent.verticalCenter
 
-		spacing: root.spacing
+		Repeater {
+			model: NiriWorkspaces.numWorkspaces
 
-		Repeater { id: workspaces
-			model: NiriWorkspaces.numSpaces
+			Item {
+				required property int index
 
-			MouseArea {
 				anchors.verticalCenter: parent.verticalCenter
 
-				implicitWidth: pill.width
-				implicitHeight: pill.height
+				width: pill.width +6
+				height: pill.height +12
 
-				onClicked: {
-					root.workspace = index +1
-					focusSpace.running = true
+				MouseArea { id: mouseArea
+					anchors.fill: parent
+					hoverEnabled: true
+					onClicked: event => {
+						workspaceSelected = index +1
+						runCommand.running = true
+					}
 				}
 
-				// pill
-				Rectangle { id: pill
-					readonly property bool isCurrentSpace: index === (NiriWorkspaces.currentSpaces -1)
+				Pill { id: pill
+					anchors.centerIn: parent
+					isFocused: index === (NiriWorkspaces.focusedWorkspace -1)
+					style: pillStyle
 
-					width: isCurrentSpace ? root.activePill.width : root.inactivePill.width
-					height: isCurrentSpace ? root.activePill.height : root.inactivePill.height
-					radius: isCurrentSpace ? root.activePill.radius : root.inactivePill.radius
-					color: isCurrentSpace ? root.activePill.color : root.inactivePill.color
-					gradient: null
-					border {
-						width: isCurrentSpace ? root.activePill.border.width : root.inactivePill.border.width
-						color: isCurrentSpace ? root.activePill.border.color : root.inactivePill.border.color
-						Behavior on width { NumberAnimation { duration: 150; }}
-						Behavior on color { ColorAnimation { duration: 150; }}
+					Rectangle {
+						visible: mouseArea.containsMouse
+						anchors.fill: parent
+						radius: pill.radius
+						color: "#30000000"
 					}
-					Behavior on width { NumberAnimation { duration: 150; }}
-					Behavior on height { NumberAnimation { duration: 150; }}
-					Behavior on radius { NumberAnimation { duration: 150; }}
-					Behavior on color { ColorAnimation { duration: 150; }}
+
+					Text {
+						visible: showText
+						anchors.centerIn: pill
+						text: workspaceNames[index]
+						font.pixelSize: pill.height -6
+					}
 				}
 			}
 		}

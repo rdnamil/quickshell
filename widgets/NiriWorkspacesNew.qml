@@ -1,83 +1,46 @@
-/*--------------------------------------
---- Niri workspaces widget by andrel ---
---------------------------------------*/
-
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "root:"
+import "../"
+import "../tools"
 import "niriWorkspaces"
 
-Item { id: root
-	property int workspaceSelected
-	property list<string> command: ["niri", "msg", "action", "focus-workspace", workspaceSelected]	// command to run on mouse pressed
-	property string style: "pills"	// options include 'named', '2tone', 'pills', and 'custom'
-	property list<string> workspaceNames: ["一", "二", "三", "四", "五"]
-	property bool showText: pillStyle.text
-	property QtObject pillStyle: {
-		switch (style) {
-			case "named":
-				return Styles.named
-				break;
-			case "pills":
-				return Styles.pills
-				break;
-		}
-	}
+Row { id: root
+	readonly property list<var> workspaces: NiriWorkspacesNew.workspaces.filter(w => w.output === screen.name)
+	readonly property int focusedWorkspace: NiriWorkspacesNew.focusedWorkspace.filter(w => w.output == screen.name).find(w => w.is_active).idx -1
 
-	implicitWidth: layout.width
-	implicitHeight: layout.height
+	spacing: 2
 
-	Behavior on implicitWidth { NumberAnimation { duration: 750; easing.type: Easing.OutCirc; }}
+	Repeater {
+		model: workspaces.length
 
-	Process { id: runCommand
-		running: false
-		command: root.command
-	}
+		SimpleButton { id: pill
+			required property var modelData
+			required property int index
 
-	Row { id: layout
-		anchors.verticalCenter: parent.verticalCenter
+			onClicked: {
+				focusOn.command = ["niri", "msg", "action", "focus-workspace", index +1];
+				focusOn.running = true;
+			}
+			content: Rectangle {
+				width: focusedWorkspace === index? 12 : 8
+				height: 8
+				radius: height /2
+				color: focusedWorkspace === index? GlobalConfig.colour.foreground : GlobalConfig.colour.surface
 
-		Repeater {
-			model: NiriWorkspaces.numWorkspaces
-
-			Item {
-				required property int index
-
-				anchors.verticalCenter: parent.verticalCenter
-
-				width: pill.width +6
-				height: pill.height +12
-
-				MouseArea { id: mouseArea
-					anchors.fill: parent
-					hoverEnabled: true
-					onClicked: event => {
-						workspaceSelected = index +1
-						runCommand.running = true
-					}
-				}
-
-				Pill { id: pill
+				Text {
+					visible: false
 					anchors.centerIn: parent
-					isFocused: index === (NiriWorkspaces.focusedWorkspace -1)
-					style: pillStyle
-
-					Rectangle {
-						visible: mouseArea.containsMouse
-						anchors.fill: parent
-						radius: pill.radius
-						color: "#30000000"
-					}
-
-					Text {
-						visible: showText
-						anchors.centerIn: pill
-						text: workspaceNames[index]
-						font.pixelSize: pill.height -6
-					}
+					text: workspaces.find(w => w.idx === index +1).name
 				}
+
+				Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+				Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 			}
 		}
+	}
+
+	Process { id: focusOn
+		running: false
 	}
 }

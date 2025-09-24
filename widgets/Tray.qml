@@ -37,7 +37,7 @@ Item { id: root
 	}
 
 	Row { id: layout
-		spacing: 4
+		spacing: 0
 
 		Repeater { id: trayItems
 			model: SystemTray.items

@@ -7,6 +7,7 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import "root:"
+import "root:/tools"
 import "network"
 
 Item { id: root
@@ -52,6 +53,20 @@ Item { id: root
 				}
 			}
 			return symbol;
+		}
+	}
+
+	PopoutNew {
+		anchor: parent
+		body: Rectangle {
+			width: 100
+			height: width
+			color: "green"
+		}
+		header: Rectangle {
+			width: 200
+			height: 30
+			color: "red"
 		}
 	}
 }

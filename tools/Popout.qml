@@ -37,19 +37,21 @@ Item { id: root
 		anchor {
 			item: root
 			rect{ x: root.width /2 -width /2; y: GlobalConfig.barHeight -(GlobalConfig.barHeight -root.height) /2; }
+			adjustment: PopupAdjustment.Slide
 		}
-		implicitWidth: content.width +50
-		implicitHeight: content.height +50
+		width: content.width +60
+		height: content.height +60
 		color: debug? "#80ff0000" : "transparent"
 		visible: false
 		mask: Region { item: menu; }
 
-		RectangularShadow {
+		RectangularShadow { id: shadow
 			anchors.fill: menu
-			offset: (0,0)
+			offset.y: 10
+			radius: menu.radius
 			spread: 0
 			blur: 30
-			color: "#70000000"
+			color: "black"
 		}
 
 		Rectangle { id: menu
@@ -66,34 +68,53 @@ Item { id: root
 					width: menu.width
 					height: menu.height
 					radius: menu.radius
+					color: "#faaaaaaa"
 				}
 			}
+		}
+	}
 
-			PropertyAnimation { id: menuOpen
+	SequentialAnimation { id: menuAnim
+		ParallelAnimation {
+			NumberAnimation {
 				target: menu
 				property: "height"
-				from: cornerRadius *2
-				to: content.height
-				duration: (content.height /100) *500
+				from: isMenuOpen? cornerRadius *2 : content.height
+				to: isMenuOpen? content.height : cornerRadius *2
+				duration: 200
+				easing.type: Easing.OutCirc
+			}
+			NumberAnimation {
+				target: menu
+				property: "opacity"
+				from: isMenuOpen? 0.0 : 1.0
+				to: isMenuOpen? 1.0 : 0.0
+				duration: 200
+				easing.type: Easing.OutCirc
+			}
+			NumberAnimation {
+				target: shadow
+				property: "opacity"
+				from: isMenuOpen? 0.0 : 0.4
+				to: isMenuOpen? 0.4 : 0.0
+				duration: 200
 				easing.type: Easing.OutCirc
 			}
 		}
+
+		ScriptAction { script: { if (!isMenuOpen) window.visible = false; }}
 	}
 
 	function open() {
 		Tracker.isOpened(root.content);
 		isMenuOpen = true;
 		window.visible = true;
-		menuOpen.start();
-	}
-	function openChild() {
-		isMenuOpen = true;
-		window.visible = true;
-		menuOpen.start();
+		menuAnim.restart();
 	}
 	function close() {
 		isMenuOpen = false;
-		window.visible = false;
+		menuAnim.restart();
+		// window.visible = false;
 	}
 	function closeAll() {
 		Tracker.isOpened(null);
@@ -109,6 +130,6 @@ Item { id: root
 	Component.onCompleted: {
 		content.parent = menu;
 		content.anchors.bottom = menu.bottom;
-		closeAll();
+		root.closeAll();
 	}
 }

@@ -23,11 +23,7 @@ Item { id: root
 	width: icon.width
 	height: icon.height
 
-	IconImage { id: icon
-		anchors.centerIn: parent
-		implicitSize: iconSize
-		source: root.modelData.icon
-	}
+
 
 	// use system context menu
 	QsMenuAnchor { id: menu
@@ -44,23 +40,13 @@ Item { id: root
 		// debug: true
 	}
 
-	MouseArea { id: mouseArea
-		anchors.fill: parent
-		acceptedButtons: Qt.LeftButton | Qt.RightButton
-		onClicked: event => {
-			if (menuOpen) {
-				popoutMenu.close();
-				menuHandler.activeMenu = [root.modelData.menu];
-				menuOpen = false;
-			} else if (event.button === Qt.LeftButton) {
-				popoutMenu.closeAll();
-				menuHandler.activeMenu = [root.modelData.menu]
-				modelData.activate();
-			} else {
-				// menu.open()
-				popoutMenu.open()
-				menuOpen = true
-			}
+	SimpleButton { id: icon
+		darken: false
+		onClicked: popoutMenu.toggle()
+		content: IconImage {
+			anchors.centerIn: parent
+			implicitSize: iconSize
+			source: root.modelData.icon
 		}
 	}
 }
