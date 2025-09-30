@@ -1,6 +1,6 @@
 /*-------------------------------
---- MusicPlayer.qml by andrel ---
--------------------------------*/
+ * --- MusicPlayer.qml by andrel ---
+ * -------------------------------*/
 
 import QtQuick
 import QtQuick.Layouts
@@ -120,93 +120,130 @@ Loader { id: root
 
 			Popout { id: popout
 				anchor: parent
-				header: Item {
-					width: 224
-					height: width
-					layer.enabled: true
-					layer.effect: OpacityMask {
-						maskSource: Item {
-							width: 224
+				header: Column {
+					spacing: GlobalVariables.controls.spacing
+
+					Item {
+						width: 224
+						height: 256
+						layer.enabled: true
+						layer.effect: OpacityMask {
+							maskSource: Item {
+								width: 224
+								height: 256
+
+								Rectangle {
+									anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 12; }
+									width: 200
+									height: width
+									radius: GlobalVariables.controls.radius
+
+									RectangularShadow {
+										anchors.fill: parent
+										offset.y: 6
+										spread: 0
+										blur: 30
+										radius: parent.radius
+										color: "#d0ffffff"
+									}
+								}
+							}
+						}
+
+						// blurred album artwork background and glow
+						Image {
+							anchors.fill: parent
+							fillMode: Image.PreserveAspectCrop
+							source: activePlayer.trackArtUrl
+							layer.enabled: true
+							layer.effect: FastBlur { radius: 100; }
+						}
+
+						// album artwork
+						Image {
+							anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 12; }
+							width: 200
 							height: width
-
-							Rectangle {
-								anchors.centerIn: parent
-								width: 200
-								height: width
-								radius: GlobalVariables.controls.radius
-
-								RectangularShadow {
-									anchors.fill: parent
-									offset.y: 6
-									spread: 0
-									blur: 30
-									radius: parent.radius
-									color: "#d0ffffff"
+							fillMode: Image.PreserveAspectFit
+							source: activePlayer.trackArtUrl
+							layer.enabled: true
+							layer.effect: OpacityMask {
+								maskSource: Rectangle {
+									width: 200
+									height: width
+									radius: GlobalVariables.controls.radius
 								}
 							}
 						}
 					}
 
-					// blurred album artwork background and glow
-					Image {
-						anchors.fill: parent
-						fillMode: Image.PreserveAspectCrop
-						source: activePlayer.trackArtUrl
-						layer.enabled: true
-						layer.effect: FastBlur { radius: 100; }
-					}
+					Column {
+						anchors.horizontalCenter: parent.horizontalCenter
+						topPadding: -44
+						bottomPadding: GlobalVariables.controls.spacing
+						Marquee {
+							anchors.horizontalCenter: parent.horizontalCenter
+							width: 200
+							content: Text {
+								text: activePlayer.trackTitle
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.smallsemibold
+							}
+						}
 
-					// album artwork
-					Image {
-						anchors.centerIn: parent
-						width: 200
-						height: width
-						fillMode: Image.PreserveAspectFit
-						source: activePlayer.trackArtUrl
-						layer.enabled: true
-						layer.effect: OpacityMask {
-							maskSource: Rectangle {
-								width: 200
-								height: width
-								radius: GlobalVariables.controls.radius
+						Marquee {
+							anchors.horizontalCenter: parent.horizontalCenter
+							width: 200
+							content: Text {
+								text: activePlayer.trackArtist
+								color: GlobalVariables.colours.windowText
+								font: GlobalVariables.font.smaller
 							}
 						}
 					}
 				}
 				body: Column {
 					anchors.horizontalCenter: parent.horizontalCenter
-					topPadding: 1
-					spacing: 0
+					topPadding: -GlobalVariables.controls.radius *2 +2
 
-					// track info; scroll when too long to fit
-					Marquee {
-						width: 200
-						content: Row {
-							spacing: 4
+					Rectangle { id: elapsedBar
+						width: popout.windowWidth
+						height: GlobalVariables.controls.radius *2
+						bottomLeftRadius: GlobalVariables.controls.radius
+						bottomRightRadius: GlobalVariables.controls.radius
+						color: GlobalVariables.colours.accent
+						border { color: "#80000000"; width: 1; }
+						layer.enabled: true
+						layer.effect: OpacityMask {
+							maskSource: Rectangle {
+								width: elapsedBar.width
+								height: elapsedBar.height
+								color: "transparent"
 
-							// track title
-							Text {
-								anchors.verticalCenter: parent.verticalCenter
-								text: activePlayer.trackTitle
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.smallsemibold
-							}
-
-							// track artist
-							Text {
-								anchors.verticalCenter: parent.verticalCenter
-								text: activePlayer.trackArtist
-								color: GlobalVariables.colours.windowText
-								font: GlobalVariables.font.small
+								Rectangle {
+									anchors.left: parent.left
+									width: parent.width *elapsed
+									height: parent.height
+								}
 							}
 						}
 					}
 
-					Row {
+					RowLayout {
 						anchors.horizontalCenter: parent.horizontalCenter
-						topPadding: -8
-						bottomPadding: GlobalVariables.controls.padding
+						width: popout.windowWidth -GlobalVariables.controls.spacing
 						spacing: 4
+
+						// time elapsed
+						Text {
+							anchors.top: parent.top
+							text: formatTime(parseInt(activePlayer.position))
+							color: GlobalVariables.colours.windowText
+							font: GlobalVariables.font.monosmaller
+							// font { family: GlobalVariables.font.mono; pointSize: GlobalVariables.font.smaller; weight: GlobalVariables.font.bold }
+						}
+
+						Item { Layout.fillWidth: true; }
 
 						// media control buttons
 						// go previous
@@ -237,6 +274,17 @@ Loader { id: root
 								implicitSize: 24
 								source: Quickshell.iconPath("media-skip-forward")
 							}
+						}
+
+						Item { Layout.fillWidth: true; }
+
+						// time remaining
+						Text {
+							anchors.top: parent.top
+							text: `-${formatTime(parseInt(activePlayer.length -parseInt(activePlayer.position)))}`
+							color: GlobalVariables.colours.windowText
+							font: GlobalVariables.font.monosmaller
+							// font { family: GlobalVariables.font.mono; pointSize: GlobalVariables.font.smaller; weight: GlobalVariables.font.bold }
 						}
 					}
 				}

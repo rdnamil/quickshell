@@ -48,6 +48,13 @@ Singleton { id: root
 		readonly property font smaller: Qt.font({
 			family: "Adwaita Sans",
 			pointSize: 6,
+			weight: 600,
+			letterSpacing: 0.5
+		})
+		readonly property font monosmaller: Qt.font({
+			family: "Adwaita Sans Mono",
+			pointSize: 6,
+			weight: 600,
 			letterSpacing: 0.5
 		})
 	}

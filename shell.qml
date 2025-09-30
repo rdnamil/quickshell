@@ -17,7 +17,7 @@ Scope { id: root
 				Network {},
 				Bluetooth {},
 				MusicPlayer {}
-				// Caffeine {}
+				// ,Caffeine {}
 			]
 
 			centreItems: [
