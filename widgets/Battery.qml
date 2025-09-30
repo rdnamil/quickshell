@@ -1,272 +1,115 @@
-/*------------------------------
---- Battery widget by andrel ---
-------------------------------*/
+/*-------------------------------------
+--- Battery.qml - widgets by andrel ---
+-------------------------------------*/
 
 import QtQuick
-import QtQuick.Layouts
-import QtQuick.Controls
-import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.UPower
-import ".."
-import "../tools"
+import "../"
+import "../services"
+import "../controls"
 
-Item { id: root
-	readonly property real percentage: 0.5
-	readonly property bool isCharging: !UPower.onBattery
+QsButton { id: root
+	anim: false
+	shade: false
+	onClicked: popout.toggle();
+	content: Item {
+		width: icon.height
+		height: icon.width
 
-	// property bool showPercentage: true
-
-	width: widget.width
-	height: widget.height
-
-	SimpleButton { id: widget
-		darken: false
-		animate: false
-		onClicked: powerProfMenu.toggle()
-		content: Item {
-			width: layout.width
-			height: layout.height
-
-			RowLayout { id: layout
-				spacing: 2
-
-				// show battery percentage
-				Text {
-					visible: showPercentage
-					height: battery.height
-					text: parseInt(root.percentage *100) + "%"
-					font.family: GlobalConfig.font.sans
-					font.pointSize: 8
-					color: GlobalConfig.colour.foreground
-				}
-
-				Item { id: icon
-					width: 25
-					height: 12
-
-					// battery health bar
-					Rectangle { id: healthBar
-						// change colour of bar based on battery health
-						readonly property string batteryHealth: {
-							let health = null
-							if (root.percentage <= 0.15) {
-								health = GlobalConfig.colour.red
-							} else if (root.percentage <= 0.33) {
-								health = GlobalConfig.colour.orange
-							} else {
-								health = GlobalConfig.colour.green
-							}
-							return health;
-						}
-
-						anchors{ left: parent.left; leftMargin: 2; verticalCenter: parent.verticalCenter; }
-						width: (parent.width -5) *root.percentage
-						height: parent.height -4
-						radius: 1
-						color: batteryHealth
-						layer.enabled: true
-						layer.effect: DropShadow {
-							color: healthBar.batteryHealth
-							horizontalOffset: 0
-							verticalOffset: 0
-							spread: 0
-							radius: 3
-						}
-					}
-
-					// charging icon
-					Rectangle {
-						anchors.centerIn: battShell;
-
-						Text { id: light
-							anchors.centerIn: parent
-							text: "󱐋"
-							font.pixelSize: battShell.height -2
-							color: GlobalConfig.colour.foreground
-							// opacity: 0.8
-							visible: root.isCharging
-						}
-
-						Text { id: dark
-							anchors.centerIn: parent
-							text: "󱐋"
-							font.pixelSize: battShell.height -2
-							color: GlobalConfig.colour.background
-							// opacity: 0.8
-							visible: root.isCharging
-							layer.enabled: true
-							layer.effect: OpacityMask {
-								maskSource: Rectangle {
-									width: dark.width
-									height: dark.height
-									color: "transparent"
-
-									Rectangle {
-										anchors.centerIn: parent
-										width: battShell.width
-										height: dark.height
-										color: "transparent"
-
-										Rectangle { id: mask
-											anchors { left: parent.left; leftMargin: 2; }
-											width: healthBar.width
-											height: parent.height
-										}
-
-										Rectangle {
-											anchors.left: mask.right
-											width: 1
-											height: parent.height
-											opacity: 0.5
-										}
-									}
-								}
-							}
-						}
-					}
-
-					// battery overlay
-					Rectangle { id: battShell
-						anchors.left: parent.left
-						width: parent.width -1
-						height: parent.height
-						color: "transparent"
-						gradient: Gradient {
-							orientation: Gradient.Vertical
-							GradientStop { position: 0.0; color: "#20000000" }
-							GradientStop { position: 0.1; color: "#80ffffff" }
-							GradientStop { position: 0.5; color: "#00000000" }
-							GradientStop { position: 1.0; color: "#40000000" }
-						}
-						radius: 3
-						border { color: GlobalConfig.colour.foreground; width: 1; }
-					}
-
-					Rectangle {
-						anchors{ right: parent.right; verticalCenter: parent.verticalCenter; }
-						width: 1
-						height: 4
-						color: GlobalConfig.colour.foreground
-					}
-				}
-			}
+		Battery { id: icon
+			anchors.centerIn: parent
+			height: 20
+			width: 12
+			rotation: 90
+			percentage: UPower.displayDevice.percentage
+			isCharging: !UPower.onBattery
 		}
 	}
 
-	Popout { id: profile
-		anchor: root
-		content: Item { id: contentRoot
-			width: contentLayout.width
-			height: contentLayout.height
-
-			Column { id: contentLayout
-				leftPadding: 15
-				rightPadding: 10
-				topPadding: 10
-				bottomPadding: 10
-				spacing: 4
-				Row {
-					spacing: 6
-					Text {
-						anchors.verticalCenter: parent.verticalCenter
-						text: ""
-						font.pixelSize: powersave.height -2
-						color: GlobalConfig.colour.foreground
-					}
-					Switch { id: powersave
-						anchors.verticalCenter: parent.verticalCenter
-						onClicked: toggle();
-						onToggled: { if (isOn && performance.isOn) performance.isOn = false; contentRoot.updatePowerProfile(); }
-						Component.onCompleted: isOn = (PowerProfiles.profile === PowerProfile.PowerSaver)
-					}
-				}
-				Row {
-					spacing: 6
-					Text {
-						anchors.verticalCenter: parent.verticalCenter
-						text: "󰠠"
-						font.pixelSize: performance.height -2
-						color: GlobalConfig.colour.foreground
-					}
-					Switch { id: performance
-						anchors.verticalCenter: parent.verticalCenter
-						onClicked: toggle();
-						onToggled: { if (isOn && powersave.isOn) powersave.isOn = false; contentRoot.updatePowerProfile(); }
-						Component.onCompleted: isOn = (PowerProfiles.profile === PowerProfile.Performance)
-					}
-				}
-			}
-
-			function updatePowerProfile() {
-				if (powersave.isOn) {
-					PowerProfiles.profile = PowerProfile.PowerSaver;
-				} else if (performance.isOn) {
-					PowerProfiles.profile = PowerProfile.Performance;
-				} else {
-					PowerProfiles.profile = PowerProfile.Balanced;
-				}
-			}
-		}
-	}
-
-	PopoutNew { id: powerProfMenu
+	Popout { id: popout
 		anchor: root
 		header: Row {
-			padding: GlobalConfig.padding
-			spacing: GlobalConfig.spacing
+			padding: GlobalVariables.controls.padding
+			spacing: GlobalVariables.controls.spacing
 
-			Battery {
-				// showPercent: false
-				material: true
-				height: 16
+			// set balanced power profile
+			Row {
+				spacing: 4
+
+				Text {
+					text: ""
+					color: GlobalVariables.colours.highlightedText
+					font.pixelSize: GlobalVariables.controls.iconSize
+				}
+
+				QsSwitch {
+					isOn: PowerProfiles.profile === PowerProfile.PowerSaver
+					onClicked: PowerProfiles.profile = isOn? PowerProfile.Balanced : PowerProfile.PowerSaver;
+				}
 			}
 
-			Text {
-				anchors.verticalCenter: parent.verticalCenter
-				text: `${parseInt(percentage *100)}%`
-				color: GlobalConfig.colour.foreground
-				font {
-					family: GlobalConfig.font.sans
-					pointSize: GlobalConfig.font.small
-					weight: GlobalConfig.font.bold
+			// set performance power profile
+			Row {
+				spacing: 3
+
+				Text {
+					text: "󱐋"
+					color: GlobalVariables.colours.highlightedText
+					font.pixelSize: GlobalVariables.controls.iconSize
+				}
+
+				QsSwitch {
+					isOn: PowerProfiles.profile === PowerProfile.Performance
+					onClicked: PowerProfiles.profile = isOn? PowerProfile.Balanced : PowerProfile.Performance;
 				}
 			}
 		}
 		body: Column {
-			padding: GlobalConfig.padding
-			spacing: GlobalConfig.spacing
+			padding: GlobalVariables.controls.padding
+			spacing: GlobalVariables.controls.spacing
 
-			Row {
-				spacing: GlobalConfig.spacing
+			// list devices, their battery, and their status
+			Repeater {
+				model: UPower.devices
+				delegate: Row {
+					required property var modelData
 
-				Text {
-					text: ""
-					color: GlobalConfig.colour.foreground
-					font.pixelSize: 16
-				}
+					visible: modelData.model
+					spacing: GlobalVariables.controls.spacing
 
-				Switch {
-					isOn: PowerProfiles.profile === PowerProfile.PowerSaver
-					onClicked: PowerProfiles.profile = isOn? PowerProfile.Balanced : PowerProfile.PowerSaver
-				}
-			}
+					Connections {
+						target: modelData
+						function onPercentageChanged() { if (modelData.percentage === 0.1 && !battery.isCharging) Notifications.notify("battery-level-10", "Quickshell", "Power", `${modelData.model}'s battery is running low.`) }
+					}
 
-			Row {
-				spacing: GlobalConfig.spacing
+					Battery { id: battery
+						anchors.verticalCenter: parent.verticalCenter
+						height: 24
+						material: true
+						percentage: modelData.percentage
+						isCharging: modelData.state === UPowerDeviceState.Charging
+					}
 
-				Text {
-					text: "󰠠"
-					color: GlobalConfig.colour.foreground
-					font.pixelSize: 16
-				}
+					Column {
+						anchors.verticalCenter: parent.verticalCenter
 
-				Switch {
-					isOn: PowerProfiles.profile === PowerProfile.Performance
-					onClicked: PowerProfiles.profile = isOn? PowerProfile.Balanced : PowerProfile.Performance
+						Text {
+							text: modelData.model
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+
+						Text {
+							text: `${parseInt(modelData.percentage *100)}% ${UPowerDeviceState.toString(modelData.state)}`
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.small
+						}
+					}
 				}
 			}
 		}
 	}
 }
+

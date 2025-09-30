@@ -1,22 +1,22 @@
-/*-------------------------------
---- Caffeine widget by andrel ---
--------------------------------*/
+/*----------------------------
+--- Caffeine.qml by andrel ---
+----------------------------*/
 
 import QtQuick
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Io
 import ".."
-import "../tools"
+import "../controls"
 
-SimpleButton { id: root
+QsButton { id: root
 	property bool isCaffeine: inhibitor.running
 
-	darken: false
-	animate: false
+	anim: false
+	shade: false
 	onClicked: inhibitor.running = !inhibitor.running;
 	content: IconImage {
-		implicitSize: GlobalConfig.iconSize
+		implicitSize: GlobalVariables.controls.iconSize
 		source: isCaffeine? Quickshell.iconPath("my-caffeine-on") : Quickshell.iconPath("my-caffeine-off")
 	}
 

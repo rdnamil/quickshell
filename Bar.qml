@@ -1,6 +1,6 @@
-/*------------------------------
---- Horizontal bar by andrel ---
-------------------------------*/
+/*-----------------------
+--- Bar.qml by andrel ---
+-----------------------*/
 
 import QtQuick
 import QtQuick.Layouts
@@ -9,114 +9,125 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 
 PanelWindow { id: root
-	property string position: "top"
-	property bool roundCorners: false
-	property int height: GlobalConfig.barHeight
-	property int spacing: GlobalConfig.spacing
-	property int padding: GlobalConfig.padding
-	property int cornerRadius: GlobalConfig.cornerRadius
-	property string colour: GlobalConfig.colour.background
+	required property var modelData
 
-	property list<Item>  leftItems
-	property list<Item>  centreItems
-	property list<Item>  rightItems
+	property list<Item> leftItems
+	property list<Item> centreItems
+	property list<Item> rightItems
 
 	anchors {
-		top: root.position === 'top'
-		bottom: root.position === 'bottom'
 		left: true
 		right: true
+		top: true
 	}
-	implicitHeight: root.height
+	screen: modelData
+	implicitHeight: GlobalVariables.controls.barHeight
 	color: "transparent"
 
-	PanelWindow { id: shadow
-		screen: root.screen
-		anchors { top:true; left: true; }
-		implicitWidth: screen.width
-		implicitHeight: 30
-		color: "transparent"
-		mask: Region {}
+	Rectangle {
+		anchors.fill: parent
+		color: GlobalVariables.colours.dark
+		opacity: 0.975
 
-		RectangularShadow {
-			anchors.fill: fill
-			spread: 4
-			blur: 12
-			color: "black"
+		// margin line
+		Rectangle {
+			anchors.bottom: parent.bottom
+			width: parent.width
+			height: 1
+			color: GlobalVariables.colours.light
 			opacity: 0.4
 		}
 
-		Rectangle { id: fill
-			width: parent.width
-			height: 1
-			color: "#20000000"
-		}
-	}
-
-	Item { id: bar
-		// anchors { horizontalCenter: parent.horizontalCenter; top: parent.bottom; }
-		width: root.width
-		height: root.height
-
-		Rectangle { id: background
-			anchors.fill: parent
-			color: root.colour
-			opacity: 0.975
-		}
-
-		RowLayout {
-			anchors { fill: parent; leftMargin: root.padding; rightMargin: root.padding; }
-
-			RowLayout { id: leftRow
-				anchors.verticalCenter: parent.verticalCenter
-				spacing: root.spacing
-			}
-
-			RowLayout { id: centreRow
-				anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter; }
-				spacing: root.spacing
-			}
-
-			RowLayout { id: rightRow
-				anchors.verticalCenter: parent.verticalCenter;
-				spacing: root.spacing
-				Item { Layout.fillWidth: true; }
-			}
-		}
-	}
-
-	Rectangle { id: roundedCornersTop
-		visible: roundCorners
-		color: "black"
-
-		anchors.top: parent.top; anchors.left: parent.left;
-
-		width: bar.width; height: cornerRadius;
-		layer.enabled: true
-		layer.effect: OpacityMask {
-			maskSource: Rectangle {
-				width: roundedCornersTop.width
-				height: roundedCornersTop.height
-				color: "transparent"
-				visible: false
-				Rectangle {
-					anchors {
-						verticalCenter: root.position === 'top' ? parent.bottom : parent.top
-						horizontalCenter: parent.verticalCenter
-					}
-					width: parent.width
-					height: cornerRadius *2
-					radius: cornerRadius
-					color: "black"
+		// round bar corners
+		Rectangle {
+			anchors.left: parent.left
+			width: GlobalVariables.controls.barHeight
+			height: width
+			color: "black"
+			layer.enabled: true
+			layer.effect: OpacityMask {
+				invert: true
+				maskSource: Rectangle {
+					width: GlobalVariables.controls.barHeight
+					height: width
+					topLeftRadius: height /3
 				}
 			}
-			invert: true
+		}
+
+		Rectangle {
+			anchors.right: parent.right
+			width: GlobalVariables.controls.barHeight
+			height: width
+			color: "black"
+			layer.enabled: true
+			layer.effect: OpacityMask {
+				invert: true
+				maskSource: Rectangle {
+					width: GlobalVariables.controls.barHeight
+					height: width
+					topRightRadius: height /3
+				}
+			}
+		}
+	}
+
+	// section bar into left, right, and centre for widget placement
+	Row { id: left
+		anchors.verticalCenter: parent.verticalCenter
+		spacing: GlobalVariables.controls.spacing
+		leftPadding: GlobalVariables.controls.padding
+	}
+
+	Row { id: centre
+		anchors {
+			centerIn: parent
+			verticalCenter: parent.verticalCenter
+		}
+		spacing: GlobalVariables.controls.spacing
+	}
+
+	Row { id: right
+		anchors {
+			right: parent.right
+			verticalCenter: parent.verticalCenter
+		}
+		rightPadding: GlobalVariables.controls.padding
+		spacing: GlobalVariables.controls.spacing
+	}
+
+	// draw shadow bellow bar outide exclusion zone
+	PanelWindow {
+		anchors {
+			left: true
+			right: true
+			top: true
+		}
+		exclusionMode: ExclusionMode.Normal
+		mask: Region {}
+		implicitHeight: 30
+		color: "transparent"
+
+		RectangularShadow {
+			anchors.fill: margin
+			spread: 0
+			blur: 30
+			opacity: 0.4
+		}
+
+		// margin line
+		Rectangle { id: margin
+			anchors.top: parent.top
+			width: parent.width
+			height: 1
+			color: GlobalVariables.colours.shadow
+			opacity: 0.4
 		}
 	}
 
 	Component.onCompleted: {
-		for (var item of leftItems) item.parent = leftRow
-		for (var item of centreItems) item.parent = centreRow
-		for (var item of rightItems) item.parent = rightRow
+		for (var item of leftItems) { item.parent = left; item.anchors.verticalCenter = left.verticalCenter; }
+		for (var item of centreItems) { item.parent = centre; item.anchors.verticalCenter = centre.verticalCenter; }
+		for (var item of rightItems) { item.parent = right; item.anchors.verticalCenter = right.verticalCenter; }
 	}
 }

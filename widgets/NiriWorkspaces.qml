@@ -1,81 +1,48 @@
-/*--------------------------------------
---- Niri workspaces widget by andrel ---
---------------------------------------*/
+/*--------------------------------------------
+--- NiriWorkspaces.qml - widgets by andrel ---
+--------------------------------------------*/
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "root:"
-import "niriWorkspaces"
+import "../"
+import "../controls"
+import "../services"
 
-Item { id: root
-	property int workspaceSelected
-	property list<string> command: ["niri", "msg", "action", "focus-workspace", workspaceSelected]	// command to run on mouse pressed
-	property string style: "pills"	// options include 'named', '2tone', 'pills', and 'custom'
-	property list<string> workspaceNames: ["一", "二", "三", "四", "五"]
-	property bool showText: pillStyle.text
-	property QtObject pillStyle: {
-		switch (style) {
-			case "named":
-				return Styles.named
-				break;
-			case "pills":
-				return Styles.pills
-				break;
-		}
-	}
+Loader { id: root
+	// get list on workspaces on this.screen
+	readonly property list<var> workspaces: NiriWorkspaces.workspaces.filter(w => w.output === screen.name)
+	// get the current active workspace for this.screen
+	readonly property int activeWorkspace: NiriWorkspaces.workspaces.length > 0? NiriWorkspaces.activeWorkspace.filter(w => w.output == screen.name).find(w => w.is_active).idx -1 : 0
 
-	implicitWidth: layout.width
-	implicitHeight: layout.height
-
-	Behavior on implicitWidth { NumberAnimation { duration: 750; easing.type: Easing.OutCirc; }}
-
-	Process { id: runCommand
-		running: false
-		command: root.command
-	}
-
-	Row { id: layout
-		anchors.verticalCenter: parent.verticalCenter
+	active: NiriWorkspaces.workspaces
+	sourceComponent: Row {
+		spacing: 6
 
 		Repeater {
-			model: NiriWorkspaces.numWorkspaces
-
-			Item {
+			model: workspaces.length
+			delegate: QsButton {
 				required property int index
 
-				anchors.verticalCenter: parent.verticalCenter
+				// get wether this.workspace is active
+				readonly property bool isActive: activeWorkspace === index
 
-				width: pill.width +6
-				height: pill.height +12
+				content: Rectangle {
+					width: isActive? 12 : 8
+					height: 8
+					radius: height /2
+					color: isActive? GlobalVariables.colours.highlightedText : GlobalVariables.colours.midlight
 
-				MouseArea { id: mouseArea
-					anchors.fill: parent
-					hoverEnabled: true
-					onClicked: event => {
-						workspaceSelected = index +1
-						runCommand.running = true
-					}
-				}
-
-				Pill { id: pill
-					anchors.centerIn: parent
-					isFocused: index === (NiriWorkspaces.focusedWorkspace -1)
-					style: pillStyle
-
-					Rectangle {
-						visible: mouseArea.containsMouse
-						anchors.fill: parent
-						radius: pill.radius
-						color: "#30000000"
-					}
-
+					// add workspace names in future
 					Text {
-						visible: showText
-						anchors.centerIn: pill
-						text: workspaceNames[index]
-						font.pixelSize: pill.height -6
+						visible: false
+						anchors.centerIn: parent
+						text: workspaces.find(w => w.idx === index +1).name
 					}
+
+					// animations on change
+					Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 				}
 			}
 		}

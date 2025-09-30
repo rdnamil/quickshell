@@ -1,6 +1,6 @@
-/*---------------------------------
---- Quickshell config by andrel ---
----------------------------------*/
+/*-------------------------
+--- shell.qml by andrel ---
+-------------------------*/
 
 //@ pragma UseQApplication
 
@@ -8,62 +8,35 @@ import QtQuick
 import Quickshell
 import "widgets"
 
-ShellRoot {
-	// editing the config starts here
-	// bars and other items can be added here
-
-	Variants {	// creates the bar on all screens
+Scope { id: root
+	// create bar on every screen
+	Variants {
 		model: Quickshell.screens
-		delegate: Bar {	// this is the default standard bar
-			required property var modelData
-			screen: modelData
-			// properties for bars and widgets can be changed from here or
-			// can be set globally from GlobalConfig.qml
-			roundCorners: true
-			spacing: 12
-			padding: 14
-
-			// widgets are listed within one of the three columns
-
-			// left column
-			// ---
+		delegate: Bar {
 			leftItems: [
-				NetworkNew {},
-				// Network {},
-				// Bluetooth {},
-				BluetoothNew {},
-				PlayerNew {}
-				// Player {}
+				Network {},
+				Bluetooth {},
+				MusicPlayer {}
+				// Caffeine {}
 			]
 
-			// center column
-			// ---
 			centreItems: [
-				// NiriWorkspaces {},
-				NiriWorkspacesNew {}
+				NiriWorkspaces {}
 			]
 
-			// right column
-			// ---
 			rightItems: [
-				// Tray {},
-				TrayNew {},
-				Separator {},
-				Caffeine {},
+				Tray {},
+				Seperator {},
 				Weather {},
-				ClockNew {},
-				// Clock { dateFormat: "ddd d"; timeFormat: "hh:mm"; },
-				// Battery {},
-				BatteryNew {},
-				// Notification {}
-				NotificationNew {}
-				// Power {}
-				// QuickCenter {}
+				Clock {},
+				Battery {},
+				NotificationTray {}
 			]
 		}
 	}
 
-	// volume and brightness OSDs
-	OSDVolume {}
-	OSDBrightness {}
+	// only show on main/active monitor
+	Notifications {}
+	Volume {}
+	Brightness {}
 }
