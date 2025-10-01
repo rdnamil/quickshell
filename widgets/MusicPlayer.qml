@@ -215,15 +215,20 @@ Loader { id: root
 						border { color: "#80000000"; width: 1; }
 						layer.enabled: true
 						layer.effect: OpacityMask {
-							maskSource: Rectangle {
+							maskSource: Item {
 								width: elapsedBar.width
 								height: elapsedBar.height
-								color: "transparent"
 
 								Rectangle {
 									anchors.left: parent.left
 									width: parent.width *elapsed
 									height: parent.height
+									gradient: Gradient {
+										orientation: Gradient.Horizontal
+										GradientStop { position: 0.0; color: "#a0000000" }
+										GradientStop { position: 0.9; color: "#a0000000" }
+										GradientStop { position: 1.0; color: "#ff000000" }
+									}
 								}
 							}
 						}
