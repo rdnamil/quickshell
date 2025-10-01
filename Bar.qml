@@ -35,7 +35,7 @@ PanelWindow { id: root
 			width: parent.width
 			height: 1
 			color: GlobalVariables.colours.light
-			opacity: 0.4
+			// opacity: 0.4
 		}
 
 		// round bar corners
@@ -103,9 +103,9 @@ PanelWindow { id: root
 			right: true
 			top: true
 		}
-		exclusionMode: ExclusionMode.Normal
+		exclusionMode: ExclusionMode.Ignore
 		mask: Region {}
-		implicitHeight: 30
+		implicitHeight: GlobalVariables.controls.barHeight +30
 		color: "transparent"
 
 		RectangularShadow {
@@ -117,11 +117,11 @@ PanelWindow { id: root
 
 		// margin line
 		Rectangle { id: margin
-			anchors.top: parent.top
+			anchors{ top: parent.top; topMargin: GlobalVariables.controls.barHeight; }
 			width: parent.width
 			height: 1
 			color: GlobalVariables.colours.shadow
-			opacity: 0.4
+			// opacity: 0.4
 		}
 	}
 

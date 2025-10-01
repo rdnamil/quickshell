@@ -9,7 +9,6 @@ import Quickshell
 import Quickshell.Io
 import "../"
 import "../services"
-import "../styles"
 
 Item { id: root
 	required property Item anchor
@@ -122,6 +121,18 @@ Item { id: root
 				blur: 30
 			}
 
+
+			// draw border around wrapper for header
+			Rectangle {
+				visible: header
+				anchors { horizontalCenter: contentHeader.horizontalCenter; top: contentHeader.top; }
+				width: contentHeader.width
+				height: contentHeader.height +2
+				radius: contentHeader.radius
+				color: GlobalVariables.colours.light
+				border { color: GlobalVariables.colours.shadow; width: 1; }
+			}
+
 			// wrapper for header
 			Rectangle { id: contentHeader
 				visible: header
@@ -130,8 +141,6 @@ Item { id: root
 				height: Math.max(header? header.height : 0, GlobalVariables.controls.radius *2)
 				radius: GlobalVariables.controls.radius
 				color: debug? "#8000ff00" : GlobalVariables.colours.window
-
-				Borders {}
 			}
 		}
 	}

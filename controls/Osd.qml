@@ -9,7 +9,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
 import "../"
-import "../styles"
 
 Item { id: root
 	required property Item content
@@ -60,8 +59,6 @@ Item { id: root
 						radius: GlobalVariables.controls.radius
 					}
 				}
-
-				Borders {}
 			}
 
 			Component.onCompleted: { content.parent = contentWrapper; }

@@ -12,7 +12,6 @@ import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import "../"
 import "../controls"
-import "../styles"
 
 Loader { id: root
 	readonly property list<MprisPlayer> players: Mpris.players.values
@@ -204,7 +203,7 @@ Loader { id: root
 				}
 				body: Column {
 					anchors.horizontalCenter: parent.horizontalCenter
-					topPadding: -GlobalVariables.controls.radius *2 +2
+					topPadding: -GlobalVariables.controls.radius *2 +4
 
 					Rectangle { id: elapsedBar
 						width: popout.windowWidth
@@ -321,7 +320,7 @@ Loader { id: root
 		// display the elapsed time of the track as a % of the total track length
 		ProgressBar {
 			Layout.fillWidth: true
-			height: 12
+			height: 10
 			progress: elapsed
 		}
 	}
