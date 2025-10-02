@@ -31,10 +31,10 @@ Item { id: root
 		width: parent.width -4
 		height: (parent.height -5) *percentage
 		radius: 1
-		color: switch (Math.round(percentage /(1 /6)) *(1 /6)) {
-			case 1 /6:
+		color: switch (Math.round((percentage *100) /10) *10) {
+			case 10:
 				return "red";
-			case 2 /6:
+			case 20 || 30:
 				return "orange";
 			default:
 				return "forestgreen";
