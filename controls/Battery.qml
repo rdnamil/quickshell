@@ -34,7 +34,9 @@ Item { id: root
 		color: switch (Math.round((percentage *100) /10) *10) {
 			case 10:
 				return "red";
-			case 20 || 30:
+			case 20:
+				return "orange";
+			case 30:
 				return "orange";
 			default:
 				return "forestgreen";

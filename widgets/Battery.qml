@@ -81,7 +81,7 @@ QsButton { id: root
 
 					Connections {
 						target: modelData
-						function onPercentageChanged() { if (modelData.percentage === 0.1 && !battery.isCharging) Notifications.notify("battery-level-10", "Quickshell", "Power", `${modelData.model}'s battery is running low.`) }
+						function onPercentageChanged() { if (modelData.percentage === 0.14 && !battery.isCharging) Notifications.notify("battery-level-10", "Quickshell", "Power", `${modelData.model}'s battery is running low.`) }
 					}
 
 					Battery { id: battery
