@@ -33,6 +33,8 @@ QsButton { id: root
 		function onEnabledChanged() { Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Bluetooth is ${Bluetooth.defaultAdapter.enabled? "enabled" : "disabled"}.`); }
 	}
 
+	Process { id: control; }
+
 	Popout { id: popout
 		anchor: root
 		header: RowLayout {
@@ -93,36 +95,16 @@ QsButton { id: root
 				delegate: QsButton { id: device
 					required property var modelData
 
-					function pair() {
-						control.command = ["bluetoothctl", "pair", modelData.address];
-						control.running = true;
-					}
-
-					function trust() {
-						control.command = ["bluetoothctl", "trust", modelData.address];
-						control.running = true;
-					}
-
-					function connect() {
-						control.command = ["bluetoothctl", "connect", modelData.address];
-						control.running = true;
-					}
-
-					function disconnect() {
-						control.command = ["bluetoothctl", "disconnect", modelData.address];
-						control.running = true;
-					}
-
 					Layout.fillWidth: true
 					Layout.preferredHeight: bodyLayout.height
 					shade: false
 					highlight: true
 					onClicked: {
-						if (!modelData.paired) device.pair();
-						if (!modelData.connected && modelData.paired) {
-							device.connect();
+						if (!modelData.paired) { control.exec(["bluetoothctl", "pair", modelData.address]); }
+						if (!modelData.connected) {
+							modelData.connect();
 						} else {
-							device.disconnect();
+							modelData.disconnect();
 						}
 					}
 					content: Row { id: bodyLayout
@@ -141,7 +123,7 @@ QsButton { id: root
 
 							Text {
 								text: modelData.name
-								color: GlobalVariables.colours.text
+								color: (modelData.state === BluetoothDeviceState.Connecting) || modelData.pairing? GlobalVariables.colours.windowText : GlobalVariables.colours.text
 								font: GlobalVariables.font.regular
 							}
 
@@ -165,7 +147,10 @@ QsButton { id: root
 						target: modelData
 
 						function onPairedChanged() {
-							if (modelData.paired) { device.connect(); device.trust(); }
+							if (modelData.paired) {
+								modelData.trusted = true;
+								modelData.bonded = true;
+							}
 						}
 
 						function onConnectedChanged() {
