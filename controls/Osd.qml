@@ -9,6 +9,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
 import "../"
+import "../styles"
 
 Item { id: root
 	required property Item content

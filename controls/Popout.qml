@@ -9,6 +9,7 @@ import Quickshell
 import Quickshell.Io
 import "../"
 import "../services"
+import "../styles"
 
 Item { id: root
 	required property Item anchor
@@ -93,6 +94,7 @@ Item { id: root
 			x: frame.width /2 -width /2
 			width: Math.max((header? header.width : 0), body.width, GlobalVariables.controls.radius *2)
 			height: (header? header.height : 0) +body.height
+			radius: GlobalVariables.controls.radius
 			color: debug? "#800000ff" : GlobalVariables.colours.dark
 			transform: Translate { id: windowTranslate }
 			layer.enabled: true

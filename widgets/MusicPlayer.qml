@@ -194,7 +194,7 @@ Loader { id: root
 							anchors.horizontalCenter: parent.horizontalCenter
 							width: 200
 							content: Text {
-								text: activePlayer.trackArtist
+								text: activePlayer.trackArtist || "---"
 								color: GlobalVariables.colours.windowText
 								font: GlobalVariables.font.smaller
 							}

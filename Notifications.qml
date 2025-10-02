@@ -117,7 +117,7 @@ PanelWindow { id: root
 							// expiration timer
 							Rectangle {
 								Layout.fillWidth: true
-								height: 3
+								height: 1
 								color: GlobalVariables.colours.accent
 
 								NumberAnimation on width { id: timeoutAnim

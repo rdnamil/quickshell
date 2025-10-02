@@ -32,7 +32,7 @@ Singleton { id: root
 	signal allRead()
 
 	function notify(icon, name, summary, body) {
-		control.exec(["notify-send", "-i", icon, "-a", name, summary, body])
+		control.exec(["notify-send", "-i", icon, "-a", name, summary, body]);
 	}
 
 	Process { id: control; }
