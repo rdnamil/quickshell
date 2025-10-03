@@ -37,6 +37,7 @@ QsButton { id: root
 		if (!popout.isOpen) Network.updateWirelessNetworks();
 		popout.toggle();
 	}
+	onMiddleClicked: Network.radio(!Network.status?.radio);
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: {

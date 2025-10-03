@@ -16,6 +16,7 @@ QsButton { id: root
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
+	onMiddleClicked: Bluetooth.defaultAdapter.enabled = !Bluetooth.defaultAdapter.enabled;
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: {

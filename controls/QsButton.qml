@@ -18,6 +18,7 @@ Item { id: root
 
 	signal pressed()
 	signal clicked()
+	signal middleClicked()
 	signal mouseEntered()
 	signal mouseExited()
 	signal animMean()
@@ -55,14 +56,23 @@ Item { id: root
 		width: root.width +4
 		height: root.height +4
 		hoverEnabled: true
-		onPressed: {
-			if (anim) {
-				pressedAnim.start();
-			} else root.clicked();
-			root.pressed();
+		acceptedButtons: Qt.AllButtons
+		onPressed: (mouse) => {
+			switch (mouse.button) {
+				case Qt.LeftButton: {
+					if (root.anim) {
+						pressedAnim.start();
+					} else root.clicked();
+
+					root.pressed();
+					break;
+				}
+				case Qt.MiddleButton:
+					root.middleClicked();
+					break;
+			}
 		}
 		onReleased: if (anim) releasedAnim.start();
-		onClicked: (mouse) => { if (mouse.button === Qt.MiddleButton) root.middleClicked(); }
 		onEntered: root.mouseEntered();
 		onExited: root.mouseExited();
 	}
