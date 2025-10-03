@@ -13,6 +13,7 @@ Singleton { id: root
 	readonly property bool radioState: status?.radio || false
 
 	property list<var> wirelessNetworks: []
+	property list<var> savedNetworks: []
 	property var status: []
 
 	function controlNm(command) {
@@ -70,6 +71,24 @@ Singleton { id: root
 					connectivity: parts[3],
 					radio: parts[4].trim() === "enabled"
 				};
+			}
+		}
+	}
+
+	// get a list of saved networks
+	Process { id: getSavedNetworks
+		running: true
+		command: ["nmcli", "-t", "-f", "NAME,TYPE", "c", "s"]
+		stdout: StdioCollector {
+			onStreamFinished: {
+				savedNetworks = text.trim().split("\n").map(line => {
+					const parts = line.split(":");
+
+					return {
+						ssid: parts[0],
+						type: parts[1]
+					}
+				});
 			}
 		}
 	}
