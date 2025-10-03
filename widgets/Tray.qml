@@ -122,7 +122,7 @@ Row { id: root
 											visible: modelData.buttonType === QsMenuButtonType.CheckBox
 											anchors.fill: parent
 											radius: 3
-											color: modelData.checkState !== Qt.Unchecked? GlobalVariables.colours.accent :  GlobalVariables.colours.midlight
+											color: modelData.checkState !== Qt.Unchecked? GlobalVariables.colours.accent : GlobalVariables.colours.midlight
 
 											Rectangle {
 												visible: modelData.checkState !== Qt.Unchecked
@@ -147,7 +147,7 @@ Row { id: root
 											visible: modelData.buttonType === QsMenuButtonType.RadioButton
 											anchors.fill: parent
 											radius: height /2
-											color: modelData.checkState !== Qt.Unchecked? GlobalVariables.colours.accent :  GlobalVariables.colours.midlight
+											color: modelData.checkState !== Qt.Unchecked? GlobalVariables.colours.accent : GlobalVariables.colours.midlight
 
 											Rectangle {
 												visible: modelData.checkState !== Qt.Unchecked
