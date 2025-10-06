@@ -125,8 +125,8 @@ QsButton { id: root
 								visible: modelData.image || modelData.appIcon
 								Layout.leftMargin: GlobalVariables.controls.padding
 								Layout.rightMargin: 0
-								Layout.preferredWidth: modelData.image? 52 : 24
-								Layout.preferredHeight: modelData.image? 39 : 24
+								Layout.preferredWidth: modelData.image? 40 : 24
+								Layout.preferredHeight: modelData.image? 40 : 24
 								fillMode: Image.PreserveAspectFit
 								source: modelData.image || Quickshell.iconPath(modelData.appIcon, true) || modelData.appIcon
 							}
