@@ -36,10 +36,10 @@ Singleton { id: root
 	onNetworkStateChanged: {
 		if (networkState === "connected") {
 			getWirelessNetworks.running = true;
-			Notifications.notify("network", "Quickshell", "network", `Wireless is ${networkState} to ${status.connection}.`);
+			Notifications.notify("network", "Quickshell", "Network", `Wireless is ${networkState} to ${status.connection}.`);
 		} else if (networkState.startsWith("connected")) {
 			getWirelessNetworks.running = true
-			Notifications.notify("network", "Quickshell", "network", `Wireless is ${networkState}.`)
+			Notifications.notify("network", "Quickshell", "Network", `Wireless is ${networkState}.`)
 		}
 	}
 	onRadioStateChanged: {
