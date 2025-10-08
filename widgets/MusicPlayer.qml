@@ -174,6 +174,13 @@ Loader { id: root
 								}
 							}
 						}
+
+						Text {
+							anchors.centerIn: parent
+							text: activePlayer.trackArtUrl
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
 					}
 
 					Column {
@@ -240,7 +247,8 @@ Loader { id: root
 
 						// time elapsed
 						Text {
-							anchors.top: parent.top
+							// anchors.top: parent.top
+							Layout.alignment: Qt.AlignTop
 							text: formatTime(parseInt(activePlayer.position))
 							color: GlobalVariables.colours.windowText
 							font: GlobalVariables.font.monosmaller
@@ -252,7 +260,8 @@ Loader { id: root
 						// media control buttons
 						// go previous
 						QsButton {
-							anchors.verticalCenter: parent.verticalCenter
+							// anchors.verticalCenter: parent.verticalCenter
+							Layout.alignment: Qt.AlignVCenter
 							onClicked: activePlayer.previous();
 							content: IconImage {
 								implicitSize: 24
@@ -262,7 +271,8 @@ Loader { id: root
 
 						// toggle playing
 						QsButton {
-							anchors.verticalCenter: parent.verticalCenter
+							// anchors.verticalCenter: parent.verticalCenter
+							Layout.alignment: Qt.AlignVCenter
 							onClicked: activePlayer.togglePlaying();
 							content: IconImage {
 								implicitSize: 40
@@ -272,7 +282,8 @@ Loader { id: root
 
 						// go forward
 						QsButton {
-							anchors.verticalCenter: parent.verticalCenter
+							// anchors.verticalCenter: parent.verticalCenter
+							Layout.alignment: Qt.AlignVCenter
 							onClicked: activePlayer.next();
 							content: IconImage {
 								implicitSize: 24
@@ -284,7 +295,8 @@ Loader { id: root
 
 						// time remaining
 						Text {
-							anchors.top: parent.top
+							// anchors.top: parent.top
+							Layout.alignment: Qt.AlignTop
 							text: `-${formatTime(parseInt(activePlayer.length -parseInt(activePlayer.position)))}`
 							color: GlobalVariables.colours.windowText
 							font: GlobalVariables.font.monosmaller
