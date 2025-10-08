@@ -14,6 +14,7 @@ import "../"
 import "../controls"
 
 Loader { id: root
+	readonly property real playerWidth: 240
 	readonly property list<MprisPlayer> players: Mpris.players.values
 	readonly property MprisPlayer activePlayer: { if (players.length > 0){
 		// prefer spotify if it's playing
@@ -35,6 +36,7 @@ Loader { id: root
 		return players[players.length - 1];
 	} else return null; }
 
+	width: active? playerWidth : 0
 	active: activePlayer
 	sourceComponent: RowLayout {
 		readonly property real elapsed: activePlayer.position /activePlayer.length
@@ -48,7 +50,7 @@ Loader { id: root
 			return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
 		}
 
-		width: activePlayer.trackTitle? 240 : 0
+		width: activePlayer.trackTitle? playerWidth : 0
 		spacing: 4
 		clip: true
 

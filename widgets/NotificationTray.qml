@@ -26,6 +26,7 @@ QsButton { id: root
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
+	onMiddleClicked: Notifications.dnd = !Notifications.dnd;
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: {
