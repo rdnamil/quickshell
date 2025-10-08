@@ -174,13 +174,6 @@ Loader { id: root
 								}
 							}
 						}
-
-						Text {
-							anchors.centerIn: parent
-							text: activePlayer.trackArtUrl
-							color: GlobalVariables.colours.text
-							font: GlobalVariables.font.regular
-						}
 					}
 
 					Column {
