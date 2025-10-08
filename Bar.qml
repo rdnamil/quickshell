@@ -103,9 +103,10 @@ PanelWindow { id: root
 			right: true
 			top: true
 		}
+		margins.top: GlobalVariables.controls.barHeight
 		exclusionMode: ExclusionMode.Ignore
 		mask: Region {}
-		implicitHeight: GlobalVariables.controls.barHeight +30
+		implicitHeight: 30
 		color: "transparent"
 
 		RectangularShadow {
@@ -117,7 +118,6 @@ PanelWindow { id: root
 
 		// margin line
 		Rectangle { id: margin
-			anchors{ top: parent.top; topMargin: GlobalVariables.controls.barHeight; }
 			width: parent.width
 			height: 1
 			color: GlobalVariables.colours.shadow
