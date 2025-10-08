@@ -1,6 +1,8 @@
 # Quickshell
 My waybar inspired quickshell config.
 
+![screenshot](resources/Screenshot_001)
+
 ## About
 A minimalist and customizable quickshell config inspired by waybar.
 ### Features
