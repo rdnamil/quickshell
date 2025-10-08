@@ -18,7 +18,8 @@ Scope { id: root
 				Bluetooth {},
 				MusicPlayer {},
 				// Caffeine {}
-				Audio {}
+				Audio {},
+				Shazam {}
 			]
 
 			centreItems: [
