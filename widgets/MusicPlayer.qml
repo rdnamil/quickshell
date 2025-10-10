@@ -196,9 +196,9 @@ Loader { id: root
 							anchors.horizontalCenter: parent.horizontalCenter
 							width: 200
 							content: Text {
-								text: activePlayer.trackArtist || "---"
+								text: activePlayer.trackArtist || "Unknown Artist"
 								color: GlobalVariables.colours.windowText
-								font: GlobalVariables.font.smaller
+								font: activePlayer.trackArtist? GlobalVariables.font.smaller : GlobalVariables.font.smalleritalics
 							}
 						}
 					}

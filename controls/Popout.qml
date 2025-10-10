@@ -75,7 +75,7 @@ Item { id: root
 		}
 		anchor {
 			item: root;
-			rect{ x: root.width /2 -width /2; y: root.height; }	// prefer window center horizontally to anchor and bellow bar
+			rect { x: root.width /2 -width /2; y: root.height; } // prefer window center horizontally to anchor and bellow bar
 		}
 		implicitWidth: window.width +60
 		implicitHeight: window.height +60

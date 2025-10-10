@@ -51,6 +51,12 @@ Singleton { id: root
 			weight: 600,
 			letterSpacing: 0.5
 		})
+		readonly property font smalleritalics: Qt.font({
+			family: "Adwaita Sans",
+			pointSize: 6,
+			letterSpacing: 0.5,
+			italic: true
+		})
 		readonly property font monosmaller: Qt.font({
 			family: "Adwaita Sans Mono",
 			pointSize: 6,
