@@ -14,9 +14,17 @@ QsButton { id: root
 	anim: false
 	shade: false
 	onClicked: Shazam.searching? Shazam.stopShazaming() : Shazam.shazam();
-	content: IconImage { id: content
-		implicitSize: GlobalVariables.controls.iconSize
-		source: Quickshell.iconPath("deezer")
+	content: Item { id: content
+		width: GlobalVariables.controls.iconSize
+		height: width
+
+		Image { id: icon
+			anchors.fill: parent
+			fillMode: Image.PreserveAspectFit
+			source: "resources/shazam.png"
+			layer.enabled: true
+			layer.effect: ColorOverlay { color: GlobalVariables.colours.light; }
+		}
 
 		Rectangle {
 			visible: Shazam.searching
@@ -25,9 +33,10 @@ QsButton { id: root
 			opacity: 0.7
 			layer.enabled: true
 			layer.effect: OpacityMask {
-				maskSource: IconImage {
-					implicitSize: GlobalVariables.controls.iconSize
-					source: content.source
+				maskSource: Image {
+					width: content.width
+					height: width
+					source: icon.source
 				}
 			}
 		}
