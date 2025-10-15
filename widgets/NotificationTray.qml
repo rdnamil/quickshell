@@ -99,7 +99,7 @@ QsButton { id: root
 				Item { Layout.preferredHeight: 1; }
 
 				Repeater { id: notifications
-					model: Notifications.server.trackedNotifications
+					model: ScriptModel { id: notificationsModel; values: Notifications.server.trackedNotifications.values.slice().reverse(); }
 					delegate: QsButton {
 						required property var modelData
 						required property int index
@@ -181,7 +181,7 @@ QsButton { id: root
 	}
 
 	Connections {
-		target: Notifications.server.trackedNotifications
+		target: notificationsModel
 		function onValuesChanged() { if (popout.isOpen) Notifications.allRead(); }
 	}
 }
