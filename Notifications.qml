@@ -93,9 +93,11 @@ PanelWindow { id: root
 						}
 						timeoutAnim.complete();
 					}
-					content: Item {
+					content: Rectangle {
 						width: GlobalVariables.controls.notificationWidth
 						height: notificationLayout.height
+						radius: GlobalVariables.controls.radius
+						color: GlobalVariables.colours.mid
 						layer.enabled: true
 						layer.effect: OpacityMask {
 							maskSource: Rectangle {
@@ -105,18 +107,14 @@ PanelWindow { id: root
 							}
 						}
 
-						Rectangle {
-							anchors.fill: parent
-							color: GlobalVariables.colours.mid
-						}
-
 						ColumnLayout { id: notificationLayout
 							width: parent.width
 							spacing: 0
 
 							// expiration timer
 							Rectangle {
-								Layout.fillWidth: true
+								Layout.leftMargin: GlobalVariables.controls.radius -3
+								width: content.width -GlobalVariables.controls.radius *2 +6
 								height: 1
 								color: GlobalVariables.colours.accent
 
