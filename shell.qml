@@ -14,12 +14,12 @@ Scope { id: root
 		model: Quickshell.screens
 		delegate: Bar {
 			leftItems: [
-				Network {},
-				Bluetooth {},
-				MusicPlayer {},
-				// Caffeine {}
-				Audio {},
-				Shazam {}
+				Network {}
+				,Bluetooth {}
+				,MusicPlayer {}
+				// ,Caffeine {}
+				,Audio {}
+				// ,Shazam {}
 			]
 
 			centreItems: [
@@ -27,12 +27,12 @@ Scope { id: root
 			]
 
 			rightItems: [
-				Tray {},
-				Seperator {},
-				Weather {},
-				Clock {},
-				Battery {},
-				NotificationTray {}
+				Tray {}
+				,Seperator {}
+				,Weather {}
+				,Clock {}
+				,Battery {}
+				,NotificationTray {}
 			]
 		}
 	}
