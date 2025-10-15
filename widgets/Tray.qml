@@ -11,7 +11,7 @@ import ".."
 import "../controls"
 
 Row { id: root
-	spacing: 3	// spacing for tray items
+	spacing: GlobalVariables.controls.spacing /2	// spacing for tray items
 
 	Repeater {
 		model: SystemTray.items

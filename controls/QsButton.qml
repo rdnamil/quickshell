@@ -15,6 +15,7 @@ Item { id: root
 	property bool anim: true
 	property bool shade: true
 	property bool highlight: false
+	property bool debug
 
 	signal pressed()
 	signal clicked()
@@ -26,6 +27,8 @@ Item { id: root
 	width: content.width
 	height: content.height
 	transform: Translate { id: rootTranslate; }
+
+
 
 	Rectangle {
 		anchors.centerIn: parent
@@ -75,6 +78,12 @@ Item { id: root
 		onReleased: if (anim) releasedAnim.start();
 		onEntered: root.mouseEntered();
 		onExited: root.mouseExited();
+
+		Rectangle {
+			visible: debug
+			anchors.fill: parent
+			color: "#4000ff00"
+		}
 	}
 
 	PropertyAnimation { id: pressedAnim
