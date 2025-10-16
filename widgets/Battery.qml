@@ -17,13 +17,10 @@ QsButton { id: root
 	shade: false
 	onClicked: popout.toggle();
 	content: Item {
-
 		width: isLaptopBattery? icon.height : icon.width
 		height: isLaptopBattery? icon.width : icon.height
 
 		Battery { id: icon
-			// visible: UPower.displayDevice.isLaptopBattery
-
 			anchors.centerIn: parent
 			height: isLaptopBattery? 20 : 16
 			width: isLaptopBattery? 12 : 10
