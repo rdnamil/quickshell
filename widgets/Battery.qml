@@ -11,20 +11,26 @@ import "../services"
 import "../controls"
 
 QsButton { id: root
+	readonly property bool isLaptopBattery: UPower.displayDevice.isLaptopBattery
+
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
 	content: Item {
-		width: icon.height
-		height: icon.width
+
+		width: isLaptopBattery? icon.height : icon.width
+		height: isLaptopBattery? icon.width : icon.height
 
 		Battery { id: icon
+			// visible: UPower.displayDevice.isLaptopBattery
+
 			anchors.centerIn: parent
-			height: 20
-			width: 12
-			rotation: 90
-			percentage: UPower.displayDevice.percentage
-			isCharging: !UPower.onBattery
+			height: isLaptopBattery? 20 : 16
+			width: isLaptopBattery? 12 : 10
+			rotation: isLaptopBattery? 90 : 0
+			percentage: isLaptopBattery? UPower.displayDevice.percentage : 1.0
+			isCharging: isLaptopBattery? !UPower.onBattery : false
+			material: !isLaptopBattery
 		}
 	}
 
