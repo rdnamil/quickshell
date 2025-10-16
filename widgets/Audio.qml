@@ -4,6 +4,7 @@
 
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
@@ -62,65 +63,56 @@ IconImage { id: root
 
 	Popout { id: popout
 		anchor: root
-		body: RowLayout {
+		body: ColumnLayout {
 			spacing: GlobalVariables.controls.spacing
 
 			// padding element
-			Item { Layout.preferredWidth: 1; }
+			Item { Layout.preferredHeight: 1; }
 
 			Repeater {
 				model: Pipewire.nodes.values.filter(n => n.isSink && n.description)
-				delegate: QsButton {
+				delegate: ColumnLayout {
 					required property var modelData
 
-					Layout.fillHeight: true
-					shade: false
-					highlight: true
-					onPressed: Pipewire.preferredDefaultAudioSink = modelData;
-					content: Column {
-						topPadding: GlobalVariables.controls.padding
-						bottomPadding: GlobalVariables.controls.padding
-						spacing: GlobalVariables.controls.spacing
+					Layout.fillWidth: true
 
-						// radio button shows default adiosink
-						Rectangle {
-							readonly property bool isDefaultAudioSink: modelData.id === Pipewire.defaultAudioSink.id
+					QsButton {
+						Layout.fillWidth: true
 
-							width: GlobalVariables.controls.iconSize
-							height: width
-							radius: height /2
-							color: isDefaultAudioSink? GlobalVariables.colours.accent : GlobalVariables.colours.midlight
+						shade: false
+						highlight: true
+						onPressed: Pipewire.preferredDefaultAudioSink = modelData;
+						content: Row {
+							leftPadding: GlobalVariables.controls.padding
+							rightPadding: GlobalVariables.controls.padding
+							spacing: GlobalVariables.controls.spacing
 
-							Rectangle {
-								visible: parent.isDefaultAudioSink
-								anchors.centerIn: parent
-								width: parent.width *0.5
-								height: width
-								radius: height /2
-								color: GlobalVariables.colours.text
+							QsStateButton {
+								checkState: modelData.id === Pipewire.defaultAudioSink.id? Qt.Checked : Qt.Unchecked
 							}
-						}
-
-						// rotated text
-						// pipewire node description
-						Item {
-							width: node.height
-							height: node.width
 
 							Text { id: node
-								anchors.centerIn: parent
 								text: modelData.description
 								color: GlobalVariables.colours.text
 								font: GlobalVariables.font.small
-								rotation: 270
 							}
 						}
+					}
+
+					Slider {
+						Layout.leftMargin: GlobalVariables.controls.padding
+						Layout.rightMargin: GlobalVariables.controls.padding
+						Layout.fillWidth: true
+						from: 0
+						to: 1
+						value: modelData.audio.volume
+						onMoved: modelData.audio.volume = value
 					}
 				}
 			}
 
 			// padding element
-			Item { Layout.preferredWidth: 1; }
+			Item { Layout.preferredHeight: 1; }
 		}
 	}
 }
