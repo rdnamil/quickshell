@@ -16,11 +16,13 @@ PanelWindow { id: root
 	property list<Item> centreItems
 	property list<Item> rightItems
 
+	screen: modelData
 	anchors {
 		left: true
 		right: true
 		top: true
 	}
+	exclusionMode: ExclusionMode.Ignore
 	mask: Region {}
 	implicitHeight: parent.height +30
 	color: "transparent"
@@ -53,8 +55,7 @@ PanelWindow { id: root
 			right: true
 			top: true
 		}
-		screen: modelData
-		mask: Region { item: }
+		mask: Region { item: bar; }
 		implicitHeight: GlobalVariables.controls.barHeight +GlobalVariables.controls.spacing
 		color: "transparent"
 
