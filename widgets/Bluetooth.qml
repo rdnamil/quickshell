@@ -1,6 +1,6 @@
-/*-----------------------------
---- Bluetooth.qml by andrel ---
------------------------------*/
+/*---------------------------------------
+--- Bluetooth.qml - widgets by andrel ---
+---------------------------------------*/
 
 import QtQuick
 import QtQuick.Layouts
@@ -13,6 +13,11 @@ import "../services"
 import "../controls"
 
 QsButton { id: root
+	function pair(address) { Quickshell.execDetached(["bluetoothctl", "pair", address]); }
+	function connect(address) { Quickshell.execDetached(["bluetoothctl", "connect", address]); }
+	function disconnect(address) { Quickshell.execDetached(["bluetoothctl", "disconnect", address]); }
+	function trust(adrress) { Quickshell.execDetached(["bluetoothctl", "trust", address]); }
+
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
@@ -29,6 +34,7 @@ QsButton { id: root
 		}
 	}
 
+	// notify on adapter enabled changed
 	Connections {
 		target: Bluetooth.defaultAdapter
 		function onEnabledChanged() { Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Bluetooth is ${Bluetooth.defaultAdapter.enabled? "enabled" : "disabled"}.`); }
@@ -101,11 +107,11 @@ QsButton { id: root
 					shade: false
 					highlight: true
 					onClicked: {
-						if (!modelData.paired) { control.exec(["bluetoothctl", "pair", modelData.address]); }
+						if (!modelData.paired) { root.pair(modelData.address); return; }
 						if (!modelData.connected) {
-							modelData.connect();
+							root.connect(modelData.address);
 						} else {
-							modelData.disconnect();
+							root.disconnect(modelData.address);
 						}
 					}
 					content: Row { id: bodyLayout
@@ -124,7 +130,7 @@ QsButton { id: root
 
 							Text {
 								text: modelData.name
-								color: (modelData.state === BluetoothDeviceState.Connecting) || modelData.pairing? GlobalVariables.colours.windowText : GlobalVariables.colours.text
+								color: (modelData.state === (BluetoothDeviceState.Connecting ||  BluetoothDeviceState.Disconnecting)) || modelData.pairing? GlobalVariables.colours.windowText : GlobalVariables.colours.text
 								font: GlobalVariables.font.regular
 							}
 
@@ -147,13 +153,15 @@ QsButton { id: root
 					Connections {
 						target: modelData
 
+						// connect to and trust device once paired
 						function onPairedChanged() {
 							if (modelData.paired) {
-								modelData.trusted = true;
-								modelData.bonded = true;
+								root.connect(modelData.address);
+								root.trust(modelData.address);
 							}
 						}
 
+						// send notification on device status changed
 						function onConnectedChanged() {
 							if (modelData.connected) {
 								Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Connected to ${modelData.name}.`);
