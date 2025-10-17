@@ -13,11 +13,6 @@ import "../services"
 import "../controls"
 
 QsButton { id: root
-	function pair(address) { Quickshell.execDetached(["bluetoothctl", "pair", address]); }
-	function connect(address) { Quickshell.execDetached(["bluetoothctl", "connect", address]); }
-	function disconnect(address) { Quickshell.execDetached(["bluetoothctl", "disconnect", address]); }
-	function trust(adrress) { Quickshell.execDetached(["bluetoothctl", "trust", address]); }
-
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
@@ -107,11 +102,12 @@ QsButton { id: root
 					shade: false
 					highlight: true
 					onClicked: {
-						if (!modelData.paired) { root.pair(modelData.address); return; }
-						if (!modelData.connected) {
-							root.connect(modelData.address);
+						if (!modelData.paired) {
+							Quickshell.execDetached(["bluetoothctl", "pair", modelData.address]);
+						} else if (!modelData.connected) {
+							Quickshell.execDetached(["bluetoothctl", "connect", modelData.address]);
 						} else {
-							root.disconnect(modelData.address);
+							Quickshell.execDetached(["bluetoothctl", "disconnect", modelData.address]);
 						}
 					}
 					content: Row { id: bodyLayout
@@ -145,7 +141,7 @@ QsButton { id: root
 								visible: !modelData.connected
 								text: modelData.address
 								color: GlobalVariables.colours.windowText
-								font: GlobalVariables.font.smaller
+								font: GlobalVariables.font.monosmaller
 							}
 						}
 					}
@@ -156,8 +152,8 @@ QsButton { id: root
 						// connect to and trust device once paired
 						function onPairedChanged() {
 							if (modelData.paired) {
-								root.connect(modelData.address);
-								root.trust(modelData.address);
+								Quickshell.execDetached(["bluetoothctl", "connect", modelData.address]);
+								Quickshell.execDetached(["bluetoothctl", "trust", modelData.address]);
 							}
 						}
 
