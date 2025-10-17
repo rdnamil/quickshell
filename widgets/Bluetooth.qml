@@ -1,6 +1,6 @@
-/*---------------------------------------
---- Bluetooth.qml - widgets by andrel ---
----------------------------------------*/
+/*-----------------------------
+--- Bluetooth.qml - widgets ---
+-----------------------------*/
 
 import QtQuick
 import QtQuick.Layouts
