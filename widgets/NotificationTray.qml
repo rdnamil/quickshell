@@ -137,22 +137,13 @@ QsButton { id: root
 								Layout.leftMargin: image.visible? 0 : GlobalVariables.controls.padding
 								Layout.rightMargin: GlobalVariables.controls.padding
 
-								Flow {
+								// app name and summary
+								Text {
 									width: parent.width
-
-									// app name
-									Text {
-										text: `${modelData.appName || modelData.desktopEntry} ⏵ `
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.smallbold
-									}
-
-									// notification summary
-									Text {
-										text: modelData.summary
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.smallsemibold
-									}
+									text: `<b>${modelData.appName || modelData.desktopEntry} ⏵</b> ${modelData.summary}`
+									wrapMode: Text.Wrap
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.smallsemibold
 								}
 
 								// body text

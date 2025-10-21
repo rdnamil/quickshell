@@ -143,22 +143,13 @@ PanelWindow { id: root
 								Column {
 									Layout.fillWidth: true
 
-									Flow {
+									// app name and summary
+									Text {
 										width: parent.width
-
-										// app name
-										Text {
-											text: `${model.appName || model.desktopEntry} ⏵ `
-											color: GlobalVariables.colours.text
-											font: GlobalVariables.font.smallbold
-										}
-
-										// notification summary
-										Text {
-											text: model.summary
-											color: GlobalVariables.colours.text
-											font: GlobalVariables.font.smallsemibold
-										}
+										text: `<b>${model.appName || model.desktopEntry} ⏵</b> ${model.summary}`
+										wrapMode: Text.Wrap
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.smallsemibold
 									}
 
 									// body text
