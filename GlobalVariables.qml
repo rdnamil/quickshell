@@ -15,6 +15,7 @@ Singleton { id: root
 		readonly property int barHeight: 32
 		readonly property int iconSize: 16
 		readonly property int notificationWidth: 320
+		readonly property string terminal: "ghostty"
 	}
 	readonly property QtObject font: QtObject {
 		readonly property font regular: Qt.font({
@@ -31,6 +32,10 @@ Singleton { id: root
 			pointSize: 10,
 			weight: 800
 		})
+		readonly property font mono: Qt.font({
+			family: "JetBrainsMono Nerd Font",
+			pointSize: 10
+		})
 		readonly property font small: Qt.font({
 			family: "Adwaita Sans",
 			pointSize: 8
@@ -45,6 +50,10 @@ Singleton { id: root
 			pointSize: 8,
 			weight: 800
 		})
+		readonly property font monosmall: Qt.font({
+			family: "JetBrainsMono Nerd Font",
+			pointSize: 8,
+		})
 		readonly property font smaller: Qt.font({
 			family: "Adwaita Sans",
 			pointSize: 6,
@@ -58,7 +67,7 @@ Singleton { id: root
 			italic: true
 		})
 		readonly property font monosmaller: Qt.font({
-			family: "Adwaita Sans Mono",
+			family: "JetBrainsMono Nerd Font",
 			pointSize: 6,
 			weight: 600,
 			letterSpacing: 0.5

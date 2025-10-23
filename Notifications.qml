@@ -93,7 +93,7 @@ PanelWindow { id: root
 						}
 						timeoutAnim.complete();
 					}
-					content: Rectangle {
+					content: Rectangle { id: content
 						width: GlobalVariables.controls.notificationWidth
 						height: notificationLayout.height
 						radius: GlobalVariables.controls.radius
