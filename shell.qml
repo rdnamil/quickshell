@@ -17,7 +17,6 @@ Scope { id: root
 				Network {}
 				,Bluetooth {}
 				,MusicPlayer {}
-				// ,Caffeine {}
 				,Audio {}
 				// ,Shazam {}
 			]
@@ -28,6 +27,8 @@ Scope { id: root
 
 			rightItems: [
 				Tray {}
+				,NotifyUpdate {}
+				,Caffeine {}
 				,Seperator {}
 				,Weather {}
 				,Clock {}
