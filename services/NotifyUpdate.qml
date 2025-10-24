@@ -11,21 +11,20 @@ import Quickshell.Io
 Singleton { id: root
 	property list<var> updates: []
 
-	function refresh() { getUpdates.running = true; timer.restart(); }
+	function refresh() { getPacmanUpdates.running = true; timer.restart(); }
 
 	Process { id: getPacmanUpdates
 		running: true
-		command: ["sh", "-c", 'pacman -Sl | grep "$(yay -Qqu)" | grep "installed:"']
+		command: ["checkupdates"]
 		stdout: StdioCollector {
 			onStreamFinished: {
 				updates = text.trim().split("\n").map(line => {
 					const parts = line.split(/\s+/);
 
 					return {
-						repo: parts[0],
-						package: parts[1],
-						newVersion: parts[2],
-						oldVersion: parts[4].replace("]", "")
+						package: parts[0],
+						oldVersion: parts[1],
+						newVersion: parts[3]
 					}
 				});
 
@@ -43,7 +42,6 @@ Singleton { id: root
 					const parts = line.split(/\s+/);
 
 					return {
-						repo: "aur",
 						package: parts[0],
 						oldVersion: parts[1],
 						newVersion: parts[3]
@@ -59,6 +57,6 @@ Singleton { id: root
 		running: true
 		repeat: true
 		interval: 36 **(10 *5)
-		onTriggered: getUpdates.running = true;
+		onTriggered: getPacmanUpdates.running = true;
 	}
 }

@@ -74,12 +74,27 @@ QsButton { id: root
 			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
 			ColumnLayout { id: updates
+				Layout.preferredWidth: 128
 				spacing: 0
 
 				Item { Layout.preferredHeight: 1; }
 
+				Item {
+					visible: !(NotifyUpdate.updates.filter(u => u.package).length >0)
+					Layout.preferredWidth: 128
+					Layout.preferredHeight: 24
+					Layout.margins: 2
+
+					Text {
+						anchors.centerIn: parent
+						text: "Nothing to do."
+						color: GlobalVariables.colours.light
+						font: GlobalVariables.font.regular
+					}
+				}
+
 				Repeater { id: repeater
-					model: NotifyUpdate.updates
+					model: NotifyUpdate.updates.filter(u => u.package)
 					delegate: Rectangle {
 						required property var modelData
 						required property int index
@@ -91,6 +106,8 @@ QsButton { id: root
 
 						Row { id: update
 							x: GlobalVariables.controls.padding
+							topPadding: 1
+							bottomPadding: 1
 							spacing: GlobalVariables.controls.spacing
 
 							Text {
@@ -103,7 +120,7 @@ QsButton { id: root
 
 							Column {
 								Text {
-									text: `<font color="powderblue">${modelData.repo}/</font><b>${modelData.package}</b>`
+									text: `<b>${modelData.package}</b>`
 									color: GlobalVariables.colours.text
 									font: GlobalVariables.font.monosmall
 								}
