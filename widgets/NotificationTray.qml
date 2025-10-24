@@ -98,6 +98,20 @@ QsButton { id: root
 				// top padding element
 				Item { Layout.preferredHeight: 1; }
 
+				Item {
+					visible: !(Notifications.server.trackedNotifications.values.length >0)
+					Layout.fillWidth: true
+					Layout.preferredHeight: 24
+					Layout.margins: 2
+
+					Text {
+						anchors.centerIn: parent
+						text: "Nothing to do."
+						color: GlobalVariables.colours.light
+						font: GlobalVariables.font.regular
+					}
+				}
+
 				Repeater { id: notifications
 					model: ScriptModel { id: notificationsModel; values: Notifications.server.trackedNotifications.values.slice().reverse(); }
 					delegate: QsButton {
