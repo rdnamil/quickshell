@@ -25,7 +25,13 @@ Row { id: root
 			onClicked: popout.toggle();
 			content: IconImage {
 				implicitSize: GlobalVariables.controls.iconSize
-				source: modelData.icon
+				// source: modelData.icon
+				source: switch (modelData.id) {
+					case "chrome_status_icon_1":
+						return Quickshell.iconPath("discord")
+					default:
+						return modelData.icon
+				}
 			}
 
 			QsMenuOpener { id: menu
