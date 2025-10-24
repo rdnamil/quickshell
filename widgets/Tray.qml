@@ -28,7 +28,7 @@ Row { id: root
 				// source: modelData.icon
 				source: switch (modelData.id) {
 					case "chrome_status_icon_1":
-						return Quickshell.iconPath("discord")
+						return Quickshell.iconPath("discord", true) || modelData.icon
 					default:
 						return modelData.icon
 				}
