@@ -66,10 +66,23 @@ IconImage { id: root
 	Popout { id: popout
 		anchor: root
 		onIsOpenChanged: if (!popout.isOpen) dropdown.close();
-		header: RowLayout {
+		header: RowLayout { id: headerContent
+			spacing: GlobalVariables.controls.spacing
+
+			IconImage {
+				Layout.alignment: Qt.AlignVCenter
+				Layout.margins: GlobalVariables.controls.padding
+				Layout.rightMargin: 0
+
+				implicitSize: GlobalVariables.controls.iconSize
+				source: Quickshell.iconPath("audio-card")
+			}
+
 			QsDropdown { id: dropdown
-				Layout.preferredWidth: content.width
+				Layout.alignment: Qt.AlignVCenter
+				Layout.preferredWidth: settingsWidth
 				Layout.margins: 2
+				Layout.leftMargin: 0
 				options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
 				selection: Pipewire.defaultAudioSink.description
 				onSelectionChanged: Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === selection)
@@ -77,8 +90,8 @@ IconImage { id: root
 		}
 		body: ColumnLayout { id: content
 			Slider {
-				Layout.fillWidth: true
 				Layout.minimumWidth: settingsWidth
+				Layout.preferredWidth: headerContent.width
 				Layout.margins: 4
 				from: 0.0
 				value: volume
