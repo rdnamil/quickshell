@@ -14,7 +14,7 @@ import "../"
 import "../controls"
 
 Loader { id: root
-	readonly property real playerWidth: 240
+	readonly property real playerWidth: 304
 	readonly property list<MprisPlayer> players: Mpris.players.values
 	readonly property MprisPlayer activePlayer: { if (players.length > 0){
 		// prefer spotify if it's playing
@@ -35,6 +35,8 @@ Loader { id: root
 		// fallback to last available player
 		return players[players.length - 1];
 	} else return null; }
+
+	property bool showTimeRemaining
 
 	width: active? playerWidth : 0
 	active: activePlayer
@@ -64,7 +66,7 @@ Loader { id: root
 		Marquee {
 			Layout.preferredHeight: marqueeLayout.height
 			Layout.minimumWidth: marqueeLayout.width
-			Layout.maximumWidth: 120
+			Layout.maximumWidth: 208
 			scroll: width < marqueeLayout.width? mouseArea.containsMouse : false
 			leftAlign: true
 			content: Row { id: marqueeLayout
@@ -203,9 +205,9 @@ Loader { id: root
 						}
 					}
 				}
-				body: Column {
+				body: ColumnLayout {
 					anchors.horizontalCenter: parent.horizontalCenter
-					topPadding: -GlobalVariables.controls.radius *2 +4
+					y: -GlobalVariables.controls.radius *2 +4
 
 					Rectangle { id: elapsedBar
 						width: popout.windowWidth
@@ -236,27 +238,38 @@ Loader { id: root
 					}
 
 					RowLayout {
-						anchors.horizontalCenter: parent.horizontalCenter
-						width: popout.windowWidth -GlobalVariables.controls.spacing
-						spacing: 4
+						Layout.leftMargin: GlobalVariables.controls.spacing
+						Layout.rightMargin: GlobalVariables.controls.spacing
+						Layout.topMargin: -2
 
 						// time elapsed
 						Text {
-							// anchors.top: parent.top
-							Layout.alignment: Qt.AlignTop
+							Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 							text: formatTime(parseInt(activePlayer.position))
 							color: GlobalVariables.colours.windowText
 							font: GlobalVariables.font.monosmaller
-							// font { family: GlobalVariables.font.mono; pointSize: GlobalVariables.font.smaller; weight: GlobalVariables.font.bold }
 						}
 
 						Item { Layout.fillWidth: true; }
 
-						// media control buttons
+						// time remaining
+						Text {
+							Layout.alignment: Qt.AlignRight | Qt.AlignTop
+							text: `-${formatTime(parseInt(activePlayer.length -parseInt(activePlayer.position)))}`
+							color: GlobalVariables.colours.windowText
+							font: GlobalVariables.font.monosmaller
+						}
+					}
+
+					// media control buttons
+					Row {
+						Layout.alignment: Qt.AlignHCenter
+						Layout.topMargin: -16
+						Layout.bottomMargin: -12
+
 						// go previous
 						QsButton {
-							// anchors.verticalCenter: parent.verticalCenter
-							Layout.alignment: Qt.AlignVCenter
+							anchors.verticalCenter: parent.verticalCenter
 							onClicked: activePlayer.previous();
 							content: IconImage {
 								implicitSize: 24
@@ -266,8 +279,7 @@ Loader { id: root
 
 						// toggle playing
 						QsButton {
-							// anchors.verticalCenter: parent.verticalCenter
-							Layout.alignment: Qt.AlignVCenter
+							anchors.verticalCenter: parent.verticalCenter
 							onClicked: activePlayer.togglePlaying();
 							content: IconImage {
 								implicitSize: 40
@@ -277,25 +289,12 @@ Loader { id: root
 
 						// go forward
 						QsButton {
-							// anchors.verticalCenter: parent.verticalCenter
-							Layout.alignment: Qt.AlignVCenter
+							anchors.verticalCenter: parent.verticalCenter
 							onClicked: activePlayer.next();
 							content: IconImage {
 								implicitSize: 24
 								source: Quickshell.iconPath("media-skip-forward")
 							}
-						}
-
-						Item { Layout.fillWidth: true; }
-
-						// time remaining
-						Text {
-							// anchors.top: parent.top
-							Layout.alignment: Qt.AlignTop
-							text: `-${formatTime(parseInt(activePlayer.length -parseInt(activePlayer.position)))}`
-							color: GlobalVariables.colours.windowText
-							font: GlobalVariables.font.monosmaller
-							// font { family: GlobalVariables.font.mono; pointSize: GlobalVariables.font.smaller; weight: GlobalVariables.font.bold }
 						}
 					}
 				}
@@ -310,7 +309,7 @@ Loader { id: root
 						Layout.margins: GlobalVariables.controls.padding
 						Layout.rightMargin: 0
 						implicitSize: GlobalVariables.controls.iconSize
-						source: Quickshell.iconPath(activePlayer.desktopEntry, true) || Quickshell.iconPath(activePlayer.identity.toLowerCase(), true)
+						source: Quickshell.iconPath(activePlayer.desktopEntry, true) || Quickshell.iconPath(activePlayer.identity.toLowerCase(), "multimedia-audio-player")
 					}
 
 					ProgressBar {
@@ -329,6 +328,13 @@ Loader { id: root
 			Layout.fillWidth: true
 			height: 10
 			progress: elapsed
+		}
+
+		Text {
+			visible: showTimeRemaining
+			text: `-${formatTime(parseInt(activePlayer.length) -parseInt(activePlayer.position))}`
+			color: GlobalVariables.colours.windowText
+			font: GlobalVariables.font.monosmaller
 		}
 	}
 }
