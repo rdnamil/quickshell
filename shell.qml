@@ -14,10 +14,13 @@ Scope { id: root
 		model: Quickshell.screens
 		delegate: Bar {
 			leftItems: [
-				Network {}
+				AppDrawer {}
+				,Network {}
 				,Bluetooth {}
-				,MusicPlayer {}
 				,Audio {}
+				,MusicPlayer {
+					// showTimeRemaining: true
+				}
 				// ,Shazam {}
 			]
 
@@ -29,6 +32,7 @@ Scope { id: root
 				Tray {}
 				,NotifyUpdate {}
 				,Caffeine {}
+				,Redshift {}
 				,Seperator {}
 				,Weather {}
 				,Clock {}
