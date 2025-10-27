@@ -15,6 +15,8 @@ IconImage { id: root
 	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted
 	readonly property real volume: Pipewire.defaultAudioSink?.audio.volume
 
+	property real settingsWidth: 256
+
 	implicitSize: GlobalVariables.controls.iconSize
 	// icon reflects volume level
 	source: {
@@ -63,65 +65,26 @@ IconImage { id: root
 
 	Popout { id: popout
 		anchor: root
-		body: RowLayout {
-			spacing: GlobalVariables.controls.spacing
-
-			// padding element
-			Item { Layout.preferredWidth: 1; }
-
-			Repeater {
-				model: Pipewire.nodes.values.filter(n => n.isSink && n.description)
-				delegate: QsButton {
-					required property var modelData
-
-					Layout.fillHeight: true
-					shade: false
-					highlight: true
-					onPressed: Pipewire.preferredDefaultAudioSink = modelData;
-					content: Column {
-						topPadding: GlobalVariables.controls.padding
-						bottomPadding: GlobalVariables.controls.padding
-						spacing: GlobalVariables.controls.spacing
-
-						// radio button shows default adiosink
-						Rectangle {
-							readonly property bool isDefaultAudioSink: modelData.id === Pipewire.defaultAudioSink.id
-
-							width: GlobalVariables.controls.iconSize
-							height: width
-							radius: height /2
-							color: isDefaultAudioSink? GlobalVariables.colours.accent : GlobalVariables.colours.midlight
-
-							Rectangle {
-								visible: parent.isDefaultAudioSink
-								anchors.centerIn: parent
-								width: parent.width *0.5
-								height: width
-								radius: height /2
-								color: GlobalVariables.colours.text
-							}
-						}
-
-						// rotated text
-						// pipewire node description
-						Item {
-							width: node.height
-							height: node.width
-
-							Text { id: node
-								anchors.centerIn: parent
-								text: modelData.description
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.small
-								rotation: 270
-							}
-						}
-					}
-				}
+		onIsOpenChanged: if (!popout.isOpen) dropdown.close();
+		header: RowLayout {
+			QsDropdown { id: dropdown
+				Layout.preferredWidth: content.width
+				Layout.margins: 2
+				options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
+				selection: Pipewire.defaultAudioSink.description
+				onSelectionChanged: Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === selection)
 			}
-
-			// padding element
-			Item { Layout.preferredWidth: 1; }
+		}
+		body: ColumnLayout { id: content
+			Slider {
+				Layout.fillWidth: true
+				Layout.minimumWidth: settingsWidth
+				Layout.margins: 4
+				from: 0.0
+				value: volume
+				to: 1.0
+				onMoved: Pipewire.defaultAudioSink.audio.volume = value;
+			}
 		}
 	}
 }
