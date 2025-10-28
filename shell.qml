@@ -19,7 +19,7 @@ Scope { id: root
 				,Bluetooth {}
 				,Audio {}
 				,MusicPlayer {
-					// showTimeRemaining: true
+					showTimeRemaining: true
 				}
 				// ,Shazam {}
 			]
