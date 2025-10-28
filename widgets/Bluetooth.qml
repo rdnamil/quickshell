@@ -11,6 +11,7 @@ import Quickshell.Widgets
 import "../"
 import "../services"
 import "../controls"
+import "../styles" as Style
 
 QsButton { id: root
 	anim: false
@@ -68,16 +69,19 @@ QsButton { id: root
 				Layout.alignment: Qt.AlignVCenter
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
-				rotation: discoveringInterval.running? 45 : 0
 				onClicked: {
 					Bluetooth.defaultAdapter.discovering = !Bluetooth.defaultAdapter.discovering;
 				}
-				content: IconImage {
-					implicitSize: GlobalVariables.controls.iconSize
-					source: Quickshell.iconPath("add")
-				}
+				content: Style.Button {
+					IconImage {
+						anchors.centerIn: parent
+						implicitSize: GlobalVariables.controls.iconSize
+						source: Quickshell.iconPath("add")
+						rotation: discoveringInterval.running? 45 : 0
 
-				Behavior on rotation { NumberAnimation { duration: 100; easing.type: Easing.InCirc; }}
+						Behavior on rotation { NumberAnimation { duration: 100; easing.type: Easing.InCirc; }}
+					}
+				}
 
 				Timer { id: discoveringInterval
 					running: Bluetooth.defaultAdapter.discovering

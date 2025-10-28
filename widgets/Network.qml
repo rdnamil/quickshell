@@ -9,6 +9,7 @@ import Quickshell.Widgets
 import "../"
 import "../services"
 import "../controls"
+import "../styles" as Style
 
 QsButton { id: root
 	// return network icon representing signal strength
@@ -101,9 +102,12 @@ QsButton { id: root
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
 				onClicked: Network.rescan();
-				content: IconImage {
-					implicitSize: GlobalVariables.controls.iconSize
-					source: Quickshell.iconPath("view-refresh")
+				content: Style.Button {
+					IconImage {
+						anchors.centerIn: parent
+						implicitSize: GlobalVariables.controls.iconSize
+						source: Quickshell.iconPath("view-refresh")
+					}
 				}
 			}
 		}

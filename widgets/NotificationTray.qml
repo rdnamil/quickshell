@@ -10,6 +10,7 @@ import Quickshell.Widgets
 import "../"
 import "../services"
 import "../controls"
+import "../styles" as Style
 
 QsButton { id: root
 	readonly property bool unread: {
@@ -80,9 +81,12 @@ QsButton { id: root
 				onClicked: { while (Notifications.server.trackedNotifications.values.length > 0) {
 					Notifications.server.trackedNotifications.values.forEach(n => n.dismiss());
 				}}
-				content: IconImage {
-					implicitSize: GlobalVariables.controls.iconSize
-					source: Quickshell.iconPath("dialog-close")
+				content: Style.Button {
+					IconImage {
+						anchors.centerIn: parent
+						implicitSize: GlobalVariables.controls.iconSize
+						source: Quickshell.iconPath("dialog-close")
+					}
 				}
 			}
 		}

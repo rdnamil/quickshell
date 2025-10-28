@@ -12,6 +12,7 @@ import Quickshell.Widgets
 import "../"
 import "../services"
 import "../controls"
+import "../styles" as Style
 
 QsButton { id: root
 	anim: false
@@ -51,9 +52,12 @@ QsButton { id: root
 					Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
 					popout.toggle();
 				}
-				content: IconImage {
-					implicitSize: GlobalVariables.controls.iconSize
-					source: Quickshell.iconPath("update")
+				content: Style.Button {
+					IconImage {
+						anchors.centerIn: parent
+						implicitSize: GlobalVariables.controls.iconSize
+						source: Quickshell.iconPath("update")
+					}
 				}
 			}
 
@@ -62,9 +66,12 @@ QsButton { id: root
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
 				onClicked: NotifyUpdate.refresh();
-				content: IconImage {
-					implicitSize: GlobalVariables.controls.iconSize
-					source: Quickshell.iconPath("view-refresh")
+				content: Style.Button {
+					IconImage {
+						anchors.centerIn: parent
+						implicitSize: GlobalVariables.controls.iconSize
+						source: Quickshell.iconPath("view-refresh")
+					}
 				}
 			}
 		}
