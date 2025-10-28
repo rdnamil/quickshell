@@ -88,7 +88,7 @@ Item { id: root
 
 	PropertyAnimation { id: pressedAnim
 		target: rootTranslate
-		properties: "x,y"
+		properties: "y"
 		to: 2
 		duration: 25
 		easing.type: Easing.InCirc;
@@ -96,7 +96,7 @@ Item { id: root
 
 	PropertyAnimation { id: releasedAnim
 		target: rootTranslate
-		properties: "x,y"
+		properties: "y"
 		to: 0
 		duration: 25
 		easing.type: Easing.InCirc;
