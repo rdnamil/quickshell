@@ -15,6 +15,9 @@ Loader { id: root
 	// get the current active workspace for this.screen
 	readonly property int activeWorkspace: NiriWorkspaces.workspaces.length > 0? NiriWorkspaces.activeWorkspace.filter(w => w.output == screen.name).find(w => w.is_active).idx -1 : 0
 
+	property int workspace
+	property list<string> command: ["niri", "msg", "action", "focus-workspace", workspace]
+
 	active: NiriWorkspaces.workspaces
 	sourceComponent: Row {
 		spacing: 6
@@ -27,6 +30,10 @@ Loader { id: root
 				// get wether this.workspace is active
 				readonly property bool isActive: activeWorkspace === index
 
+				onClicked: {
+					workspace = index +1;
+					Quickshell.execDetached(command)
+				}
 				content: Rectangle {
 					width: isActive? 12 : 8
 					height: 8
