@@ -10,6 +10,7 @@ import Quickshell.Widgets
 import Quickshell.Services.Pipewire
 import "../"
 import "../controls"
+import "../styles" as Style
 
 IconImage { id: root
 	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted
@@ -81,18 +82,41 @@ IconImage { id: root
 			QsDropdown { id: dropdown
 				Layout.alignment: Qt.AlignVCenter
 				Layout.preferredWidth: settingsWidth
-				Layout.margins: 2
+				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
+				// Layout.rightMargin: 0
 				options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
 				selection: Pipewire.defaultAudioSink.description
 				onSelectionChanged: Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === selection)
 			}
 		}
-		body: ColumnLayout { id: content
+		body: RowLayout { id: content
+			width: Math.max(settingsWidth, headerContent.width)
+
+			TextMetrics { id: textMetrics
+				font: GlobalVariables.font.regular
+				text: "100%"
+			}
+
+			Text {
+				Layout.alignment: Qt.AlignVCenter
+				Layout.preferredWidth: textMetrics.width
+				Layout.leftMargin: GlobalVariables.controls.padding
+				Layout.rightMargin: 0
+				Layout.topMargin: 4
+				Layout.bottomMargin: 4
+				text: `${parseInt(volume *100)}%`
+				color: GlobalVariables.colours.windowText
+				font: GlobalVariables.font.regular
+			}
+
 			Slider {
-				Layout.minimumWidth: settingsWidth
-				Layout.preferredWidth: headerContent.width
-				Layout.margins: 4
+				Layout.fillWidth: true
+				Layout.alignment: Qt.AlignVCenter
+				Layout.leftMargin: 0
+				Layout.rightMargin: GlobalVariables.controls.padding
+				Layout.topMargin: 4
+				Layout.bottomMargin: 4
 				from: 0.0
 				value: volume
 				to: 1.0
