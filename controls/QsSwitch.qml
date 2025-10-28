@@ -44,11 +44,12 @@ Item { id: root
 
 	Rectangle { id: button
 		anchors.verticalCenter: parent.verticalCenter
-		width: root.height -4
-		height: root.height -4
+		width: root.height -2
+		height: root.height -2
 		radius: height /2
 		color: GlobalVariables.colours.highlightedText
-		x: isOn? root.width -(width +2) : 2
+		border { width: 1; color: "#10000000"; }
+		x: isOn? root.width -(width +1) : 1
 		Behavior on x { NumberAnimation { duration: 100; easing.type: Easing.InCirc; }}
 	}
 
