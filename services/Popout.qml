@@ -7,9 +7,15 @@ pragma Singleton
 import QtQuick
 import QtQuick.Controls
 import Quickshell
+import Quickshell.Wayland
 
 Singleton { id: root
 	property var whosOpen: null
+
+	function clear() {
+		root.whosOpen = null;
+		root.open();
+	}
 
 	signal open()
 
@@ -21,14 +27,14 @@ Singleton { id: root
 			top: true
 			bottom: true
 		}
+		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 		color: "transparent"
 
 		MouseArea {
 			anchors.fill: parent
-			onClicked: {
-				root.whosOpen = null;
-				root.open();
-			}
+			onClicked: root.clear();
+			focus: true
+			Keys.onPressed: (event) => { if (event.key === Qt.Key_Escape) root.clear(); }
 		}
 	}
 }
