@@ -37,8 +37,6 @@ QsButton { id: root
 		"Ghostty",
 		"Thunar File Manager",
 		"Brave",
-		"Legcord",
-		"Steam",
 		"Lutris"
 	]
 
@@ -58,10 +56,13 @@ QsButton { id: root
 			// user/power options
 			RowLayout {
 				Layout.minimumWidth: 256
+				spacing: GlobalVariables.controls.spacing
 
 				Text {
+					// visible: false
 					Layout.alignment: Qt.AlignVCenter
 					Layout.leftMargin: GlobalVariables.controls.padding
+					Layout.rightMargin: GlobalVariables.controls.padding
 					text: popout.usersname
 					verticalAlignment: Text.AlignVCenter
 					color: GlobalVariables.colours.text
@@ -71,34 +72,70 @@ QsButton { id: root
 				Row {
 					Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 					Layout.rightMargin: GlobalVariables.controls.padding
-					spacing: 4
+					spacing: GlobalVariables.controls.spacing
 
-					QsButton {
-						onClicked: Quickshell.execDetached(["sh", "-c", "/home/$USER/.local/bin/lockscreen.sh"])
-						content: IconImage {
-							implicitSize: GlobalVariables.controls.iconSize
-							source: Quickshell.iconPath("system-lock-screen")
+					Row {
+						spacing: 3
+
+						Repeater {
+							model: DesktopEntries.applications.values.filter(a => favourites.includes(a.name)).sort((a, b) => {
+								return favourites.indexOf(a.name) -favourites.indexOf(b.name);
+							})
+							delegate: QsButton {
+								required property var modelData
+
+								onClicked: {
+									modelData.execute();
+									popout.toggle();
+								}
+								content: IconImage {
+									implicitSize: GlobalVariables.controls.iconSize
+									source: Quickshell.iconPath(modelData.id.toLowerCase(), true) || Quickshell.iconPath(modelData.icon)
+								}
+							}
 						}
 					}
-					QsButton {
-						onClicked: Quickshell.execDetached(["logout"])
-						content: IconImage {
-							implicitSize: 16
-							source: Quickshell.iconPath("system-log-out")
-						}
+
+					Rectangle {
+						anchors.verticalCenter: parent.verticalCenter
+						width: 6
+						height: width
+						radius: height /2
+						color: GlobalVariables.colours.text
 					}
-					QsButton {
-						onClicked: Quickshell.execDetached(["reboot"])
-						content: IconImage {
-							implicitSize: GlobalVariables.controls.iconSize
-							source: Quickshell.iconPath("system-restart")
+
+					Row {
+						spacing: 3
+
+						QsButton {
+							onClicked: {
+								Quickshell.execDetached(["sh", "-c", "/home/$USER/.local/bin/lockscreen.sh"]);
+								popout.toggle();
+							}
+							content: IconImage {
+								implicitSize: GlobalVariables.controls.iconSize
+								source: Quickshell.iconPath("system-lock-screen")
+							}
 						}
-					}
-					QsButton {
-						onClicked: Quickshell.execDetached(["poweroff"])
-						content: IconImage {
-							implicitSize: GlobalVariables.controls.iconSize
-							source: Quickshell.iconPath("system-shutdown")
+						QsButton {
+							onClicked: {
+								Quickshell.execDetached(["logout"]);
+								popout.toggle();
+							}
+							content: IconImage {
+								implicitSize: 16
+								source: Quickshell.iconPath("system-log-out")
+							}
+						}
+						QsButton {
+							onClicked: {
+								Quickshell.execDetached(["poweroff"]);
+								popout.toggle();
+							}
+							content: IconImage {
+								implicitSize: GlobalVariables.controls.iconSize
+								source: Quickshell.iconPath("system-shutdown")
+							}
 						}
 					}
 				}
