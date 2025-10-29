@@ -24,7 +24,10 @@ QsButton { id: root
 	content: Rectangle {
 		width: root.width
 		height: 24
-		radius: GlobalVariables.controls.radius
+		topLeftRadius: GlobalVariables.controls.radius
+		topRightRadius: GlobalVariables.controls.radius
+		bottomLeftRadius: dropdown.visible? 0 : GlobalVariables.controls.radius
+		bottomRightRadius: dropdown.visible? 0 : GlobalVariables.controls.radius
 		color: GlobalVariables.colours.base
 
 		RowLayout {
@@ -45,7 +48,7 @@ QsButton { id: root
 				Layout.alignment: Qt.AlignVCenter
 				Layout.rightMargin: GlobalVariables.controls.padding
 				implicitSize: GlobalVariables.controls.iconSize
-				source: Quickshell.iconPath("arrow-down")
+				source: dropdown.visible? Quickshell.iconPath("arrow-up") : Quickshell.iconPath("arrow-down")
 			}
 		}
 
@@ -56,7 +59,7 @@ QsButton { id: root
 		visible: false
 		anchor {
 			item: root;
-			rect.y: root.height +2; // prefer window bellow bar
+			rect.y: root.height -1; // prefer window bellow bar
 		}
 		color: "transparent"
 		implicitWidth: root.width
@@ -64,23 +67,30 @@ QsButton { id: root
 
 		Rectangle {
 			anchors.fill: parent
-			radius: GlobalVariables.controls.radius
+			bottomLeftRadius: GlobalVariables.controls.radius
+			bottomRightRadius: GlobalVariables.controls.radius
 			color: GlobalVariables.colours.alternateBase
 			layer.enabled: true
 			layer.effect: OpacityMask {
 				maskSource: Rectangle {
 					width: dropdown.width
 					height: dropdown.height
-					radius: GlobalVariables.controls.radius
+					bottomLeftRadius: GlobalVariables.controls.radius
+					bottomRightRadius: GlobalVariables.controls.radius
 				}
 			}
 
 			ColumnLayout { id: list
-				width: parent.width
 				anchors {
 					top: parent.top
 					topMargin: 4
 				}
+				width: parent.width
+				spacing: 0
+
+				// top filler
+				Item { Layout.preferredHeight: 2; }
+
 				Repeater {
 					model: options
 					delegate: QsButton { id: option
@@ -108,6 +118,9 @@ QsButton { id: root
 						}
 					}
 				}
+
+				// bottom filler
+				Item { Layout.preferredHeight: 2; }
 			}
 
 			Borders {}
