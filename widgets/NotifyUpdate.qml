@@ -39,6 +39,7 @@ QsButton { id: root
 
 	Popout { id: popout
 		anchor: root
+		onIsOpenChanged: if (!isOpen) bodyContent.ScrollBar.vertical.position = 0.0;
 		header: RowLayout {
 			Layout.minimumWidth: 128
 			Layout.preferredWidth: bodyContent.width

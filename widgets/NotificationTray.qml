@@ -49,7 +49,10 @@ QsButton { id: root
 
 	Popout { id: popout
 		// tag all notifications in the tray as read when popout opened
-		onIsOpenChanged: if (isOpen) Notifications.allRead();
+		onIsOpenChanged: {
+			if (isOpen) Notifications.allRead();
+			else bodyContent.ScrollBar.vertical.position = 0.0;
+		}
 		anchor: root
 		header: RowLayout {
 			width: bodyContent.width
