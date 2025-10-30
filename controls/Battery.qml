@@ -50,6 +50,8 @@ Item { id: root
 		color: GlobalVariables.colours.text
 		font.pixelSize: parent.width
 		rotation: -root.rotation
+		style: Text.Outline
+		styleColor: GlobalVariables.colours.base
 	}
 
 	Rectangle { id: overlay
