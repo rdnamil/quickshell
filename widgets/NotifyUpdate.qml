@@ -18,6 +18,11 @@ QsButton { id: root
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
+	tooltip: Text {
+		text: `${NotifyUpdate.updates.filter(u => u.package).length} Updates`
+		color: GlobalVariables.colours.text
+		font: GlobalVariables.font.regular
+	}
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: Quickshell.iconPath("package")
@@ -53,6 +58,11 @@ QsButton { id: root
 					Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
 					popout.toggle();
 				}
+				tooltip: Text {
+					text: "Update"
+					color: GlobalVariables.colours.text
+					font: GlobalVariables.font.regular
+				}
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent
@@ -67,6 +77,11 @@ QsButton { id: root
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
 				onClicked: NotifyUpdate.refresh();
+				tooltip: Text {
+					text: "Refresh"
+					color: GlobalVariables.colours.text
+					font: GlobalVariables.font.regular
+				}
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent

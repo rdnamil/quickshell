@@ -72,6 +72,11 @@ QsButton { id: root
 				onClicked: {
 					Bluetooth.defaultAdapter.discovering = !Bluetooth.defaultAdapter.discovering;
 				}
+				tooltip: Text {
+					text: "Scan"
+					color: GlobalVariables.colours.text
+					font: GlobalVariables.font.regular
+				}
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent

@@ -102,6 +102,11 @@ QsButton { id: root
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
 				onClicked: Network.rescan();
+				tooltip: Text {
+					text: "Refresh"
+					color: GlobalVariables.colours.text
+					font: GlobalVariables.font.regular
+				}
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent

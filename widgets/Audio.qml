@@ -16,6 +16,10 @@ import "../styles" as Style
 IconImage { id: root
 	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted
 	readonly property real volume: Pipewire.defaultAudioSink?.audio.volume
+	readonly property TextMetrics textMetrics: TextMetrics { id: textMetrics
+		font: GlobalVariables.font.regular
+		text: "100%"
+	}
 
 	property real settingsWidth: 256
 
@@ -44,6 +48,11 @@ IconImage { id: root
 		width: parent.width +4
 		height: width
 		hoverEnabled: true
+		onEntered: tooltipTimer.restart();
+		onExited: {
+			tooltipTimer.stop();
+			tooltip.isShown = false;
+		}
 		acceptedButtons: Qt.AllButtons
 		onClicked: (mouse) => {
 			switch (mouse.button) {
@@ -60,8 +69,23 @@ IconImage { id: root
 
 			vol += (wheel.angleDelta.y /120) *0.05;
 			Pipewire.defaultAudioSink.audio.volume = Math.min(Math.max(vol, 0.0), 1.0);
+		}
+	}
 
-			osd.showOsd();
+	QsTooltip { id: tooltip
+		anchor: root
+		content: Text {
+			width: textMetrics.width
+			text: `${parseInt(volume *100)}%`
+			color: GlobalVariables.colours.text
+			font: GlobalVariables.font.regular
+			horizontalAlignment: Text.AlignHCenter
+		}
+
+		Timer { id: tooltipTimer
+			running: false
+			interval: 1500
+			onTriggered: parent.isShown = true;
 		}
 	}
 
@@ -94,11 +118,6 @@ IconImage { id: root
 		body: RowLayout { id: content
 			width: Math.max(settingsWidth, headerContent.width)
 
-			TextMetrics { id: textMetrics
-				font: GlobalVariables.font.regular
-				text: "100%"
-			}
-
 			Text {
 				Layout.alignment: Qt.AlignVCenter
 				Layout.preferredWidth: textMetrics.width
@@ -109,6 +128,7 @@ IconImage { id: root
 				text: `${parseInt(volume *100)}%`
 				color: GlobalVariables.colours.windowText
 				font: GlobalVariables.font.regular
+				horizontalAlignment: Text.AlignRight
 			}
 
 			Slider {

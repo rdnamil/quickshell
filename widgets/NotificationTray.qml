@@ -28,6 +28,11 @@ QsButton { id: root
 	shade: false
 	onClicked: popout.toggle();
 	onMiddleClicked: Notifications.dnd = !Notifications.dnd;
+	tooltip: Text {
+		text: `${Notifications.server.trackedNotifications.values.length} Notifications`
+		color: GlobalVariables.colours.text
+		font: GlobalVariables.font.regular
+	}
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: {
@@ -84,6 +89,11 @@ QsButton { id: root
 				onClicked: { while (Notifications.server.trackedNotifications.values.length > 0) {
 					Notifications.server.trackedNotifications.values.forEach(n => n.dismiss());
 				}}
+				tooltip: Text {
+					text: "Clear all"
+					color: GlobalVariables.colours.text
+					font: GlobalVariables.font.regular
+				}
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent

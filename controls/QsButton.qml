@@ -15,6 +15,7 @@ Item { id: root
 	property bool anim: true
 	property bool shade: true
 	property bool highlight: false
+	property Item tooltip
 	property bool debug
 
 	signal pressed()
@@ -28,8 +29,7 @@ Item { id: root
 	height: content.height
 	transform: Translate { id: rootTranslate; }
 
-
-
+	// highlight button on hover
 	Rectangle {
 		anchors.centerIn: parent
 		visible: highlight && containsMouse
@@ -39,11 +39,13 @@ Item { id: root
 		opacity: 0.4
 	}
 
+	// contentWrapper
 	Item { id: contentWrapper
 		anchors.fill: parent
 	}
 
-	Rectangle { id: shader
+	// shade button on hover
+	Rectangle {
 		visible: shade && containsMouse
 		anchors.fill: parent
 		color: GlobalVariables.colours.shadow
@@ -54,11 +56,31 @@ Item { id: root
 		}
 	}
 
+	QsTooltip { id: tooltip
+		anchor: root
+		content: root.tooltip
+
+		Timer { id: tooltipTimer
+			running: false
+			interval: 1500
+			onTriggered: parent.isShown = true;
+		}
+	}
+
 	MouseArea { id: mouseArea
 		anchors.centerIn: root
 		width: root.width +4
 		height: root.height +4
 		hoverEnabled: true
+		onEntered: { root.mouseEntered(); if (root.tooltip) tooltipTimer.restart(); }
+		onExited: {
+			root.mouseExited();
+			if (root.tooltip) {
+				tooltipTimer.stop();
+				tooltip.isShown = false;
+			}
+		}
+
 		acceptedButtons: Qt.AllButtons
 		onPressed: (mouse) => {
 			switch (mouse.button) {
@@ -76,8 +98,6 @@ Item { id: root
 			}
 		}
 		onReleased: if (anim) releasedAnim.start();
-		onEntered: root.mouseEntered();
-		onExited: root.mouseExited();
 
 		Rectangle {
 			visible: debug
