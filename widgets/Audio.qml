@@ -22,7 +22,7 @@ IconImage { id: root
 	implicitSize: GlobalVariables.controls.iconSize
 	// icon reflects volume level
 	source: {
-		if (!volume > 0) return Quickshell.iconPath("audio-volume-muted");
+		if (isMuted || !volume > 0) return Quickshell.iconPath("audio-volume-muted");
 		switch (Math.round(volume /0.5) *0.5) {
 			case 0:
 				return Quickshell.iconPath("audio-volume-low");
@@ -32,27 +32,6 @@ IconImage { id: root
 				return Quickshell.iconPath("audio-volume-high");
 			default:
 				return Quickshell.iconPath("audio-volume-high");
-		}
-	}
-
-	IconImage {
-		visible: isMuted
-		anchors {
-			right: parent.right
-			rightMargin: -4
-			bottom: parent.bottom
-			bottomMargin: -3
-		}
-		implicitSize: 10
-		source: Quickshell.iconPath("close")
-		layer.enabled: true
-		layer.effect: DropShadow {
-			color: GlobalVariables.colours.base
-			radius: 0
-			samples: 1
-			spread: 1.0
-			horizontalOffset: -1
-			verticalOffset: -2
 		}
 	}
 
