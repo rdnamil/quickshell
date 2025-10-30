@@ -18,14 +18,17 @@ QsButton { id: root
 			precision: SystemClock.Minutes
 		}
 
-		// text: state === UPowerDeviceState.Charging?  : `${UPowerDeviceState.toString(state)}, Until ${root.formatTime((time.hours *3600 +time.minutes *60) +UPower.displayDevice.timeToEmpty)}`
-		text: switch (state) {
-			case UPowerDeviceState.Discharging, UPowerDeviceState.PendingDischarge:
-				return `${UPowerDeviceState.toString(state)}, Until ${root.formatTime((time.hours *3600 +time.minutes *60) +UPower.displayDevice.timeToEmpty)}`
-			case UPowerDeviceState.Charging, UPowerDeviceState.PendingCharge:
-				return `${UPowerDeviceState.toString(state)}, ${root.formatTimer(UPower.displayDevice.timeToFull)} until fully charged.`
-			default:
-				return `${parseInt(UPower.displayDevice.energy)}W`
+		text: {
+			var text = `${parseInt(UPower.displayDevice.energy)}W`;
+
+			if (UPower.displayDevice.timeToFull) {
+				text = `${formatTimer(UPower.displayDevice.timeToFull)} until fully charged.`;
+			}
+			if (UPower.displayDevice.timeToEmpty) {
+				text = `Until ${formatTime((time.hours *3600 +time.minutes *60) +UPower.displayDevice.timeToEmpty)}`;
+			}
+
+			return text;
 		}
 		color: GlobalVariables.colours.text
 		font: GlobalVariables.font.regular
@@ -42,7 +45,7 @@ QsButton { id: root
 		var totalMinutes = Math.floor(totalSeconds /60);
 		var hours = Math.floor(totalMinutes /60);
 		var minutes = totalMinutes -(hours *60);
-		return `${hours >0? (hours +"hrs") : ""}${minutes}mins`;
+		return `${hours >0? (hours +"h") : ""}${minutes}m`;
 	}
 
 	anim: false
@@ -60,7 +63,7 @@ QsButton { id: root
 			rotation: isLaptopBattery? 90 : 0
 			percentage: isLaptopBattery? UPower.displayDevice.percentage : 1.0
 			isCharging: isLaptopBattery? !UPower.onBattery : false
-			material: !isLaptopBattery
+			material: true
 		}
 	}
 

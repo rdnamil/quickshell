@@ -22,7 +22,7 @@ Item { id: root
 			visible: isShown
 			anchor {
 				item: root
-				rect { x: root.width /2 -content.width /2 -GlobalVariables.controls.padding /2; y: root.height +2; }
+				rect { x: root.width /2 -content.width /2 -GlobalVariables.controls.padding /2; y: root.height +6; }
 			}
 			implicitWidth: content.width +GlobalVariables.controls.padding
 			implicitHeight: content.height +GlobalVariables.controls.padding
