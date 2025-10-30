@@ -86,7 +86,7 @@ QsButton { id: root
 					topMargin: 4
 				}
 				width: parent.width
-				spacing: 0
+				spacing: 2
 
 				// top filler
 				Item { Layout.preferredHeight: 2; }
