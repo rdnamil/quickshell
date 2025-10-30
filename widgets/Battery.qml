@@ -12,10 +12,43 @@ import "../controls"
 
 QsButton { id: root
 	readonly property bool isLaptopBattery: UPower.displayDevice.isLaptopBattery
+	readonly property UPowerDeviceState state: UPower.displayDevice.state
+	readonly property Item tooltipText: Text {
+		SystemClock { id: time
+			precision: SystemClock.Minutes
+		}
+
+		// text: state === UPowerDeviceState.Charging?  : `${UPowerDeviceState.toString(state)}, Until ${root.formatTime((time.hours *3600 +time.minutes *60) +UPower.displayDevice.timeToEmpty)}`
+		text: switch (state) {
+			case UPowerDeviceState.Discharging, UPowerDeviceState.PendingDischarge:
+				return `${UPowerDeviceState.toString(state)}, Until ${root.formatTime((time.hours *3600 +time.minutes *60) +UPower.displayDevice.timeToEmpty)}`
+			case UPowerDeviceState.Charging, UPowerDeviceState.PendingCharge:
+				return `${UPowerDeviceState.toString(state)}, ${root.formatTimer(UPower.displayDevice.timeToFull)} until fully charged.`
+			default:
+				return `${parseInt(UPower.displayDevice.energy)}W`
+		}
+		color: GlobalVariables.colours.text
+		font: GlobalVariables.font.regular
+	}
+
+	function formatTime(totalSeconds) {
+		var totalMinutes = Math.floor(totalSeconds /60);
+		var hours = Math.floor(totalMinutes /60);
+		var minutes = totalMinutes -(hours *60);
+		return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}`;
+	}
+
+	function formatTimer(totalSeconds) {
+		var totalMinutes = Math.floor(totalSeconds /60);
+		var hours = Math.floor(totalMinutes /60);
+		var minutes = totalMinutes -(hours *60);
+		return `${hours >0? (hours +"hrs") : ""}${minutes}mins`;
+	}
 
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
+	tooltip: isLaptopBattery? tooltipText : null
 	content: Item {
 		width: isLaptopBattery? icon.height : icon.width
 		height: isLaptopBattery? icon.width : icon.height
