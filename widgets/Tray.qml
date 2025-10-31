@@ -123,45 +123,11 @@ Row { id: root
 										width: GlobalVariables.controls.iconSize
 										height: width
 
-										// checkbox button
-										Rectangle {
-											visible: modelData.buttonType === QsMenuButtonType.CheckBox
-											anchors.fill: parent
-											radius: 3
-											color: modelData.checkState !== Qt.Unchecked? GlobalVariables.colours.accent : GlobalVariables.colours.midlight
-
-											Rectangle {
-												visible: modelData.checkState !== Qt.Unchecked
-												x: 2
-												y: 9
-												width: 6
-												height: 2
-												rotation: 45
-												color: GlobalVariables.colours.text
-
-												Rectangle {
-													anchors { right: parent.right; bottom: parent.top; }
-													height: 9
-													width: 2
-													color: parent.color
-												}
-											}
-										}
-
-										// radio-button button
-										Rectangle {
-											visible: modelData.buttonType === QsMenuButtonType.RadioButton
-											anchors.fill: parent
-											radius: height /2
-											color: modelData.checkState !== Qt.Unchecked? GlobalVariables.colours.accent : GlobalVariables.colours.midlight
-
-											Rectangle {
-												visible: modelData.checkState !== Qt.Unchecked
-												anchors.centerIn: parent
-												width: parent.width *0.5
-												height: width
-												radius: height /2
-												color: GlobalVariables.colours.text
+										Loader {
+											active: modelData.buttonType !== QsMenuButtonType.None
+											sourceComponent: QsStateButton {
+												checkState: modelData.checkState
+												type: modelData.buttonType
 											}
 										}
 									}
