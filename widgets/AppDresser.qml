@@ -29,7 +29,15 @@ QsButton { id: root
 		"Ghostty",
 		"Thunar File Manager",
 		"Brave",
-		"Lutris"
+		"Mission Center",
+		"Legcord",
+		"Steam",
+		"Lutris",
+		"OBS Studio",
+		"Timeshift",
+		"Kate",
+		"Krita",
+		"Inkscape"
 	]
 	property string drawer: "Favourites"
 
