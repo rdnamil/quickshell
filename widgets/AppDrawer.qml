@@ -109,7 +109,7 @@ QsButton { id: root
 
 						QsButton {
 							onClicked: {
-								Quickshell.execDetached(["sh", "-c", "/home/$USER/.local/bin/lockscreen.sh"]);
+								Quickshell.execDetached(["sh", "-c", "/usr/local/bin/lockscreen.sh"]);
 								popout.toggle();
 							}
 							content: IconImage {
