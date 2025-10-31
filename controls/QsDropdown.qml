@@ -3,6 +3,7 @@
 --------------------*/
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
@@ -18,6 +19,8 @@ QsButton { id: root
 	function close() {
 		dropdown.visible = false;
 	}
+
+	signal selected(string option)
 
 	anim: false
 	onClicked: dropdown.visible = !dropdown.visible;
@@ -62,8 +65,8 @@ QsButton { id: root
 			rect.y: root.height -1; // prefer window bellow bar
 		}
 		color: "transparent"
-		implicitWidth: root.width
-		implicitHeight: list.height +8
+		implicitWidth: scrollView.width
+		implicitHeight: scrollView.height
 
 		Rectangle {
 			anchors.fill: parent
@@ -80,47 +83,43 @@ QsButton { id: root
 				}
 			}
 
-			ColumnLayout { id: list
-				anchors {
-					top: parent.top
-					topMargin: 4
-				}
-				width: parent.width
-				spacing: 2
+			ScrollView { id: scrollView
+				width: root.width
+				height: Math.min(screen.height /3, list.height +GlobalVariables.controls.spacing *2)
+				topPadding: GlobalVariables.controls.spacing
+				bottomPadding: GlobalVariables.controls.spacing
 
-				// top filler
-				Item { Layout.preferredHeight: 2; }
+				ColumnLayout { id: list
+					spacing: 6
+					width: root.width
 
-				Repeater {
-					model: options
-					delegate: QsButton { id: option
-						required property var modelData
+					Repeater {
+						model: options
+						delegate: QsButton { id: option
+							required property var modelData
 
-						Layout.fillWidth: true
-						Layout.preferredHeight: content.height
-						width: parent.width
-						shade: false
-						highlight: true
-						onClicked: {
-							selection = modelData;
-							dropdown.visible = !dropdown.visible;
-						}
-						content: Text {
-							anchors {
-								left: parent.left
-								leftMargin: GlobalVariables.controls.padding
+							Layout.fillWidth: true
+							Layout.preferredHeight: content.height
+							shade: false
+							highlight: true
+							onClicked: {
+								root.selected(modelData);
+								dropdown.visible = !dropdown.visible;
 							}
-							width: option.width -GlobalVariables.controls.padding *2
-							text: modelData
-							elide: Text.ElideRight
-							color: GlobalVariables.colours.text
-							font: modelData === selection? GlobalVariables.font.semibold : GlobalVariables.font.regular
+							content: Text {
+								anchors {
+									left: parent.left
+									leftMargin: GlobalVariables.controls.padding
+								}
+								width: root.width -GlobalVariables.controls.padding *2
+								text: modelData
+								elide: Text.ElideRight
+								color: GlobalVariables.colours.text
+								font: modelData === selection? GlobalVariables.font.semibold : GlobalVariables.font.regular
+							}
 						}
 					}
 				}
-
-				// bottom filler
-				Item { Layout.preferredHeight: 2; }
 			}
 
 			Borders {}
