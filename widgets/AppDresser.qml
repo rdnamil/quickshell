@@ -378,4 +378,9 @@ QsButton { id: root
 			}
 		}
 	}
+
+	IpcHandler {
+		target: "appdresser"
+		function toggle(): void { popout.toggle(); }
+	}
 }
