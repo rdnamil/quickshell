@@ -14,7 +14,7 @@ Rectangle { id: root
 	Rectangle {
 		anchors.right: parent.right
 		width: 1
-		height: GlobalVariables.controls.barHeight -GlobalVariables.controls.padding
+		height: parent.height
 		color: GlobalVariables.colours.shadow
 	}
 }
