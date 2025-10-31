@@ -3,6 +3,8 @@
 ---------------------------------*/
 
 import QtQuick
+import QtQuick.Effects
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import "../"
 
@@ -12,19 +14,43 @@ QsButton {
 	property var type: QsMenuButtonType.RadioButton // values can be 'CheckBox', 'RadioButton', or 'None'
 
 	shade: false
-	content: Rectangle {
-		// button background
-		width: GlobalVariables.controls.iconSize
+	content: Item {
+		width: button.width
 		height: width
-		radius: {
-			switch (type) {
-				case QsMenuButtonType.CheckBox:
-					return 3;
-				case QsMenuButtonType.RadioButton:
-					return height /2;
+
+		RectangularShadow {
+			anchors.fill: button
+			radius: button.radius
+			spread: 1
+			blur: 3
+			color: GlobalVariables.colours.shadow
+			opacity: 0.4
+		}
+
+		Rectangle { id: button
+			anchors.bottom: parent.bottom
+
+			// button background
+			width: GlobalVariables.controls.iconSize
+			height: width
+			radius: {
+				switch (type) {
+					case QsMenuButtonType.CheckBox:
+						return 3;
+					case QsMenuButtonType.RadioButton:
+						return height /2;
+				}
+			}
+			color: checkState !== Qt.Checked? GlobalVariables.colours.midlight : GlobalVariables.colours.accent
+			layer.enabled: true
+			layer.effect: DropShadow {
+				color: GlobalVariables.colours.light
+				spread: 0
+				radius: 0
+				samples: 1
+				verticalOffset: -1
 			}
 		}
-		color: checkState !== Qt.Checked? GlobalVariables.colours.midlight : GlobalVariables.colours.accent
 
 		// checkmark
 		Item {
