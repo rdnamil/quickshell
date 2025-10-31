@@ -11,8 +11,7 @@ import "../services"
 import "../controls"
 
 QsButton { id: root
-	readonly property bool isLaptopBattery: UPower.displayDevice.isLaptopBattery
-	readonly property UPowerDeviceState state: UPower.displayDevice.state
+	readonly property bool isLaptopBattery: UPower.displayDevice?.isLaptopBattery
 	readonly property Item tooltipText: Text {
 		SystemClock { id: time
 			precision: SystemClock.Minutes
