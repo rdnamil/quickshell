@@ -95,24 +95,25 @@ IconImage { id: root
 		header: RowLayout { id: headerContent
 			spacing: GlobalVariables.controls.spacing
 
-			IconImage {
-				Layout.alignment: Qt.AlignVCenter
-				Layout.margins: GlobalVariables.controls.padding
-				Layout.rightMargin: 0
-
-				implicitSize: GlobalVariables.controls.iconSize
-				source: Quickshell.iconPath("audio-card")
-			}
+			// IconImage {
+			// 	Layout.alignment: Qt.AlignVCenter
+			// 	Layout.margins: GlobalVariables.controls.padding
+			// 	Layout.rightMargin: 0
+   //
+			// 	implicitSize: GlobalVariables.controls.iconSize
+			// 	source: Quickshell.iconPath("audio-card")
+			// }
 
 			QsDropdown { id: dropdown
 				Layout.alignment: Qt.AlignVCenter
 				Layout.preferredWidth: settingsWidth
 				Layout.margins: GlobalVariables.controls.padding
-				Layout.leftMargin: 0
+				// Layout.leftMargin: 0
 				// Layout.rightMargin: 0
 				options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
-				selection: Pipewire.defaultAudioSink.description
-				onSelectionChanged: Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === selection)
+				selection: Pipewire.defaultAudioSink?.description
+				onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
+				// onSelectionChanged: Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === selection)
 			}
 		}
 		body: RowLayout { id: content

@@ -212,8 +212,8 @@ Loader { id: root
 					Rectangle { id: elapsedBar
 						width: popout.windowWidth
 						height: GlobalVariables.controls.radius *2
-						bottomLeftRadius: GlobalVariables.controls.radius
-						bottomRightRadius: GlobalVariables.controls.radius
+						// bottomLeftRadius: GlobalVariables.controls.radius
+						// bottomRightRadius: GlobalVariables.controls.radius
 						color: GlobalVariables.colours.accent
 						border { color: "#80000000"; width: 1; }
 						layer.enabled: true

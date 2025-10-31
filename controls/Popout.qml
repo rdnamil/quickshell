@@ -123,14 +123,13 @@ Item { id: root
 				blur: 30
 			}
 
-
 			// draw border around wrapper for header
 			Rectangle {
 				visible: header
 				anchors { horizontalCenter: contentHeader.horizontalCenter; top: contentHeader.top; }
 				width: contentHeader.width
 				height: contentHeader.height +2
-				radius: contentHeader.radius
+				// radius: contentHeader.radius
 				color: GlobalVariables.colours.light
 				border { color: GlobalVariables.colours.shadow; width: 1; }
 			}
@@ -141,7 +140,8 @@ Item { id: root
 				anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; }
 				width: window.width
 				height: Math.max(header? header.height : 0, GlobalVariables.controls.radius *2)
-				radius: GlobalVariables.controls.radius
+				topLeftRadius: GlobalVariables.controls.radius
+				topRightRadius: GlobalVariables.controls.radius
 				color: debug? "#8000ff00" : GlobalVariables.colours.window
 			}
 		}
