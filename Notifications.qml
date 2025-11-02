@@ -12,7 +12,7 @@ import "services"
 import "controls"
 
 PanelWindow { id: root
-	property string horizontalPosition: "centre"
+	property string horizontalPosition
 
 	anchors {
 		left: horizontalPosition === "left"
@@ -24,7 +24,7 @@ PanelWindow { id: root
 	exclusionMode: ExclusionMode.Ignore
 	WlrLayershell.layer: WlrLayer.Overlay
 	mask: Region { item: list; }
-	implicitWidth: GlobalVariables.controls.notificationWidth +60
+	implicitWidth: screen.width /8 +60
 	color: "transparent"
 
 	Column { id: list
@@ -94,7 +94,7 @@ PanelWindow { id: root
 						timeoutAnim.complete();
 					}
 					content: Rectangle { id: content
-						width: GlobalVariables.controls.notificationWidth
+						width: screen.width /8
 						height: notificationLayout.height
 						radius: GlobalVariables.controls.radius
 						color: GlobalVariables.colours.mid

@@ -14,7 +14,6 @@ Singleton { id: root
 		readonly property int radius: 8
 		readonly property int barHeight: 32
 		readonly property int iconSize: 16
-		readonly property int notificationWidth: 320
 		readonly property string terminal: "ghostty"
 	}
 	readonly property QtObject font: QtObject {

@@ -110,7 +110,7 @@ QsButton { id: root
 
 
 			ColumnLayout { id: notificationList
-				width: GlobalVariables.controls.notificationWidth
+				width: screen.width /8
 
 				// top padding element
 				Item { Layout.preferredHeight: 1; }
@@ -149,7 +149,7 @@ QsButton { id: root
 							}
 						}
 						content: RowLayout { id: bodyLayout
-							width: GlobalVariables.controls.notificationWidth
+							width: screen.width /8
 							spacing: GlobalVariables.controls.spacing
 
 							// notification image, fallback to app icon if none

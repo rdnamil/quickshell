@@ -1,0 +1,53 @@
+/*-------------------------------
+--- Widget.template by andrel ---
+-------------------------------*/
+
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import Quickshell
+import Quickshell.Widgets
+import "../"
+import "../controls"
+
+QsButton { id: root
+	anim: false
+	shade: false
+	onClicked: popout.toggle();
+	content: IconImage {
+		implicitSize: GlobalVariables.controls.iconSize
+		source: Quickshell.iconPath("${application-images}")
+	}
+
+	Popout { id: popout
+		onIsOpenChanged: if (!isOpen) bodyContent.ScrollBar.vertical.position = 0.0;
+		anchor: root
+		// header: RowLayout { id: headerContent }
+		body: ScrollView { id: bodyContent
+			topPadding: GlobalVariables.controls.padding
+			bottomPadding: GlobalVariables.controls.padding
+			width: screen.width /6
+
+			ColumnLayout {
+				spacing: GlobalVariables.controls.spacing
+				width: parent.width
+
+				// top padding element
+				Item { Layout.preferredHeight: 1; }
+
+				Repeater {
+					model: ${model}
+					delegate: QsButton {
+						shade: false
+						highlight: true
+						Layout.fillWidth: true
+						content: ${cursor}
+					}
+				}
+
+				// bottom padding element
+				Item { Layout.preferredHeight: 1; }
+			}
+		}
+	}
+}
