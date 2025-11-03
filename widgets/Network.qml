@@ -3,6 +3,7 @@
 -------------------------------------*/
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
@@ -38,7 +39,6 @@ QsButton { id: root
 		if (!popout.isOpen) Network.updateWirelessNetworks();
 		popout.toggle();
 	}
-	onMiddleClicked: Network.radio(!Network.status?.radio);
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: {
@@ -54,59 +54,56 @@ QsButton { id: root
 							return Quickshell.iconPath("network-wireless-offline");
 					}
 				}
-				case 'ethernet':
-					switch (true) {
-						case Network.status.state.includes("connecting"):
-							return Quickshell.iconPath("network-wired-acquiring");
-						case Network.status.state === "connected":
-							return Quickshell.iconPath("network-wired");
-						default:
-							return Quickshell.iconPath("network-wired-offline");
-					}
-				default:
-					return Quickshell.iconPath("nm-no-connection");
+						case 'ethernet':
+							switch (true) {
+								case Network.status.state.includes("connecting"):
+									return Quickshell.iconPath("network-wired-acquiring");
+								case Network.status.state === "connected":
+									return Quickshell.iconPath("network-wired");
+								default:
+									return Quickshell.iconPath("network-wired-offline");
+							}
+								default:
+									return Quickshell.iconPath("nm-no-connection");
 			}
 		}
 	}
 
 	Popout { id: popout
+		onIsOpenChanged: if (!isOpen) bodyContent.ScrollBar.vertical.position = 0.0;
 		anchor: root
 		header: RowLayout { id: headerContent
-			width: Math.max(Layout.minimumWidth, Layout.preferredWidth)
-			Layout.preferredWidth: bodyContent.width
+			width: screen.width /6
 
+			// wifi adapter toggle
 			Row {
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.rightMargin: 0
 				spacing: 3
 
-				// wifi radio toggle
 				IconImage {
 					anchors.verticalCenter: parent.verticalCenter
 					implicitSize: GlobalVariables.controls.iconSize
-					source: Network.status.radio? Quickshell.iconPath("network-wireless-signal-excellent") : Quickshell.iconPath("network-wireless-disabled")
+					source: Quickshell.iconPath("network-wireless-signal-excellent")
 				}
 
 				QsSwitch {
-					anchors.verticalCenter: parent.verticalCenter
 					isOn: Network.status?.radio || false
 					onClicked: Network.radio(!isOn);
 				}
 			}
 
-			// spacer
-			Item { Layout.minimumWidth: 32; Layout.fillWidth: true; }
-
-			// rescan wireless networks button
+			// refresh
 			QsButton {
+				Layout.alignment: Qt.AlignRight
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
-				onClicked: Network.rescan();
 				tooltip: Text {
 					text: "Refresh"
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.regular
 				}
+				onClicked: Network.rescan();
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent
@@ -116,69 +113,28 @@ QsButton { id: root
 				}
 			}
 		}
-		body: ColumnLayout { id: bodyContent
-			// width: Layout.minimumWidth
+		body: ScrollView { id: bodyContent
+			topPadding: GlobalVariables.controls.padding
+			bottomPadding: GlobalVariables.controls.padding
+			width: screen.width /6
+			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 
-			// top padding element
-			Item { Layout.preferredHeight: 1; }
+			ColumnLayout { id: layout
+				spacing: GlobalVariables.controls.spacing
+				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
 
-			QsButton {
-				visible: Network.wirelessNetworks.find(n => n.ssid === Network.status.connection) || false
-				Layout.fillWidth: true
-				Layout.minimumWidth: networkLayout.width
-				Layout.preferredHeight: networkLayout.height
-				shade: false
-				highlight: true
-				onClicked: Network.controlNm(["nmcli", "c", "down", "id", Network.status.connection]);
-				content: Row { id: networkLayout
-					leftPadding: GlobalVariables.controls.padding
-					rightPadding: GlobalVariables.controls.padding
-					spacing: GlobalVariables.controls.spacing
+				// top padding element
+				Item { Layout.preferredHeight: 1; }
 
-					// network icon
-					IconImage {
-						anchors.verticalCenter: parent.verticalCenter
-						implicitSize: 24
-						source: networkIcon(Network.wirelessNetworks.find(n => n.ssid === Network.status.connection))
-
-						// display if network is encrypted
-						IconImage {
-							anchors { right: parent.right; bottom: parent.bottom; }
-							implicitSize: 8
-							source: Quickshell.iconPath("network-wireless-encrypted")
-						}
-					}
-
-					Column {
-						anchors.verticalCenter: parent.verticalCenter
-
-						// network name
-						Text {
-							text: Network.status.connection || ""
-							color: GlobalVariables.colours.text
-							font: GlobalVariables.font.regular
-						}
-
-						// display on connected network
-						Text {
-							text: "Connected"
-							color: GlobalVariables.colours.windowText
-							font: GlobalVariables.font.small
-						}
-					}
-				}
-			}
-
-			Repeater {
-				model: Network.wirelessNetworks.filter(n => n.ssid && n.ssid !== Network.status.connection)
-				delegate: QsButton {
-					required property var modelData
-
+				// contected network entry
+				QsButton {
+					visible: Network.wirelessNetworks.find(n => n.ssid === Network.status.connection) || false
 					Layout.fillWidth: true
+					Layout.minimumWidth: networkLayout.width
 					Layout.preferredHeight: networkLayout.height
 					shade: false
 					highlight: true
-					onClicked: Network.controlNm(["nmcli", "d", "w", "c", modelData.ssid]);
+					onClicked: Network.controlNm(["nmcli", "c", "down", "id", Network.status.connection]);
 					content: Row { id: networkLayout
 						leftPadding: GlobalVariables.controls.padding
 						rightPadding: GlobalVariables.controls.padding
@@ -188,7 +144,7 @@ QsButton { id: root
 						IconImage {
 							anchors.verticalCenter: parent.verticalCenter
 							implicitSize: 24
-							source: networkIcon(modelData)
+							source: networkIcon(Network.wirelessNetworks.find(n => n.ssid === Network.status.connection))
 
 							// display if network is encrypted
 							IconImage {
@@ -198,19 +154,68 @@ QsButton { id: root
 							}
 						}
 
-						// network name
-						Text {
+						Column {
 							anchors.verticalCenter: parent.verticalCenter
-							text: modelData.ssid
-							color: GlobalVariables.colours.text
-							font: GlobalVariables.font.regular
+
+							// network name
+							Text {
+								text: Network.status.connection || ""
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.regular
+							}
+
+							// display on connected network
+							Text {
+								text: "Connected"
+								color: GlobalVariables.colours.windowText
+								font: GlobalVariables.font.small
+							}
 						}
 					}
 				}
-			}
 
-			// bottom padding element
-			Item { Layout.preferredHeight: 1; }
+				Repeater {
+					model: Network.wirelessNetworks.filter(n => n.ssid && n.ssid !== Network.status.connection) // don't list connected network
+					delegate: QsButton {
+						required property var modelData
+
+						shade: false
+						highlight: true
+						Layout.fillWidth: true
+						onClicked: Network.controlNm(["nmcli", "d", "w", "c", modelData.ssid]);
+						content: Row {
+							leftPadding: GlobalVariables.controls.padding
+							rightPadding: GlobalVariables.controls.padding
+							spacing: GlobalVariables.controls.spacing
+
+							// network icon
+							IconImage {
+								anchors.verticalCenter: parent.verticalCenter
+								implicitSize: 24
+								source: networkIcon(modelData)
+
+								// display if network is encrypted
+								IconImage {
+									anchors { right: parent.right; bottom: parent.bottom; }
+									implicitSize: 8
+									source: Quickshell.iconPath("network-wireless-encrypted")
+								}
+							}
+
+							// network name
+							Text {
+								anchors.verticalCenter: parent.verticalCenter
+								text: modelData.ssid
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.regular
+							}
+						}
+					}
+				}
+
+				// bottom padding element
+				Item { Layout.preferredHeight: 1; }
+			}
 		}
 	}
 }

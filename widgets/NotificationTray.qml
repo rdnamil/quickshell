@@ -24,6 +24,16 @@ QsButton { id: root
 		for (let n = 0; n < notifications.count; n++) notifications.itemAt(n).isRead = true;
 	}
 
+	Connections {
+		target: Notifications
+		function onAllRead() { root.markAllRead(); }
+	}
+
+	Connections {
+		target: notificationsModel
+		function onValuesChanged() { if (popout.isOpen) Notifications.allRead(); }
+	}
+
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
@@ -59,14 +69,13 @@ QsButton { id: root
 			else bodyContent.ScrollBar.vertical.position = 0.0;
 		}
 		anchor: root
-		header: RowLayout {
-			width: bodyContent.width
-			spacing: GlobalVariables.controls.spacing
+		header: RowLayout { id: headerContent
+			width: screen.width /6
 
-			// do not disturb switch
+			// dnd toggle
 			Row {
 				Layout.margins: GlobalVariables.controls.padding
-				spacing: 4
+				spacing: 3
 
 				IconImage {
 					anchors.verticalCenter: parent.verticalCenter
@@ -80,12 +89,10 @@ QsButton { id: root
 				}
 			}
 
-			// spacer
-			Item { Layout.fillWidth: true; }
-
-			// clear all notifications
+			// clear notifications
 			QsButton {
 				Layout.margins: GlobalVariables.controls.padding
+				Layout.alignment: Qt.AlignRight
 				onClicked: { while (Notifications.server.trackedNotifications.values.length > 0) {
 					Notifications.server.trackedNotifications.values.forEach(n => n.dismiss());
 				}}
@@ -104,30 +111,18 @@ QsButton { id: root
 			}
 		}
 		body: ScrollView { id: bodyContent
-			height: Math.min(notificationList.height, screen.height /3)
-			width: notificationList.width +effectiveScrollBarWidth
+			topPadding: GlobalVariables.controls.padding
+			bottomPadding: GlobalVariables.controls.padding
+			width: screen.width /6
+			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
-
-			ColumnLayout { id: notificationList
-				width: screen.width /8
+			ColumnLayout { id: layout
+				spacing: GlobalVariables.controls.spacing
+				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
 
 				// top padding element
 				Item { Layout.preferredHeight: 1; }
-
-				Item {
-					visible: !(Notifications.server.trackedNotifications.values.length >0)
-					Layout.fillWidth: true
-					Layout.preferredHeight: 24
-					Layout.margins: 2
-
-					Text {
-						anchors.centerIn: parent
-						text: "Nothing to do."
-						color: GlobalVariables.colours.light
-						font: GlobalVariables.font.regular
-					}
-				}
 
 				Repeater { id: notifications
 					model: ScriptModel { id: notificationsModel; values: Notifications.server.trackedNotifications.values.slice().reverse(); }
@@ -140,23 +135,22 @@ QsButton { id: root
 
 						shade: false
 						highlight: true
-						// do default notification action or else dismiss on click
-						onClicked: {
+						Layout.fillWidth: true
+						onClicked: { // do default notification action or else dismiss on click
 							try {
 								modelData.actions[0].invoke();
 							} catch(err) {
 								modelData.dismiss();
 							}
 						}
-						content: RowLayout { id: bodyLayout
-							width: screen.width /8
+						content: RowLayout {
+							width: layout.width
 							spacing: GlobalVariables.controls.spacing
 
 							// notification image, fallback to app icon if none
 							Image { id: image
 								visible: modelData.image || modelData.appIcon
 								Layout.leftMargin: GlobalVariables.controls.padding
-								Layout.rightMargin: 0
 								Layout.preferredWidth: modelData.image? 40 : 24
 								Layout.preferredHeight: modelData.image? 40 : 24
 								fillMode: Image.PreserveAspectFit
@@ -167,12 +161,16 @@ QsButton { id: root
 								Layout.fillWidth: true
 								Layout.leftMargin: image.visible? 0 : GlobalVariables.controls.padding
 								Layout.rightMargin: GlobalVariables.controls.padding
+								topPadding: GlobalVariables.controls.spacing /2
+								bottomPadding: GlobalVariables.controls.spacing /2
 
 								// app name and summary
 								Text {
 									width: parent.width
 									text: `<b>${modelData.appName || modelData.desktopEntry} ⏵</b> ${modelData.summary}`
 									wrapMode: Text.Wrap
+									maximumLineCount: 2
+									elide: Text.ElideRight
 									color: GlobalVariables.colours.text
 									font: GlobalVariables.font.smallsemibold
 								}
@@ -183,6 +181,8 @@ QsButton { id: root
 									width: parent.width
 									text: modelData.body
 									wrapMode: Text.Wrap
+									maximumLineCount: 2
+									elide: Text.ElideRight
 									color: GlobalVariables.colours.text
 									font: GlobalVariables.font.small
 								}
@@ -196,14 +196,5 @@ QsButton { id: root
 			}
 		}
 	}
-
-	Connections {
-		target: Notifications
-		function onAllRead() { root.markAllRead(); }
-	}
-
-	Connections {
-		target: notificationsModel
-		function onValuesChanged() { if (popout.isOpen) Notifications.allRead(); }
-	}
 }
+

@@ -1,8 +1,9 @@
-/*-----------------------------
---- Bluetooth.qml - widgets ---
------------------------------*/
+/*------------------------------
+*--- Bluetooth.qml - widgets ---
+*-----------------------------*/
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Bluetooth
@@ -30,22 +31,14 @@ QsButton { id: root
 		}
 	}
 
-	// notify on adapter enabled changed
-	Connections {
-		target: Bluetooth.defaultAdapter
-		function onEnabledChanged() { Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Bluetooth is ${Bluetooth.defaultAdapter.enabled? "enabled" : "disabled"}.`); }
-	}
-
-	Process { id: control; }
-
 	Popout { id: popout
+		onIsOpenChanged: if (!isOpen) bodyContent.ScrollBar.vertical.position = 0.0;
 		anchor: root
-		header: RowLayout {
-			width: Math.max(Layout.minimumWidth, Layout.preferredWidth)
-			Layout.preferredWidth: bodyContent.width
+		header: RowLayout { id: headerContent
+			width: screen.width /6
 
+			// bluetooth adapter toggle
 			Row {
-				Layout.alignment: Qt.AlignVCenter
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.rightMargin: 0
 				spacing: 3
@@ -62,21 +55,17 @@ QsButton { id: root
 				}
 			}
 
-			// spacer
-			Item { Layout.minimumWidth: 32; Layout.fillWidth: true; }
-
+			// scan/add devices
 			QsButton {
-				Layout.alignment: Qt.AlignVCenter
+				Layout.alignment: Qt.AlignRight
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
-				onClicked: {
-					Bluetooth.defaultAdapter.discovering = !Bluetooth.defaultAdapter.discovering;
-				}
 				tooltip: Text {
 					text: "Scan"
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.regular
 				}
+				onClicked: Bluetooth.defaultAdapter.discovering = !Bluetooth.defaultAdapter.discovering;
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent
@@ -95,91 +84,98 @@ QsButton { id: root
 				}
 			}
 		}
-		body: ColumnLayout { id: bodyContent
-			spacing: GlobalVariables.controls.spacing
+		body: ScrollView { id: bodyContent
+			topPadding: GlobalVariables.controls.padding
+			bottomPadding: GlobalVariables.controls.padding
+			width: screen.width /6
+			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 
-			// top spacing element
-			Item { Layout.preferredHeight: 1; }
+			ColumnLayout { id: layout
+				spacing: GlobalVariables.controls.spacing
+				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
 
-			Repeater {
-				model: Bluetooth.defaultAdapter.devices
-				delegate: QsButton { id: device
-					required property var modelData
+				// top padding element
+				Item { Layout.preferredHeight: 1; }
 
-					Layout.fillWidth: true
-					Layout.preferredHeight: bodyLayout.height
-					shade: false
-					highlight: true
-					onClicked: {
-						if (!modelData.paired) {
-							Quickshell.execDetached(["bluetoothctl", "pair", modelData.address]);
-						} else if (!modelData.connected) {
-							Quickshell.execDetached(["bluetoothctl", "connect", modelData.address]);
-						} else {
-							Quickshell.execDetached(["bluetoothctl", "disconnect", modelData.address]);
-						}
-					}
-					content: Row { id: bodyLayout
-						leftPadding: GlobalVariables.controls.padding
-						rightPadding: GlobalVariables.controls.padding
-						spacing: GlobalVariables.controls.spacing
+				Repeater {
+					model: Bluetooth.defaultAdapter.devices
+					delegate: QsButton {
+						required property var modelData
 
-						IconImage {
-							anchors.verticalCenter: parent.verticalCenter
-							implicitSize: 24
-							source: Quickshell.iconPath(modelData.icon, "blueman-device")
-						}
-
-						Column {
-							anchors.verticalCenter: parent.verticalCenter
-
-							Text {
-								text: modelData.name
-								color: (modelData.state === (BluetoothDeviceState.Connecting ||  BluetoothDeviceState.Disconnecting)) || modelData.pairing? GlobalVariables.colours.windowText : GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
-
-							Text {
-								visible: modelData.connected
-								text: modelData.connected? "Connected" : null
-								color: GlobalVariables.colours.windowText
-								font: GlobalVariables.font.small
-							}
-
-							Text {
-								visible: !modelData.connected
-								text: modelData.address
-								color: GlobalVariables.colours.windowText
-								font: GlobalVariables.font.monosmaller
-							}
-						}
-					}
-
-					Connections {
-						target: modelData
-
-						// connect to and trust device once paired
-						function onPairedChanged() {
-							if (modelData.paired) {
+						shade: false
+						highlight: true
+						Layout.fillWidth: true
+						onClicked: {
+							if (!modelData.paired) {
+								Quickshell.execDetached(["bluetoothctl", "pair", modelData.address]);
+							} else if (!modelData.connected) {
 								Quickshell.execDetached(["bluetoothctl", "connect", modelData.address]);
-								Quickshell.execDetached(["bluetoothctl", "trust", modelData.address]);
+							} else {
+								Quickshell.execDetached(["bluetoothctl", "disconnect", modelData.address]);
+							}
+						}
+						content: Row { id: bodyLayout
+							leftPadding: GlobalVariables.controls.padding
+							rightPadding: GlobalVariables.controls.padding
+							spacing: GlobalVariables.controls.spacing
+
+							IconImage {
+								anchors.verticalCenter: parent.verticalCenter
+								implicitSize: 24
+								source: Quickshell.iconPath(modelData.icon, "blueman-device")
+							}
+
+							Column {
+								anchors.verticalCenter: parent.verticalCenter
+
+								Text {
+									text: modelData.name
+									color: (modelData.state === (BluetoothDeviceState.Connecting ||  BluetoothDeviceState.Disconnecting)) || modelData.pairing? GlobalVariables.colours.windowText : GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+
+								Text {
+									visible: modelData.connected
+									text: modelData.connected? "Connected" : null
+									color: GlobalVariables.colours.windowText
+									font: GlobalVariables.font.small
+								}
+
+								Text {
+									visible: !modelData.connected
+									text: modelData.address
+									color: GlobalVariables.colours.windowText
+									font: GlobalVariables.font.monosmaller
+								}
 							}
 						}
 
-						// send notification on device status changed
-						function onConnectedChanged() {
-							if (modelData.connected) {
-								Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Connected to ${modelData.name}.`);
-							} else {
-								Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Disconnected from ${modelData.name}.`);
+						Connections {
+							target: modelData
+
+							// connect to and trust device once paired
+							function onPairedChanged() {
+								if (modelData.paired) {
+									Quickshell.execDetached(["bluetoothctl", "connect", modelData.address]);
+									Quickshell.execDetached(["bluetoothctl", "trust", modelData.address]);
+								}
+							}
+
+							// send notification on device status changed
+							function onConnectedChanged() {
+								if (modelData.connected) {
+									Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Connected to ${modelData.name}.`);
+								} else {
+									Notifications.notify("bluetooth", "Quickshell", "Bluetooth", `Disconnected from ${modelData.name}.`);
+								}
 							}
 						}
 					}
 				}
-			}
 
-			// bottom spacing element
-			Item { Layout.preferredHeight: 1; }
+				// bottom padding element
+				Item { Layout.preferredHeight: 1; }
+			}
 		}
 	}
 }

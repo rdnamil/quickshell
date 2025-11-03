@@ -21,8 +21,6 @@ IconImage { id: root
 		text: "100%"
 	}
 
-	property real settingsWidth: 256
-
 	implicitSize: GlobalVariables.controls.iconSize
 	// icon reflects volume level
 	source: {
@@ -94,38 +92,24 @@ IconImage { id: root
 		onIsOpenChanged: if (!popout.isOpen) dropdown.close();
 		header: RowLayout { id: headerContent
 			spacing: GlobalVariables.controls.spacing
-
-			// IconImage {
-			// 	Layout.alignment: Qt.AlignVCenter
-			// 	Layout.margins: GlobalVariables.controls.padding
-			// 	Layout.rightMargin: 0
-   //
-			// 	implicitSize: GlobalVariables.controls.iconSize
-			// 	source: Quickshell.iconPath("audio-card")
-			// }
+			width: screen.width /6
 
 			QsDropdown { id: dropdown
-				Layout.alignment: Qt.AlignVCenter
-				Layout.preferredWidth: settingsWidth
 				Layout.margins: GlobalVariables.controls.padding
-				// Layout.leftMargin: 0
-				// Layout.rightMargin: 0
+				Layout.fillWidth: true
 				options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
 				selection: Pipewire.defaultAudioSink?.description
 				onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
-				// onSelectionChanged: Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === selection)
 			}
 		}
-		body: RowLayout { id: content
-			width: Math.max(settingsWidth, headerContent.width)
+		body: RowLayout { id: bodyContent
+			width: screen.width /6
 
 			Text {
 				Layout.alignment: Qt.AlignVCenter
 				Layout.preferredWidth: textMetrics.width
-				Layout.leftMargin: GlobalVariables.controls.padding
+				Layout.margins: GlobalVariables.controls.padding
 				Layout.rightMargin: 0
-				Layout.topMargin: 4
-				Layout.bottomMargin: 4
 				text: `${parseInt(volume *100)}%`
 				color: GlobalVariables.colours.windowText
 				font: GlobalVariables.font.regular
@@ -135,10 +119,8 @@ IconImage { id: root
 			Slider {
 				Layout.fillWidth: true
 				Layout.alignment: Qt.AlignVCenter
+				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
-				Layout.rightMargin: GlobalVariables.controls.padding
-				Layout.topMargin: 4
-				Layout.bottomMargin: 4
 				from: 0.0
 				value: volume
 				to: 1.0

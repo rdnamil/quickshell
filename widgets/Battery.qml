@@ -1,8 +1,10 @@
-/*-------------------------------------
---- Battery.qml - widgets by andrel ---
--------------------------------------*/
+/*--------------------------------------
+*--- Battery.qml - widgets by andrel ---
+*-------------------------------------*/
 
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.UPower
@@ -49,8 +51,8 @@ QsButton { id: root
 
 	anim: false
 	shade: false
-	onClicked: popout.toggle();
 	tooltip: isLaptopBattery? tooltipText : null
+	onClicked: popout.toggle();
 	content: Item {
 		width: isLaptopBattery? icon.height : icon.width
 		height: isLaptopBattery? icon.width : icon.height
@@ -67,14 +69,16 @@ QsButton { id: root
 	}
 
 	Popout { id: popout
+		onIsOpenChanged: if (!isOpen) bodyContent.ScrollBar.vertical.position = 0.0;
 		anchor: root
-		header: Row {
-			padding: GlobalVariables.controls.padding
+		header: RowLayout { id: headerContent
 			spacing: GlobalVariables.controls.spacing
 
-			// set balanced power profile
+			// balanced power profile
 			Row {
-				spacing: 4
+				Layout.margins: GlobalVariables.controls.padding
+				Layout.rightMargin: 0
+				spacing: 3
 
 				Text {
 					text: ""
@@ -88,7 +92,7 @@ QsButton { id: root
 				}
 			}
 
-			// set performance power profile
+			// performance power profile
 			Row {
 				spacing: 3
 
@@ -104,50 +108,103 @@ QsButton { id: root
 				}
 			}
 		}
-		body: Column {
-			padding: GlobalVariables.controls.padding
-			spacing: GlobalVariables.controls.spacing
+		body: ScrollView { id: bodyContent
+			topPadding: GlobalVariables.controls.padding
+			bottomPadding: GlobalVariables.controls.padding
+			width: screen.width /6
+			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 
-			// list devices, their battery, and their status
-			Repeater {
-				model: UPower.devices
-				delegate: Row {
-					required property var modelData
+			ColumnLayout { id: layout
+				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
 
-					visible: modelData.model
-					spacing: GlobalVariables.controls.spacing
+				// top padding element
+				Item { Layout.preferredHeight: 1; }
 
-					Connections {
-						target: modelData
-						function onPercentageChanged() { if (modelData.percentage === 0.14 && !battery.isCharging) Notifications.notify("battery-level-10", "Quickshell", "Power", `${modelData.model}'s battery is running low.`) }
-					}
+				Repeater {
+					model: UPower.devices
+					delegate: Rectangle {
+						required property var modelData
+						required property int index
 
-					Battery { id: battery
-						anchors.verticalCenter: parent.verticalCenter
-						height: 24
-						material: true
-						percentage: modelData.percentage
-						isCharging: modelData.state === UPowerDeviceState.Charging
-					}
+						visible: modelData.model
+						width: parent.width
+						height: layout.height
+						color: (index %2 === 0)? "transparent" : GlobalVariables.colours.midlight
 
-					Column {
-						anchors.verticalCenter: parent.verticalCenter
+						RowLayout { id: layout
+							width: parent.width
+							spacing: GlobalVariables.controls.spacing
 
-						Text {
-							text: modelData.model
-							color: GlobalVariables.colours.text
-							font: GlobalVariables.font.regular
+							Row {
+								Layout.alignment: Qt.AlignVCenter
+								Layout.leftMargin: GlobalVariables.controls.padding
+								topPadding: GlobalVariables.controls.spacing /2
+								bottomPadding: GlobalVariables.controls.spacing /2
+								spacing: GlobalVariables.controls.spacing
+
+								IconImage {
+									implicitSize: GlobalVariables.controls.iconSize
+									source: isLaptopBattery? Quickshell.iconPath("laptop") : Quickshell.iconPath(UPowerDeviceType.toString(modelData.type).toLowerCase())
+								}
+
+								Row {
+									spacing: 3
+
+									Text {
+										text: modelData.model
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.regular
+									}
+
+									Text {
+										text: UPowerDeviceState.toString(modelData.state).toLowerCase()
+										color: GlobalVariables.colours.windowText
+										font: GlobalVariables.font.regular
+									}
+								}
+							}
+
+							Row {
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								Layout.rightMargin: GlobalVariables.controls.padding
+								topPadding: GlobalVariables.controls.spacing /2
+								bottomPadding: GlobalVariables.controls.spacing /2
+								rightPadding: battery.height -battery.width
+								spacing: GlobalVariables.controls.spacing
+
+								Text {
+									readonly property TextMetrics textMetric: TextMetrics {
+										text: "100%"
+										font: GlobalVariables.font.regular
+									}
+
+									width: textMetric.width
+									anchors.verticalCenter: parent.verticalCenter
+									text: `${parseInt(modelData.percentage *100)}%`
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.small
+								}
+
+								Battery { id: battery
+									height: 20
+									rotation: 90
+									material: true
+									percentage: modelData.percentage
+									isCharging: modelData.state === UPowerDeviceState.Charging
+								}
+							}
 						}
 
-						Text {
-							text: `${parseInt(modelData.percentage *100)}% ${UPowerDeviceState.toString(modelData.state)}`
-							color: GlobalVariables.colours.text
-							font: GlobalVariables.font.small
+						Connections {
+							target: modelData
+							function onPercentageChanged() { if (modelData.percentage === 0.14 && !battery.isCharging) Notifications.notify("battery-level-10", "Quickshell", "Power", `${modelData.model}'s battery is running low.`) }
 						}
 					}
 				}
+
+				// bottom padding element
+				Item { Layout.preferredHeight: 1; }
 			}
 		}
 	}
 }
-

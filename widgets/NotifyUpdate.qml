@@ -1,12 +1,10 @@
-/*----------------------
---- NotifyUpdate.qml ---
-----------------------*/
+/*--------------------------------
+--- NotifyUpdate.qml by andrel ---
+--------------------------------*/
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Effects
-import Qt5Compat.GraphicalEffects
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
 import "../"
@@ -18,11 +16,6 @@ QsButton { id: root
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
-	tooltip: Text {
-		text: `${NotifyUpdate.updates.filter(u => u.package).length} Updates`
-		color: GlobalVariables.colours.text
-		font: GlobalVariables.font.regular
-	}
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: Quickshell.iconPath("package")
@@ -43,26 +36,21 @@ QsButton { id: root
 	}
 
 	Popout { id: popout
-		anchor: root
 		onIsOpenChanged: if (!isOpen) bodyContent.ScrollBar.vertical.position = 0.0;
-		header: RowLayout {
-			Layout.minimumWidth: 128
-			Layout.preferredWidth: bodyContent.width
-			width: Math.max(Layout.minimumWidth, Layout.preferredWidth)
-			spacing: GlobalVariables.controls.spacing
+		anchor: root
+		header: RowLayout { id: headerContent
+			width: screen.width /6
 
+			// update button
 			QsButton {
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.rightMargin: 0
-				onClicked: {
-					Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
-					popout.toggle();
-				}
 				tooltip: Text {
 					text: "Update"
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.regular
 				}
+				onClicked: Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent
@@ -72,16 +60,17 @@ QsButton { id: root
 				}
 			}
 
+			// refresh button
 			QsButton {
 				Layout.alignment: Qt.AlignRight
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
-				onClicked: NotifyUpdate.refresh();
 				tooltip: Text {
 					text: "Refresh"
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.regular
 				}
+				onClicked: NotifyUpdate.refresh();
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent
@@ -92,29 +81,17 @@ QsButton { id: root
 			}
 		}
 		body: ScrollView { id: bodyContent
-			height: Math.min(updates.height, screen.height /3)
-			width: updates.width +effectiveScrollBarWidth
-			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+			topPadding: GlobalVariables.controls.padding
+			bottomPadding: GlobalVariables.controls.padding
+			width: screen.width /6
+			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 
-			ColumnLayout { id: updates
-				Layout.preferredWidth: 128
+			ColumnLayout { id: layout
 				spacing: 0
+				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
 
+				// top padding element
 				Item { Layout.preferredHeight: 1; }
-
-				Item {
-					visible: !(NotifyUpdate.updates.filter(u => u.package).length >0)
-					Layout.preferredWidth: 128
-					Layout.preferredHeight: 24
-					Layout.margins: 2
-
-					Text {
-						anchors.centerIn: parent
-						text: "Nothing to do."
-						color: GlobalVariables.colours.light
-						font: GlobalVariables.font.regular
-					}
-				}
 
 				Repeater { id: repeater
 					model: NotifyUpdate.updates.filter(u => u.package)
@@ -123,14 +100,12 @@ QsButton { id: root
 						required property int index
 
 						Layout.fillWidth: true
-						Layout.minimumWidth: update.width +GlobalVariables.controls.padding *2
-						Layout.minimumHeight: update.height
+						height: update.height
 						color: (index % 2 === 0)? "transparent" : GlobalVariables.colours.mid
 
 						Row { id: update
-							x: GlobalVariables.controls.padding
-							topPadding: 1
-							bottomPadding: 1
+							leftPadding: GlobalVariables.controls.padding
+							rightPadding: GlobalVariables.controls.padding
 							spacing: GlobalVariables.controls.spacing
 
 							Text {
@@ -142,6 +117,9 @@ QsButton { id: root
 							}
 
 							Column {
+								topPadding: GlobalVariables.controls.spacing /2
+								bottomPadding: GlobalVariables.controls.spacing /2
+
 								Text {
 									text: `<b>${modelData.package}</b>`
 									color: GlobalVariables.colours.text
@@ -158,6 +136,7 @@ QsButton { id: root
 					}
 				}
 
+				// bottom padding element
 				Item { Layout.preferredHeight: 1; }
 			}
 		}
