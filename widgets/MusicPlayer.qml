@@ -39,7 +39,7 @@ Loader { id: root
 	property bool showTimeRemaining
 
 	width: active? playerWidth : 0
-	active: activePlayer
+	active: activePlayer && activePlayer.trackTitle
 	sourceComponent: RowLayout {
 		readonly property real elapsed: activePlayer.position /activePlayer.length
 
@@ -52,7 +52,6 @@ Loader { id: root
 			return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
 		}
 
-		width: activePlayer.trackTitle? playerWidth : 0
 		spacing: 4
 		clip: true
 
