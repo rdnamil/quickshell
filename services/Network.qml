@@ -22,6 +22,7 @@ Singleton { id: root
 
 	function updateWirelessNetworks() {
 		getWirelessNetworks.running = true;
+		getSavedNetworks.running = true
 	}
 
 	function rescan() {
