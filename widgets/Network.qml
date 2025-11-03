@@ -202,12 +202,22 @@ QsButton { id: root
 								}
 							}
 
-							// network name
-							Text {
+							Column {
 								anchors.verticalCenter: parent.verticalCenter
-								text: modelData.ssid
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
+
+								// network name
+								Text {
+									text: modelData.ssid
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+
+								Text {
+									visible: Network.savedNetworks.some(n => n.ssid.includes(modelData.ssid))
+									text: "Saved"
+									color: GlobalVariables.colours.windowText
+									font: GlobalVariables.font.small
+								}
 							}
 						}
 					}
