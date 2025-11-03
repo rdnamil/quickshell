@@ -39,6 +39,11 @@ Singleton { id: root
 			family: "Adwaita Sans",
 			pointSize: 8
 		})
+		readonly property font smallitalics: Qt.font({
+			family: "Adwaita Sans",
+			pointSize: 8,
+			italic: true
+		})
 		readonly property font smallsemibold: Qt.font({
 			family: "Adwaita Sans",
 			pointSize: 8,
