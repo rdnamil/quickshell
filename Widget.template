@@ -27,10 +27,11 @@ QsButton { id: root
 			topPadding: GlobalVariables.controls.padding
 			bottomPadding: GlobalVariables.controls.padding
 			width: screen.width /6
+			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 
-			ColumnLayout {
+			ColumnLayout { id: layout
 				spacing: GlobalVariables.controls.spacing
-				width: parent.width
+				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
 
 				// top padding element
 				Item { Layout.preferredHeight: 1; }
@@ -38,6 +39,8 @@ QsButton { id: root
 				Repeater {
 					model: ${model}
 					delegate: QsButton {
+						required property var modelData
+
 						shade: false
 						highlight: true
 						Layout.fillWidth: true
