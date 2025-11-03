@@ -42,5 +42,5 @@ Rectangle { id: root
 		}
 	}
 
-	Borders {}
+	Borders { opacity: 0.75; }
 }
