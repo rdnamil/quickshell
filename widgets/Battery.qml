@@ -113,6 +113,7 @@ QsButton { id: root
 			bottomPadding: GlobalVariables.controls.padding
 			width: screen.width /6
 			height: Math.min(screen.height /3, layout.height+ topPadding *2)
+			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
 			ColumnLayout { id: layout
 				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
@@ -144,7 +145,12 @@ QsButton { id: root
 
 								IconImage {
 									implicitSize: GlobalVariables.controls.iconSize
-									source: isLaptopBattery? Quickshell.iconPath("laptop") : Quickshell.iconPath(UPowerDeviceType.toString(modelData.type).toLowerCase())
+									source: switch (UPowerDeviceType.toString(modelData.type).toLowerCase()) {
+										case "gaming input":
+											return Quickshell.iconPath("input-gaming");
+										default:
+											return Quickshell.iconPath(UPowerDeviceType.toString(modelData.type).toLowerCase());
+									}
 								}
 
 								Row {
