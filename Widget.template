@@ -28,6 +28,7 @@ QsButton { id: root
 			bottomPadding: GlobalVariables.controls.padding
 			width: screen.width /6
 			height: Math.min(screen.height /3, layout.height+ topPadding *2)
+			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
 			ColumnLayout { id: layout
 				spacing: GlobalVariables.controls.spacing
