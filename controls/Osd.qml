@@ -8,8 +8,8 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
-import "../"
-import "../styles"
+import qs
+import qs.styles
 
 Item { id: root
 	required property Item content

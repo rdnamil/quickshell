@@ -9,10 +9,10 @@ import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Io
 import Quickshell.Widgets
-import "../"
-import "../services"
-import "../controls"
-import "../styles" as Style
+import qs
+import qs.services
+import qs.controls
+import qs.styles as Style
 
 QsButton { id: root
 	anim: false

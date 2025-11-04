@@ -3,7 +3,7 @@
 ---------------------------*/
 
 import QtQuick
-import "../"
+import qs
 
 Rectangle {
 	property bool inverted

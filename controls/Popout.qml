@@ -7,9 +7,9 @@ import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Io
-import "../"
-import "../services"
-import "../styles"
+import qs
+import qs.services
+import qs.styles
 
 Item { id: root
 	required property Item anchor

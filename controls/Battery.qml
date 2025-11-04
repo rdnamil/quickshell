@@ -6,7 +6,7 @@ import QtQuick
 import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
-import "../"
+import qs
 
 Item { id: root
 	property real percentage: 1.0

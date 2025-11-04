@@ -6,7 +6,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
-import "../"
+import qs
 
 Loader { id: root
 	property var weather: null

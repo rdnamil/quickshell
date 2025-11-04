@@ -3,7 +3,7 @@
 ---------------------------*/
 
 import QtQuick
-import "../"
+import qs
 
 Item { id: root
 	required property Item content

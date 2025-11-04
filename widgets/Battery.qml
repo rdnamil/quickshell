@@ -8,9 +8,9 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.UPower
-import "../"
-import "../services"
-import "../controls"
+import qs
+import qs.services
+import qs.controls
 
 QsButton { id: root
 	readonly property bool isLaptopBattery: UPower.displayDevice?.isLaptopBattery

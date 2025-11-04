@@ -9,9 +9,9 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Io
-import "../"
-import "../controls"
-import "../styles" as Style
+import qs
+import qs.controls
+import qs.styles as Style
 
 QsButton { id: root
 	readonly property list<var> categories: [

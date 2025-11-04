@@ -4,7 +4,7 @@
 
 import QtQuick
 import Qt5Compat.GraphicalEffects
-import "../"
+import qs
 
 Rectangle { id: root
 	property bool inverted

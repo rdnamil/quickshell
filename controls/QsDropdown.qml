@@ -8,8 +8,8 @@ import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
-import "../"
-import "../styles"
+import qs
+import qs.styles
 
 QsButton { id: root
 	required property list<string> options

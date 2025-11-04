@@ -8,8 +8,8 @@ import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
-import "services"
-import "controls"
+import qs.services
+import qs.controls
 
 PanelWindow { id: root
 	property string horizontalPosition

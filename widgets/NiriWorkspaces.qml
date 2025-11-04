@@ -5,9 +5,9 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "../"
-import "../controls"
-import "../services"
+import qs
+import qs.services
+import qs.controls
 
 Loader { id: root
 	// get list on workspaces on this.screen

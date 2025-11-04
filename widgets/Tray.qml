@@ -7,8 +7,8 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.SystemTray
-import ".."
-import "../controls"
+import qs
+import qs.controls
 
 Row { id: root
 	spacing: GlobalVariables.controls.spacing /2	// spacing for tray items

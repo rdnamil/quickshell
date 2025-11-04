@@ -4,7 +4,7 @@
 
 import QtQuick
 import Quickshell
-import "../"
+import qs
 
 Row { id: root
 	spacing: 4

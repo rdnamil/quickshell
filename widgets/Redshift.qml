@@ -7,8 +7,8 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
-import "../"
-import "../controls"
+import qs
+import qs.controls
 
 QsButton { id: root
 	property string startTime

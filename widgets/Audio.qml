@@ -9,9 +9,9 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
-import "../"
-import "../controls"
-import "../styles" as Style
+import qs
+import qs.controls
+import qs.styles as Style
 
 IconImage { id: root
 	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted

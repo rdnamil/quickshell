@@ -8,7 +8,7 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
-import "controls"
+import qs.controls
 
 Osd { id: root
 	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted

@@ -5,7 +5,7 @@
 import QtQuick
 import Qt5Compat.GraphicalEffects
 import Quickshell
-import "../"
+import qs
 
 Item { id: root
 	required property Item content

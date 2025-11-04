@@ -6,9 +6,9 @@ import QtQuick
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
-import "../"
-import "../controls"
-import "../services"
+import qs
+import qs.controls
+import qs.services
 
 QsButton { id: root
 	anim: false

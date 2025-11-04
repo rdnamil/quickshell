@@ -6,7 +6,7 @@ import QtQuick
 import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
-import "../"
+import qs
 
 QsButton {
 	required property var checkState // values can be 'Unchecked', 'PartiallyChecked', or 'Checked'

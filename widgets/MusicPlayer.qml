@@ -10,8 +10,8 @@ import Quickshell
 import Quickshell.Services.Mpris
 import Quickshell.Services.Pipewire
 import Quickshell.Widgets
-import "../"
-import "../controls"
+import qs
+import qs.controls
 
 Loader { id: root
 	readonly property real playerWidth: 304

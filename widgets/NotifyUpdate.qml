@@ -7,10 +7,10 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
-import "../"
-import "../services"
-import "../controls"
-import "../styles" as Style
+import qs
+import qs.services
+import qs.controls
+import qs.styles as Style
 
 QsButton { id: root
 	anim: false

@@ -7,7 +7,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
-import "controls"
+import qs.controls
 
 Osd { id: root
 	readonly property real brightness: currentBrightness /maxBrightness
