@@ -6,7 +6,9 @@
 
 import QtQuick
 import Quickshell
-import "widgets"
+import Quickshell.Io
+import qs.services as Service
+import qs.widgets
 
 Scope { id: root
 	// create bar on every screen
@@ -14,12 +16,12 @@ Scope { id: root
 		model: Quickshell.screens
 		delegate: Bar {
 			leftItems: [
-				AppDrawer {}
-				,Network {}
+				// AppDresser {},
+				Network {}
 				,Bluetooth {}
 				,Audio {}
 				,MusicPlayer {
-					showTimeRemaining: true
+					// showTimeRemaining: true
 				}
 				// ,Shazam {}
 			]
@@ -46,4 +48,7 @@ Scope { id: root
 	Notifications {}
 	Volume {}
 	Brightness {}
+
+	// connect to shell services
+	Connections { target: Service.Shell; }
 }
