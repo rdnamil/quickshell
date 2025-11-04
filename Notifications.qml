@@ -24,7 +24,7 @@ PanelWindow { id: root
 	exclusionMode: ExclusionMode.Ignore
 	WlrLayershell.layer: WlrLayer.Overlay
 	mask: Region { item: list; }
-	implicitWidth: screen.width /8 +60
+	implicitWidth: screen.width /6 +60
 	color: "transparent"
 
 	Column { id: list
@@ -94,7 +94,7 @@ PanelWindow { id: root
 						timeoutAnim.complete();
 					}
 					content: Rectangle { id: content
-						width: screen.width /8
+						width: screen.width /6
 						height: notificationLayout.height
 						radius: GlobalVariables.controls.radius
 						color: GlobalVariables.colours.mid

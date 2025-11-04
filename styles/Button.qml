@@ -11,7 +11,7 @@ Rectangle { id: root
 
 	width: GlobalVariables.controls.iconSize +GlobalVariables.controls.spacing
 	height: width
-	radius: GlobalVariables.controls.radius
+	radius: 6
 	color: GlobalVariables.colours.midlight
 	layer.enabled: true
 	layer.effect: OpacityMask {

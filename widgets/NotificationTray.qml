@@ -133,9 +133,10 @@ QsButton { id: root
 						// tag notification as unread if notification tray not open
 						property bool isRead
 
+						Layout.fillWidth: true
+						Layout.preferredHeight: height
 						shade: false
 						highlight: true
-						Layout.fillWidth: true
 						onClicked: { // do default notification action or else dismiss on click
 							try {
 								modelData.actions[0].invoke();
@@ -149,30 +150,38 @@ QsButton { id: root
 
 							// notification image, fallback to app icon if none
 							Image { id: image
-								visible: modelData.image || modelData.appIcon
+								visible: modelData.image
 								Layout.leftMargin: GlobalVariables.controls.padding
-								Layout.preferredWidth: modelData.image? 40 : 24
-								Layout.preferredHeight: modelData.image? 40 : 24
+								Layout.preferredWidth: 40
+								Layout.preferredHeight: 40
 								fillMode: Image.PreserveAspectFit
-								source: modelData.image || Quickshell.iconPath(modelData.appIcon, true) || modelData.appIcon
+								source: modelData.image
 							}
 
 							Column {
 								Layout.fillWidth: true
 								Layout.leftMargin: image.visible? 0 : GlobalVariables.controls.padding
 								Layout.rightMargin: GlobalVariables.controls.padding
-								topPadding: GlobalVariables.controls.spacing /2
-								bottomPadding: GlobalVariables.controls.spacing /2
+								topPadding: GlobalVariables.controls.spacing /4
+								bottomPadding: GlobalVariables.controls.spacing /4
+								spacing: 3
 
-								// app name and summary
-								Text {
+								RowLayout {
 									width: parent.width
-									text: `<b>${modelData.appName || modelData.desktopEntry} ⏵</b> ${modelData.summary}`
-									wrapMode: Text.Wrap
-									maximumLineCount: 2
-									elide: Text.ElideRight
-									color: GlobalVariables.colours.text
-									font: GlobalVariables.font.smallsemibold
+
+									IconImage {
+										implicitSize: GlobalVariables.controls.iconSize
+										source: Quickshell.iconPath(modelData.appIcon, true) || modelData.appIcon
+									}
+
+									// app name and summary
+									Text {
+										Layout.fillWidth: true
+										text: `<b>${modelData.appName || modelData.desktopEntry} ⏵</b> ${modelData.summary}`
+										elide: Text.ElideRight
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.smallsemibold
+									}
 								}
 
 								// body text
