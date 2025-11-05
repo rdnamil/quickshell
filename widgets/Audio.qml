@@ -106,6 +106,7 @@ IconImage { id: root
 			RowLayout {
 				Layout.leftMargin: GlobalVariables.controls.padding
 				Layout.rightMargin: GlobalVariables.controls.padding
+				spacing: GlobalVariables.controls.spacing
 				Layout.fillWidth: true
 
 				QsButton {
@@ -129,8 +130,6 @@ IconImage { id: root
 
 				ColumnLayout {
 					QsDropdown { id: sinkDropdown
-						Layout.leftMargin: 4
-						Layout.rightMargin: 4
 						Layout.fillWidth: true
 						onOpened: sourceDropdown.close();
 						options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)

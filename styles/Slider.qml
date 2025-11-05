@@ -29,6 +29,8 @@ Control.Slider { id: root
 		tooltipWrapper.visible = true;
 		tooltipTimer.restart();
 	}
+	leftPadding: 0
+	rightPadding: 0
 	background: ProgressBar {
 		x: root.leftPadding
 		y: root.topPadding + root.availableHeight /2 -height /2
