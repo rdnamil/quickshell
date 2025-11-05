@@ -12,6 +12,7 @@ import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import qs
 import qs.controls
+import qs.styles as Style
 
 Loader { id: root
 	readonly property real playerWidth: 304
@@ -53,7 +54,6 @@ Loader { id: root
 		}
 
 		spacing: 4
-		clip: true
 
 		// update the active player's position while playing
 		FrameAnimation {
@@ -325,10 +325,24 @@ Loader { id: root
 		}
 
 		// display the elapsed time of the track as a % of the total track length
-		ProgressBar {
+		Style.Slider {
 			Layout.fillWidth: true
-			height: 10
-			progress: elapsed
+			from: 0.0
+			value: elapsed
+			to: 1.0
+			tooltipContent: Text {
+				readonly property TextMetrics textMetrics: TextMetrics {
+					text: formatTime(parseInt(activePlayer.length))
+					font: GlobalVariables.font.monosmaller
+				}
+
+				width: textMetrics.width
+				height: textMetrics.height
+				text: formatTime(parseInt(activePlayer.position))
+				color: GlobalVariables.colours.text
+				font: GlobalVariables.font.monosmaller
+				horizontalAlignment: Text.AlignHCenter
+			}
 		}
 
 		Text {
