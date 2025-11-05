@@ -98,7 +98,7 @@ IconImage { id: root
 		}
 		header: ColumnLayout { id: headerContent
 			// spacing: GlobalVariables.controls.spacing
-			width: screen.width /6
+			width: screen.width /7
 
 			Item { Layout.preferredHeight: 1; }
 
@@ -153,7 +153,7 @@ IconImage { id: root
 		body: ScrollView { id: bodyContent
 			topPadding: GlobalVariables.controls.padding
 			bottomPadding: GlobalVariables.controls.padding
-			width: screen.width /6
+			width: screen.width /7
 			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
@@ -165,7 +165,7 @@ IconImage { id: root
 				Item { Layout.preferredHeight: 1; }
 
 				Repeater { id: repeater
-					model: Pipewire.nodes.values.filter(n => n.isStream)
+					model: Pipewire.nodes.values.filter(n => n.isStream && n.isSink)
 					delegate: RowLayout {
 						required property var modelData
 

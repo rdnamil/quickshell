@@ -73,7 +73,7 @@ QsButton { id: root
 		onIsOpenChanged: if (!isOpen) bodyContent.ScrollBar.vertical.position = 0.0;
 		anchor: root
 		header: RowLayout { id: headerContent
-			width: screen.width /6
+			width: screen.width /7
 
 			// wifi adapter toggle
 			Row {
@@ -116,7 +116,7 @@ QsButton { id: root
 		body: ScrollView { id: bodyContent
 			topPadding: GlobalVariables.controls.padding
 			bottomPadding: GlobalVariables.controls.padding
-			width: screen.width /6
+			width: screen.width /7
 			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 
 			ColumnLayout { id: layout

@@ -111,7 +111,7 @@ QsButton { id: root
 		body: ScrollView { id: bodyContent
 			topPadding: GlobalVariables.controls.padding
 			bottomPadding: GlobalVariables.controls.padding
-			width: screen.width /6
+			width: screen.width /7
 			height: Math.min(screen.height /3, layout.height+ topPadding *2)
 			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
