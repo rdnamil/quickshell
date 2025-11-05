@@ -344,12 +344,5 @@ Loader { id: root
 				horizontalAlignment: Text.AlignHCenter
 			}
 		}
-
-		Text {
-			visible: showTimeRemaining
-			text: `-${formatTime(parseInt(activePlayer.length) -parseInt(activePlayer.position))}`
-			color: GlobalVariables.colours.windowText
-			font: GlobalVariables.font.monosmaller
-		}
 	}
 }
