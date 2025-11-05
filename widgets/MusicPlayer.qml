@@ -327,11 +327,13 @@ Loader { id: root
 		// display the elapsed time of the track as a % of the total track length
 		Style.Slider {
 			Layout.fillWidth: true
-			wheelEnabled: false
-			padding: 0
+			wheelEnabled: activePlayer.positionSupported
+			leftPadding: 0
+			rightPadding: 0
 			from: 0.0
 			value: elapsed
 			to: 1.0
+			onMoved: activePlayer.position = activePlayer.length *value;
 			tooltipContent: Text {
 				readonly property TextMetrics textMetrics: TextMetrics {
 					text: formatTime(parseInt(activePlayer.length))

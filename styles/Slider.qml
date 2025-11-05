@@ -24,7 +24,6 @@ Control.Slider { id: root
 	}
 
 	wheelEnabled: true
-	stepSize: 0.05
 	onValueChanged: {
 		tooltipWrapper.visible = true;
 		tooltipTimer.restart();
