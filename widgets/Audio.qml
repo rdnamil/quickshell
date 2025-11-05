@@ -8,8 +8,10 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
+import Quickshell.Services.Mpris
 import qs
 import qs.controls
+import qs.styles as Style
 
 IconImage { id: root
 	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted
@@ -65,6 +67,8 @@ IconImage { id: root
 
 			vol += (wheel.angleDelta.y /120) *0.05;
 			Pipewire.defaultAudioSink.audio.volume = Math.min(Math.max(vol, 0.0), 1.0);
+
+			osd.showOsd();
 		}
 	}
 
@@ -100,29 +104,101 @@ IconImage { id: root
 				onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
 			}
 		}
-		body: RowLayout { id: bodyContent
+		body: ColumnLayout { id: bodyContent
 			width: screen.width /6
 
-			Text {
-				Layout.alignment: Qt.AlignVCenter
-				Layout.preferredWidth: textMetrics.width
-				Layout.margins: GlobalVariables.controls.padding
-				Layout.rightMargin: 0
-				text: `${parseInt(volume *100)}%`
-				color: GlobalVariables.colours.windowText
-				font: GlobalVariables.font.regular
-				horizontalAlignment: Text.AlignRight
+			Item { Layout.preferredHeight: 1; }
+
+			RowLayout {
+				Layout.leftMargin: GlobalVariables.controls.padding
+				Layout.rightMargin: GlobalVariables.controls.padding
+
+				Text {
+					Layout.alignment: Qt.AlignVCenter
+					Layout.preferredWidth: textMetrics.width
+					text: `${parseInt(volume *100)}%`
+					color: GlobalVariables.colours.windowText
+					font: GlobalVariables.font.regular
+					horizontalAlignment: Text.AlignRight
+				}
+
+				Style.Slider {
+					Layout.fillWidth: true
+					Layout.alignment: Qt.AlignVCenter
+					from: 0.0
+					value: volume
+					to: 1.0
+					onMoved: Pipewire.defaultAudioSink.audio.volume = value;
+				}
 			}
 
-			Slider {
-				Layout.fillWidth: true
-				Layout.alignment: Qt.AlignVCenter
+			Style.Margin { visible: repeater.count; Layout.fillWidth: true; }
+
+			Repeater { id: repeater
+				model: Mpris.players.values
+				delegate: RowLayout {
+					required property var modelData
+
+					Layout.leftMargin: GlobalVariables.controls.padding
+					Layout.rightMargin: GlobalVariables.controls.padding
+
+					IconImage {
+						visible: Quickshell.iconPath(modelData.desktopEntry, true) || Quickshell.iconPath(modelData.identity.toLowerCase(), true)
+						implicitSize: GlobalVariables.controls.iconSize
+						source: Quickshell.iconPath(modelData.desktopEntry, modelData.identity.toLowerCase())
+					}
+
+					Text {
+						text: modelData.identity
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+
+					Marquee { id: marquee
+						Layout.fillWidth: true
+						leftAlign: true
+						speed: 35
+						content: Text {
+							text: modelData.trackTitle
+							color: GlobalVariables.colours.windowText
+							font: GlobalVariables.font.regular
+						}
+					}
+
+					Style.Slider {
+						visible: modelData.volumeSupported
+						Layout.preferredWidth: 200
+						Layout.alignment: Qt.AlignVCenter
+						from: 0.0
+						value: modelData.volume
+						to: 1.0
+						onMoved: modelData.volume = value;
+					}
+				}
+			}
+
+			Item { Layout.preferredHeight: 1; }
+		}
+	}
+
+	Osd { id: osd
+		content: RowLayout {
+			width: 160
+			spacing: GlobalVariables.controls.spacing
+
+			IconImage {
+				Layout.margins: GlobalVariables.controls.padding
+				Layout.rightMargin: 0
+				implicitSize: GlobalVariables.controls.iconSize
+				source: root.source
+			}
+
+			ProgressBar {
 				Layout.margins: GlobalVariables.controls.padding
 				Layout.leftMargin: 0
-				from: 0.0
-				value: volume
-				to: 1.0
-				onMoved: Pipewire.defaultAudioSink.audio.volume = value;
+				Layout.fillWidth: true
+				height: 12
+				progress: volume
 			}
 		}
 	}
