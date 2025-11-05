@@ -183,6 +183,8 @@ Loader { id: root
 						anchors.horizontalCenter: parent.horizontalCenter
 						topPadding: -44
 						bottomPadding: GlobalVariables.controls.spacing
+						spacing: 2
+
 						Marquee {
 							anchors.horizontalCenter: parent.horizontalCenter
 							width: 200
@@ -263,7 +265,7 @@ Loader { id: root
 					// media control buttons
 					Row {
 						Layout.alignment: Qt.AlignHCenter
-						Layout.topMargin: -16
+						Layout.topMargin: -22
 						Layout.bottomMargin: -12
 
 						// go previous
