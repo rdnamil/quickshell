@@ -36,11 +36,30 @@ Loader { id: root
 		// fallback to last available player
 		return players[players.length - 1];
 	} else return null; }
+	readonly property var nowPlaying: [activePlayer.trackTitle, activePlayer.trackArtist, activePlayer.trackArtUrl]
 
+	property var track: QtObject {
+		property string title
+		property string artist
+		property string art
+	}
 	property bool showTimeRemaining
 
+	onActivePlayerChanged: {
+		if (activePlayer && activePlayer.trackTitle) {
+			grace.stop();
+			root.active = true;
+		} else {
+			grace.restart();
+		}
+	}
+	onNowPlayingChanged: if (nowPlaying[0]) {
+		track.title = nowPlaying[0];
+		track.artist = nowPlaying[1];
+		track.art = nowPlaying[2];
+	}
 	width: active? playerWidth : 0
-	active: activePlayer && activePlayer.trackTitle
+	active: false
 	sourceComponent: RowLayout {
 		readonly property real elapsed: activePlayer.position /activePlayer.length
 
@@ -74,7 +93,7 @@ Loader { id: root
 				// track title
 				Text {
 					anchors.verticalCenter: parent.verticalCenter
-					text: activePlayer.trackTitle
+					text: track.title
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.smallsemibold
 				}
@@ -82,7 +101,7 @@ Loader { id: root
 				// track artist
 				Text {
 					anchors.verticalCenter: parent.verticalCenter
-					text: activePlayer.trackArtist
+					text: track.artist
 					color: GlobalVariables.colours.windowText
 					font: GlobalVariables.font.small
 				}
@@ -156,7 +175,7 @@ Loader { id: root
 						Image {
 							anchors.fill: parent
 							fillMode: Image.PreserveAspectCrop
-							source: activePlayer.trackArtUrl
+							source: track.art
 							layer.enabled: true
 							layer.effect: FastBlur { radius: 100; }
 						}
@@ -167,7 +186,7 @@ Loader { id: root
 							width: 200
 							height: width
 							fillMode: Image.PreserveAspectFit
-							source: activePlayer.trackArtUrl
+							source: track.art
 							layer.enabled: true
 							layer.effect: OpacityMask {
 								maskSource: Rectangle {
@@ -189,7 +208,7 @@ Loader { id: root
 							anchors.horizontalCenter: parent.horizontalCenter
 							width: 200
 							content: Text {
-								text: activePlayer.trackTitle
+								text: track.title
 								color: GlobalVariables.colours.text
 								font: GlobalVariables.font.smallsemibold
 							}
@@ -199,7 +218,7 @@ Loader { id: root
 							anchors.horizontalCenter: parent.horizontalCenter
 							width: 200
 							content: Text {
-								text: activePlayer.trackArtist || "Unknown Artist"
+								text: track.title || "Unknown Artist"
 								color: GlobalVariables.colours.windowText
 								font: activePlayer.trackArtist? GlobalVariables.font.smaller : GlobalVariables.font.smalleritalics
 							}
@@ -348,5 +367,10 @@ Loader { id: root
 				horizontalAlignment: Text.AlignHCenter
 			}
 		}
+	}
+
+	Timer { id: grace
+		interval: 1000
+		onTriggered: parent.active = false;
 	}
 }
