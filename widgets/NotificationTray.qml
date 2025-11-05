@@ -24,16 +24,6 @@ QsButton { id: root
 		for (let n = 0; n < notifications.count; n++) notifications.itemAt(n).isRead = true;
 	}
 
-	Connections {
-		target: Notifications
-		function onAllRead() { root.markAllRead(); }
-	}
-
-	Connections {
-		target: notificationsModel
-		function onValuesChanged() { if (popout.isOpen) Notifications.allRead(); }
-	}
-
 	anim: false
 	shade: false
 	onClicked: popout.toggle();
@@ -60,6 +50,16 @@ QsButton { id: root
 				}
 			}
 		}
+	}
+
+	Connections {
+		target: Notifications
+		function onAllRead() { root.markAllRead(); }
+	}
+
+	Connections {
+		target: notificationsModel
+		function onValuesChanged() { if (popout.isOpen) Notifications.allRead(); }
 	}
 
 	Popout { id: popout
@@ -130,6 +130,8 @@ QsButton { id: root
 						required property var modelData
 						required property int index
 
+						readonly property string time: Qt.formatDateTime(new Date(), "hh:mm")
+
 						// tag notification as unread if notification tray not open
 						property bool isRead
 
@@ -181,6 +183,12 @@ QsButton { id: root
 										elide: Text.ElideRight
 										color: GlobalVariables.colours.text
 										font: GlobalVariables.font.smallsemibold
+									}
+
+									Text {
+										text: time
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.smallbold
 									}
 								}
 
