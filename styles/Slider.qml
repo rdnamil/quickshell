@@ -5,7 +5,6 @@
 import QtQuick
 import QtQuick.Controls.Basic as Control
 import QtQuick.Effects
-import Qt5Compat.GraphicalEffects
 import qs
 import qs.controls
 
@@ -42,6 +41,16 @@ Control.Slider { id: root
 		y: root.topPadding +root.availableHeight /2 -height /2
 		width: height
 		height: root.height -4
+
+		RectangularShadow {
+			visible: tooltipWrapper.visible
+			anchors.fill: tooltipWrapper
+			offset.y: 2
+			radius: tooltipWrapper.radius
+			spread: 0
+			blur: 12
+			color: GlobalVariables.colours.shadow
+		}
 
 		Rectangle { id: tooltipWrapper
 			visible: false
