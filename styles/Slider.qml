@@ -10,11 +10,25 @@ import qs
 import qs.controls
 
 Control.Slider { id: root
+	property Item tooltipContent: Text {
+		readonly property TextMetrics textMetric: TextMetrics {
+			text: "100"
+			font: GlobalVariables.font.small
+		}
+
+		width: textMetric.width
+		height: textMetric.height
+		text: parseInt(root.visualPosition *100)
+		color: GlobalVariables.colours.text
+		font: GlobalVariables.font.small
+		horizontalAlignment: Text.AlignHCenter
+	}
+
 	wheelEnabled: true
 	stepSize: 0.05
 	onValueChanged: {
-		valueWrapper.visible = true;
-		valueTimer.restart();
+		tooltipWrapper.visible = true;
+		tooltipTimer.restart();
 	}
 	background: ProgressBar {
 		x: root.leftPadding
@@ -29,36 +43,28 @@ Control.Slider { id: root
 		width: height
 		height: root.height -4
 
-		Rectangle { id: valueWrapper
-			readonly property TextMetrics textMetric: TextMetrics {
-				text: "100"
-				font: GlobalVariables.font.small
-			}
-
+		Rectangle { id: tooltipWrapper
 			visible: false
 			anchors {
 				horizontalCenter: parent.horizontalCenter
 				bottom: parent.verticalCenter
 			}
-			width: textMetric.width +GlobalVariables.controls.padding
-			height: textMetric.height +GlobalVariables.controls.spacing
+			width: tooltipContent.width +GlobalVariables.controls.spacing
+			height: tooltipContent.height +3
 			radius: GlobalVariables.controls.radius
 			color: GlobalVariables.colours.base
 
-			Text {
-				anchors.centerIn: parent
-				text: parseInt(root.visualPosition *100)
-				color: GlobalVariables.colours.text
-				font: GlobalVariables.font.small
-				horizontalAlignment: Text.AlignHCenter
-			}
-
-			Timer { id: valueTimer
+			Timer { id: tooltipTimer
 				interval: 500
-				onTriggered: valueWrapper.visible = false;
+				onTriggered: tooltipWrapper.visible = false;
 			}
 
 			Borders { opacity: 0.4; }
+
+			Component.onCompleted: {
+				tooltipContent.parent = tooltipWrapper;
+				tooltipContent.anchors.centerIn = tooltipWrapper;
+			}
 		}
 	}
 }
