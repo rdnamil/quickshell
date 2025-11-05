@@ -15,13 +15,13 @@ Item { id: root
 		anchors.centerIn: parent
 		width: parent.width -GlobalVariables.controls.padding *2
 		height: 2
-		color: GlobalVariables.colours.light
+		color: GlobalVariables.colours.shadow
 
 		Rectangle {
 			anchors.bottom: parent.bottom
 			width: parent.width
 			height: 1
-			color: GlobalVariables.colours.shadow
+			color: GlobalVariables.colours.light
 		}
 	}
 }
