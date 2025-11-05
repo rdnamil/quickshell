@@ -16,13 +16,11 @@ Scope { id: root
 		model: Quickshell.screens
 		delegate: Bar {
 			leftItems: [
-				// AppDresser {},
+				AppDresser {},
 				Network {}
 				,Bluetooth {}
 				,Audio {}
-				,MusicPlayer {
-					// showTimeRemaining: true
-				}
+				,MusicPlayer {}
 				// ,Shazam {}
 			]
 
@@ -46,7 +44,6 @@ Scope { id: root
 
 	// only show on main/active monitor
 	Notifications {}
-	Volume {}
 	Brightness {}
 
 	// connect to shell services
