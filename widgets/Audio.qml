@@ -5,6 +5,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
@@ -16,11 +17,13 @@ import qs.styles as Style
 IconImage { id: root
 	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted
 	readonly property real volume: Pipewire.defaultAudioSink?.audio.volume
-	readonly property TextMetrics textMetrics: TextMetrics { id: textMetrics
+	readonly property TextMetrics textMetrics: TextMetrics {
+		text: "100"
 		font: GlobalVariables.font.regular
-		text: "100%"
 	}
 
+	onIsMutedChanged: osd.showOsd();
+	onVolumeChanged: osd.showOsd();
 	implicitSize: GlobalVariables.controls.iconSize
 	// icon reflects volume level
 	source: {
@@ -37,9 +40,7 @@ IconImage { id: root
 		}
 	}
 
-	PwObjectTracker {
-		objects: [ Pipewire.defaultAudioSink ]
-	}
+	PwObjectTracker { objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource, ...Pipewire.nodes.values.filter(n => n.isStream)]; }
 
 	MouseArea {
 		anchors.centerIn: parent
@@ -57,12 +58,12 @@ IconImage { id: root
 				case Qt.LeftButton:
 					popout.toggle();
 					break;
-				case Qt.MiddleButton:	// mute on middle-mouse click
+				case Qt.MiddleButton: // mute on middle-mouse click
 					Pipewire.defaultAudioSink.audio.muted = !Pipewire.defaultAudioSink.audio.muted;
 					break;
 			}
 		}
-		onWheel: (wheel) => {	// set volume on scroll
+		onWheel: (wheel) => { // set volume on scroll
 			var vol = volume;
 
 			vol += (wheel.angleDelta.y /120) *0.05;
@@ -91,93 +92,129 @@ IconImage { id: root
 
 	Popout { id: popout
 		anchor: root
-		onIsOpenChanged: if (!popout.isOpen) dropdown.close();
-		header: RowLayout { id: headerContent
-			spacing: GlobalVariables.controls.spacing
-			width: screen.width /6
-
-			QsDropdown { id: dropdown
-				Layout.margins: GlobalVariables.controls.padding
-				Layout.fillWidth: true
-				options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
-				selection: Pipewire.defaultAudioSink?.description
-				onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
-			}
+		onIsOpenChanged: if (!popout.isOpen) {
+			sinkDropdown.close();
+			sourceDropdown.close();
 		}
-		body: ColumnLayout { id: bodyContent
+		header: ColumnLayout { id: headerContent
+			// spacing: GlobalVariables.controls.spacing
 			width: screen.width /6
 
 			Item { Layout.preferredHeight: 1; }
 
+			// output settings
 			RowLayout {
 				Layout.leftMargin: GlobalVariables.controls.padding
 				Layout.rightMargin: GlobalVariables.controls.padding
+				Layout.fillWidth: true
 
-				Text {
+				QsButton {
 					Layout.alignment: Qt.AlignVCenter
-					Layout.preferredWidth: textMetrics.width
-					text: `${parseInt(volume *100)}%`
-					color: GlobalVariables.colours.windowText
-					font: GlobalVariables.font.regular
-					horizontalAlignment: Text.AlignRight
-				}
+					onClicked: Pipewire.defaultAudioSink.audio.muted = !Pipewire.defaultAudioSink.audio.muted;
+					content: Style.Button {
+						IconImage {
+							anchors.centerIn: parent
+							implicitSize: GlobalVariables.controls.iconSize
+							source: Quickshell.iconPath("audio-speakers")
+							layer.enabled: true
+							layer.effect: ColorOverlay {
+								property color baseColor: GlobalVariables.colours.shadow
+								property color semiTransparent: Qt.rgba(baseColor.r, baseColor.g, baseColor.b, 0.5)
 
-				Style.Slider {
-					Layout.fillWidth: true
-					Layout.alignment: Qt.AlignVCenter
-					from: 0.0
-					value: volume
-					to: 1.0
-					onMoved: Pipewire.defaultAudioSink.audio.volume = value;
-				}
-			}
-
-			Style.Margin { visible: repeater.count; Layout.fillWidth: true; }
-
-			Repeater { id: repeater
-				model: Mpris.players.values
-				delegate: RowLayout {
-					required property var modelData
-
-					Layout.leftMargin: GlobalVariables.controls.padding
-					Layout.rightMargin: GlobalVariables.controls.padding
-
-					IconImage {
-						visible: Quickshell.iconPath(modelData.desktopEntry, true) || Quickshell.iconPath(modelData.identity.toLowerCase(), true)
-						implicitSize: GlobalVariables.controls.iconSize
-						source: Quickshell.iconPath(modelData.desktopEntry, modelData.identity.toLowerCase())
-					}
-
-					Text {
-						text: modelData.identity
-						color: GlobalVariables.colours.text
-						font: GlobalVariables.font.regular
-					}
-
-					Marquee { id: marquee
-						Layout.fillWidth: true
-						leftAlign: true
-						speed: 35
-						content: Text {
-							text: modelData.trackTitle
-							color: GlobalVariables.colours.windowText
-							font: GlobalVariables.font.regular
+								color: Pipewire.defaultAudioSink.audio.muted? semiTransparent : "transparent"
+							}
 						}
+					}
+				}
+
+				ColumnLayout {
+					QsDropdown { id: sinkDropdown
+						Layout.leftMargin: 4
+						Layout.rightMargin: 4
+						Layout.fillWidth: true
+						onOpened: sourceDropdown.close();
+						options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
+						selection: Pipewire.defaultAudioSink?.description
+						onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
 					}
 
 					Style.Slider {
-						visible: modelData.volumeSupported
-						Layout.preferredWidth: 200
+						Layout.fillWidth: true
 						Layout.alignment: Qt.AlignVCenter
 						from: 0.0
-						value: modelData.volume
+						value: volume
 						to: 1.0
-						onMoved: modelData.volume = value;
+						onMoved: Pipewire.defaultAudioSink.audio.volume = value;
 					}
 				}
 			}
 
 			Item { Layout.preferredHeight: 1; }
+		}
+		body: ScrollView { id: bodyContent
+			topPadding: GlobalVariables.controls.padding
+			bottomPadding: GlobalVariables.controls.padding
+			width: screen.width /6
+			height: Math.min(screen.height /3, layout.height+ topPadding *2)
+			ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+			ColumnLayout { id: layout
+				spacing: GlobalVariables.controls.spacing
+				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
+
+				// top padding element
+				Item { Layout.preferredHeight: 1; }
+
+				Repeater { id: repeater
+					model: Pipewire.nodes.values.filter(n => n.isStream)
+					delegate: RowLayout {
+						required property var modelData
+
+						Layout.leftMargin: GlobalVariables.controls.padding
+						Layout.rightMargin: GlobalVariables.controls.padding
+
+						QsButton {
+							onClicked: modelData.audio.muted = !modelData.audio.muted;
+							content: Style.Button {
+								color: GlobalVariables.colours.base
+
+								IconImage {
+									anchors.centerIn: parent
+									implicitSize: GlobalVariables.controls.iconSize
+									source: Quickshell.iconPath(modelData.properties["application.icon-name"], "multimedia-audio-player")
+									layer.enabled: true
+									layer.effect: ColorOverlay {
+										property color baseColor: GlobalVariables.colours.shadow
+										property color semiTransparent: Qt.rgba(baseColor.r, baseColor.g, baseColor.b, 0.5)
+
+										color: modelData.audio.muted? semiTransparent : "transparent"
+									}
+								}
+							}
+						}
+
+						Text {
+							Layout.maximumWidth: 100
+							text: modelData.properties["application.name"]
+							elide: Text.ElideRight
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+
+						Style.Slider {
+							Layout.fillWidth: true
+							Layout.minimumWidth: 200
+							from: 0.0
+							value: modelData.audio.volume
+							to: 1.0
+							onMoved: modelData.audio.volume = value;
+						}
+					}
+				}
+
+				// bottom padding element
+				Item { Layout.preferredHeight: 1; }
+			}
 		}
 	}
 
