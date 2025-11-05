@@ -21,9 +21,16 @@ QsButton { id: root
 	}
 
 	signal selected(string option)
+	signal opened()
+	signal closed()
 
 	anim: false
-	onClicked: dropdown.visible = !dropdown.visible;
+	onClicked: {
+		dropdown.visible = !dropdown.visible;
+
+		if (dropdown.visible) root.opened();
+		else root.closed();
+	}
 	content: Rectangle {
 		width: root.width
 		height: 24
