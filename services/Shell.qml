@@ -9,7 +9,7 @@ import Quickshell.Io
 pragma Singleton
 
 Singleton { id: root
-	readonly property var thisInstance: instances.find(i => i.pid === Quickshell.processId).id
+	readonly property var thisInstance: instances.find(i => i.pid === Quickshell.processId)?.id
 
 	property list<var> instances
 
