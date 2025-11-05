@@ -78,8 +78,4 @@ Singleton { id: root
 		})
 	}
 	readonly property SystemPalette colours: SystemPalette { colorGroup: SystemPalette.Active; }
-	readonly property var weather: QtObject {
-		readonly property string longitude: "46.25"
-		readonly property string latitude: "-60.09"
-	}
 }

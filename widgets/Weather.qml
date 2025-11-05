@@ -9,6 +9,7 @@ import Quickshell.Widgets
 import qs
 
 Loader { id: root
+	property var location
 	property var weather: null
 
 	active: weather
@@ -68,23 +69,33 @@ Loader { id: root
 		}
 	}
 
-	Process { id: weatherApi
+	Process { id: getLocation
 		running: true
-		command: ["curl", "-s", `https://api.open-meteo.com/v1/forecast?latitude=${GlobalVariables.weather.longitude}&longitude=${GlobalVariables.weather.latitude}&current_weather=true`]
+		command: ["sh", "-c", 'curl "http://ip-api.com/json?fields=lat,lon"']
 		stdout: StdioCollector {
-			onStreamFinished: { weather = JSON.parse(text); }
+			onStreamFinished: {
+				root.location = JSON.parse(text);
+				getWeather.running = true;
+			}
+		}
+	}
+
+	Process { id: getWeather
+		command: ["curl", "-s", `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&current_weather=true`]
+		stdout: StdioCollector {
+			onStreamFinished: root.weather = JSON.parse(text);
 		}
 	}
 
 	IpcHandler {
 		target: "weather"
-		function update(): void { weatherApi.running = true; }
+		function update(): void { getWeather.running = true; }
 	}
 
 	Timer {
 		interval: 3.6 *10 **6
 		running: true
 		repeat: true
-		onTriggered: weatherApi.running = true
+		onTriggered: getWeather.running = true
 	}
 }
