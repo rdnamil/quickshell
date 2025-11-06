@@ -77,7 +77,7 @@ IconImage { id: root
 		anchor: root
 		content: Text {
 			width: textMetrics.width
-			text: `${parseInt(volume *100)}%`
+			text: parseInt(volume *100)
 			color: GlobalVariables.colours.text
 			font: GlobalVariables.font.regular
 			horizontalAlignment: Text.AlignHCenter
@@ -94,7 +94,7 @@ IconImage { id: root
 		anchor: root
 		onIsOpenChanged: if (!popout.isOpen) {
 			sinkDropdown.close();
-			sourceDropdown.close();
+			// sourceDropdown.close();
 		}
 		header: ColumnLayout { id: headerContent
 			// spacing: GlobalVariables.controls.spacing
@@ -131,7 +131,7 @@ IconImage { id: root
 				ColumnLayout {
 					QsDropdown { id: sinkDropdown
 						Layout.fillWidth: true
-						onOpened: sourceDropdown.close();
+						// onOpened: sourceDropdown.close();
 						options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
 						selection: Pipewire.defaultAudioSink?.description
 						onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
@@ -144,6 +144,7 @@ IconImage { id: root
 						value: volume
 						to: 1.0
 						onMoved: Pipewire.defaultAudioSink.audio.volume = value;
+						stepSize: 0.01
 					}
 				}
 			}
@@ -207,6 +208,7 @@ IconImage { id: root
 							value: modelData.audio.volume
 							to: 1.0
 							onMoved: modelData.audio.volume = value;
+							stepSize: 0.01
 						}
 					}
 				}

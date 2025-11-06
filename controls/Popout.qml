@@ -172,8 +172,8 @@ Item { id: root
 			NumberAnimation {
 				target: window
 				property: "opacity"
-				from: isOpen? 0.0 : 0.975
-				to: isOpen? 0.975 : 0.0
+				from: isOpen? 0.0 : 0.98
+				to: isOpen? 0.98 : 0.0
 				duration: anim.time *1000
 				easing.type: Easing.OutCirc
 			}
