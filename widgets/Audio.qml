@@ -21,6 +21,8 @@ IconImage { id: root
 		text: "100"
 		font: GlobalVariables.font.regular
 	}
+	readonly property real mouseX: mouseArea.mouseX
+	readonly property real mouseY: mouseArea.mouseY
 
 	onIsMutedChanged: osd.showOsd();
 	onVolumeChanged: osd.showOsd();
@@ -42,7 +44,7 @@ IconImage { id: root
 
 	PwObjectTracker { objects: [Pipewire.defaultAudioSink, Pipewire.defaultAudioSource, ...Pipewire.nodes.values.filter(n => n.isStream)]; }
 
-	MouseArea {
+	MouseArea { id: mouseArea
 		anchors.centerIn: parent
 		width: parent.width +4
 		height: width
@@ -111,6 +113,11 @@ IconImage { id: root
 
 				QsButton {
 					Layout.alignment: Qt.AlignVCenter
+					tooltip: Text {
+						text: "Mute device"
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
 					onClicked: Pipewire.defaultAudioSink.audio.muted = !Pipewire.defaultAudioSink.audio.muted;
 					content: Style.Button {
 						IconImage {
@@ -128,25 +135,29 @@ IconImage { id: root
 					}
 				}
 
-				ColumnLayout {
-					QsDropdown { id: sinkDropdown
-						Layout.fillWidth: true
-						// onOpened: sourceDropdown.close();
-						options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
-						selection: Pipewire.defaultAudioSink?.description
-						onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
+				QsDropdown { id: sinkDropdown
+					Layout.fillWidth: true
+					tooltip: Text {
+						text: "Default audio device"
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
 					}
-
-					Style.Slider {
-						Layout.fillWidth: true
-						Layout.alignment: Qt.AlignVCenter
-						from: 0.0
-						value: volume
-						to: 1.0
-						onMoved: Pipewire.defaultAudioSink.audio.volume = value;
-						stepSize: 0.01
-					}
+					// onOpened: sourceDropdown.close();
+					options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
+					selection: Pipewire.defaultAudioSink?.description
+					onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
 				}
+			}
+
+			Style.Slider {
+				Layout.leftMargin: GlobalVariables.controls.padding
+				Layout.rightMargin: GlobalVariables.controls.padding
+				Layout.fillWidth: true
+				from: 0.0
+				value: volume
+				to: 1.0
+				onMoved: Pipewire.defaultAudioSink.audio.volume = value;
+				stepSize: 0.01
 			}
 
 			Item { Layout.preferredHeight: 1; }
@@ -167,38 +178,51 @@ IconImage { id: root
 
 				Repeater { id: repeater
 					model: Pipewire.nodes.values.filter(n => n.isStream && n.isSink)
-					delegate: RowLayout {
+					delegate: ColumnLayout {
 						required property var modelData
 
 						Layout.leftMargin: GlobalVariables.controls.padding
 						Layout.rightMargin: GlobalVariables.controls.padding
 
-						QsButton {
-							onClicked: modelData.audio.muted = !modelData.audio.muted;
-							content: Style.Button {
-								color: GlobalVariables.colours.base
+						RowLayout {
+							QsButton {
+								tooltip: Text {
+									text: `Mute ${modelData.properties["application.name"]}`
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+								onClicked: modelData.audio.muted = !modelData.audio.muted;
+								content: Style.Button {
+									color: GlobalVariables.colours.base
 
-								IconImage {
-									anchors.centerIn: parent
-									implicitSize: GlobalVariables.controls.iconSize
-									source: Quickshell.iconPath(modelData.properties["application.icon-name"], "multimedia-audio-player")
-									layer.enabled: true
-									layer.effect: ColorOverlay {
-										property color baseColor: GlobalVariables.colours.shadow
-										property color semiTransparent: Qt.rgba(baseColor.r, baseColor.g, baseColor.b, 0.5)
+									IconImage {
+										anchors.centerIn: parent
+										implicitSize: GlobalVariables.controls.iconSize
+										source: Quickshell.iconPath(modelData.properties["application.icon-name"], "multimedia-audio-player")
+										layer.enabled: true
+										layer.effect: ColorOverlay {
+											property color baseColor: GlobalVariables.colours.shadow
+											property color semiTransparent: Qt.rgba(baseColor.r, baseColor.g, baseColor.b, 0.5)
 
-										color: modelData.audio.muted? semiTransparent : "transparent"
+											color: modelData.audio.muted? semiTransparent : "transparent"
+										}
 									}
 								}
 							}
-						}
 
-						Text {
-							Layout.maximumWidth: 100
-							text: modelData.properties["application.name"]
-							elide: Text.ElideRight
-							color: GlobalVariables.colours.text
-							font: GlobalVariables.font.regular
+							Text {
+								text: modelData.properties["application.name"]
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.regular
+							}
+
+							Text {
+								Layout.fillWidth: true
+								text: modelData.properties["media.name"]
+								elide: Text.ElideRight
+								color: GlobalVariables.colours.windowText
+								font: GlobalVariables.font.regular
+							}
 						}
 
 						Style.Slider {

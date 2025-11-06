@@ -38,6 +38,17 @@ Item { id: root
 		radius: height /2
 		color: GlobalVariables.colours.accent
 
+		Rectangle {
+			anchors.fill: parent
+			radius: height /2
+			gradient: Gradient {
+				orientation: Gradient.Horizontal
+				GradientStop { position: 0.0; color: "#00000000" }
+				GradientStop { position: 0.9; color: "#00000000" }
+				GradientStop { position: 1.0; color: GlobalVariables.colours.text }
+			}
+		}
+
 		// progress bar gradient
 		Rectangle {
 			anchors.fill: parent

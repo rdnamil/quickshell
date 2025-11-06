@@ -15,6 +15,11 @@ import qs.styles as Style
 QsButton { id: root
 	anim: false
 	shade: false
+	tooltip: Text {
+		text: `${repeater.count} Updates`
+		color: GlobalVariables.colours.text
+		font: GlobalVariables.font.regular
+	}
 	onClicked: popout.toggle();
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize

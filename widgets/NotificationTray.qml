@@ -130,7 +130,8 @@ QsButton { id: root
 						required property var modelData
 						required property int index
 
-						readonly property string time: Qt.formatDateTime(new Date(), "hh:mm")
+						// tag notification with a timestamp
+						readonly property string timestamp: Qt.formatDateTime(new Date(), "hh:mm")
 
 						// tag notification as unread if notification tray not open
 						property bool isRead
@@ -185,8 +186,9 @@ QsButton { id: root
 										font: GlobalVariables.font.smallsemibold
 									}
 
+									// timestamp
 									Text {
-										text: time
+										text: timestamp
 										color: GlobalVariables.colours.text
 										font: GlobalVariables.font.smallbold
 									}

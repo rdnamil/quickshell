@@ -72,7 +72,7 @@ Loader { id: root
 				return "-app";
 		}
 
-		spacing: 2
+		spacing: 3
 
 		IconImage { id: weatherIcon
 			anchors.verticalCenter: parent.verticalCenter

@@ -181,7 +181,7 @@ Loader { id: root
 	Popout { id: popout
 		anchor: root
 		header: Item { id: headerContent
-			width: screen.width /8
+			width: screen.width /10
 			height: width + headerLayout.height +GlobalVariables.controls.padding
 
 			// album art wrapper
@@ -331,8 +331,8 @@ Loader { id: root
 
 			}
 		}
-		body: Item { id: bodyContent
-			width: screen.width /8
+		body: Item {
+			width: screen.width /10
 			height: bodyLayout.height +GlobalVariables.controls.padding *2
 
 			Style.Slider { id: bodyProgressBar
@@ -347,19 +347,6 @@ Loader { id: root
 				to: activePlayer.length
 				onMoved: activePlayer.position = value;
 				stepSize: 1
-
-				Rectangle {
-					anchors.verticalCenter: parent.verticalCenter
-					x: parent.visualPosition *(parent.availableWidth -6)
-					width: parent.height -6
-					height: width
-					radius: 1
-					gradient: Gradient {
-						orientation: Gradient.Horizontal
-						GradientStop { position: 0.0; color: "#20ffffff" }
-						GradientStop { position: 1.0; color: "#ffffffff" }
-					}
-				}
 			}
 
 			Text {
