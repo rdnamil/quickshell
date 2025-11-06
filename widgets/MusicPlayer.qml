@@ -105,6 +105,7 @@ Loader { id: root
 
 				// track title
 				Text {
+					anchors.verticalCenter: parent.verticalCenter
 					text: track.title
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.smallsemibold
@@ -112,6 +113,7 @@ Loader { id: root
 
 				// track artist
 				Text {
+					anchors.verticalCenter: parent.verticalCenter
 					text: track.artist
 					color: GlobalVariables.colours.windowText
 					font: GlobalVariables.font.small
