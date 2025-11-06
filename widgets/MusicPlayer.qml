@@ -1,21 +1,19 @@
 /*-------------------------------
- * --- MusicPlayer.qml by andrel ---
- * -------------------------------*/
+--- MusicPlayer.qml by andrel ---
+-------------------------------*/
 
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
-import Quickshell.Services.Mpris
-import Quickshell.Services.Pipewire
 import Quickshell.Widgets
+import Quickshell.Services.Mpris
 import qs
 import qs.controls
 import qs.styles as Style
 
 Loader { id: root
-	readonly property real playerWidth: 304
 	readonly property list<MprisPlayer> players: Mpris.players.values
 	readonly property MprisPlayer activePlayer: { if (players.length > 0){
 		// prefer spotify if it's playing
@@ -36,14 +34,47 @@ Loader { id: root
 		// fallback to last available player
 		return players[players.length - 1];
 	} else return null; }
-	readonly property var nowPlaying: [activePlayer.trackTitle, activePlayer.trackArtist, activePlayer.trackArtUrl]
 
 	property var track: QtObject {
-		property string title
-		property string artist
-		property string art
+		property string title: {
+			var trackTitle = activePlayer.trackTitle;
+			return trackTitle
+		}
+		property string artist: {
+			var trackArtist = activePlayer.trackArtist;
+			return trackArtist
+		}
+		property string art: activePlayer.trackArtUrl;
 	}
-	property bool showTimeRemaining
+
+	// format time from total seconds to hours:minutes:seconds
+	function formatTime(totalSeconds) {
+		var seconds = totalSeconds %60;
+		var totalMinutes = Math.floor(totalSeconds /60);
+		var hours = Math.floor(totalMinutes /60);
+		var minutes = totalMinutes -(hours *60);
+		return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
+	}
+
+	// update track title and artist only when ready
+	Connections {
+		target: activePlayer
+		function onTrackTitleChanged() { if (activePlayer.trackTitle) {
+			var trackTitle = activePlayer.trackTitle;
+			grace.stop();
+			root.active = true;
+			track.title = trackTitle;
+		} else grace.restart(); }
+		function onTrackArtistChanged() { if (activePlayer.trackArtist) {
+			var trackArtist = activePlayer.trackArtist;
+			track.artist = trackArtist;
+		}}
+	}
+
+	Timer { id: grace
+		interval: 1000
+		onTriggered: parent.active = false;
+	}
 
 	onActivePlayerChanged: {
 		if (activePlayer && activePlayer.trackTitle) {
@@ -53,26 +84,9 @@ Loader { id: root
 			grace.restart();
 		}
 	}
-	onNowPlayingChanged: if (nowPlaying[0]) {
-		track.title = nowPlaying[0];
-		track.artist = nowPlaying[1];
-		track.art = nowPlaying[2];
-	}
-	width: active? playerWidth : 0
 	active: false
 	sourceComponent: RowLayout {
-		readonly property real elapsed: activePlayer.position /activePlayer.length
-
-		// format time from total seconds to hours:minutes:seconds
-		function formatTime(totalSeconds) {
-			var seconds = totalSeconds %60;
-			var totalMinutes = Math.floor(totalSeconds /60);
-			var hours = Math.floor(totalMinutes /60);
-			var minutes = totalMinutes -(hours *60);
-			return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
-		}
-
-		spacing: 4
+		width: screen.width /8
 
 		// update the active player's position while playing
 		FrameAnimation {
@@ -82,17 +96,15 @@ Loader { id: root
 
 		// track info; scroll when too long to fit and mouse is hovering over it
 		Marquee {
-			Layout.preferredHeight: marqueeLayout.height
-			Layout.minimumWidth: marqueeLayout.width
-			Layout.maximumWidth: 208
+			Layout.preferredWidth: marqueeLayout.width
+			Layout.maximumWidth: 200
 			scroll: width < marqueeLayout.width? mouseArea.containsMouse : false
 			leftAlign: true
 			content: Row { id: marqueeLayout
-				spacing: 4
+				spacing: 3
 
 				// track title
 				Text {
-					anchors.verticalCenter: parent.verticalCenter
 					text: track.title
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.smallsemibold
@@ -100,7 +112,6 @@ Loader { id: root
 
 				// track artist
 				Text {
-					anchors.verticalCenter: parent.verticalCenter
 					text: track.artist
 					color: GlobalVariables.colours.windowText
 					font: GlobalVariables.font.small
@@ -138,209 +149,6 @@ Loader { id: root
 					osd.showOsd();
 				}
 			}
-
-			Popout { id: popout
-				anchor: parent
-				header: Column {
-					spacing: GlobalVariables.controls.spacing
-
-					Item {
-						width: 224
-						height: 256
-						layer.enabled: true
-						layer.effect: OpacityMask {
-							maskSource: Item {
-								width: 224
-								height: 256
-
-								Rectangle {
-									anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 12; }
-									width: 200
-									height: width
-									radius: GlobalVariables.controls.radius
-
-									RectangularShadow {
-										anchors.fill: parent
-										offset.y: 6
-										spread: 0
-										blur: 30
-										radius: parent.radius
-										color: "#d0ffffff"
-									}
-								}
-							}
-						}
-
-						// blurred album artwork background and glow
-						Image {
-							anchors.fill: parent
-							fillMode: Image.PreserveAspectCrop
-							source: track.art
-							layer.enabled: true
-							layer.effect: FastBlur { radius: 100; }
-						}
-
-						// album artwork
-						Image {
-							anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 12; }
-							width: 200
-							height: width
-							fillMode: Image.PreserveAspectFit
-							source: track.art
-							layer.enabled: true
-							layer.effect: OpacityMask {
-								maskSource: Rectangle {
-									width: 200
-									height: width
-									radius: GlobalVariables.controls.radius
-								}
-							}
-						}
-					}
-
-					Column {
-						anchors.horizontalCenter: parent.horizontalCenter
-						topPadding: -44
-						bottomPadding: GlobalVariables.controls.spacing
-						spacing: 2
-
-						Marquee {
-							anchors.horizontalCenter: parent.horizontalCenter
-							width: 200
-							content: Text {
-								text: track.title
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.smallsemibold
-							}
-						}
-
-						Marquee {
-							anchors.horizontalCenter: parent.horizontalCenter
-							width: 200
-							content: Text {
-								text: track.title || "Unknown Artist"
-								color: GlobalVariables.colours.windowText
-								font: activePlayer.trackArtist? GlobalVariables.font.smaller : GlobalVariables.font.smalleritalics
-							}
-						}
-					}
-				}
-				body: ColumnLayout {
-					anchors.horizontalCenter: parent.horizontalCenter
-					y: -GlobalVariables.controls.radius *2 +4
-
-					Rectangle { id: elapsedBar
-						width: popout.windowWidth
-						height: GlobalVariables.controls.radius *2
-						// bottomLeftRadius: GlobalVariables.controls.radius
-						// bottomRightRadius: GlobalVariables.controls.radius
-						color: GlobalVariables.colours.accent
-						border { color: "#80000000"; width: 1; }
-						layer.enabled: true
-						layer.effect: OpacityMask {
-							maskSource: Item {
-								width: elapsedBar.width
-								height: elapsedBar.height
-
-								Rectangle {
-									anchors.left: parent.left
-									width: parent.width *elapsed
-									height: parent.height
-									gradient: Gradient {
-										orientation: Gradient.Horizontal
-										GradientStop { position: 0.0; color: "#a0000000" }
-										GradientStop { position: 0.9; color: "#a0000000" }
-										GradientStop { position: 1.0; color: "#ff000000" }
-									}
-								}
-							}
-						}
-					}
-
-					RowLayout {
-						Layout.leftMargin: GlobalVariables.controls.spacing
-						Layout.rightMargin: GlobalVariables.controls.spacing
-						Layout.topMargin: -2
-
-						// time elapsed
-						Text {
-							Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-							text: formatTime(parseInt(activePlayer.position))
-							color: GlobalVariables.colours.windowText
-							font: GlobalVariables.font.monosmaller
-						}
-
-						Item { Layout.fillWidth: true; }
-
-						// time remaining
-						Text {
-							Layout.alignment: Qt.AlignRight | Qt.AlignTop
-							text: `-${formatTime(parseInt(activePlayer.length -parseInt(activePlayer.position)))}`
-							color: GlobalVariables.colours.windowText
-							font: GlobalVariables.font.monosmaller
-						}
-					}
-
-					// media control buttons
-					Row {
-						Layout.alignment: Qt.AlignHCenter
-						Layout.topMargin: -22
-						Layout.bottomMargin: -12
-
-						// go previous
-						QsButton {
-							anchors.verticalCenter: parent.verticalCenter
-							onClicked: activePlayer.previous();
-							content: IconImage {
-								implicitSize: 24
-								source: Quickshell.iconPath("media-skip-backward")
-							}
-						}
-
-						// toggle playing
-						QsButton {
-							anchors.verticalCenter: parent.verticalCenter
-							onClicked: activePlayer.togglePlaying();
-							content: IconImage {
-								implicitSize: 40
-								source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
-							}
-						}
-
-						// go forward
-						QsButton {
-							anchors.verticalCenter: parent.verticalCenter
-							onClicked: activePlayer.next();
-							content: IconImage {
-								implicitSize: 24
-								source: Quickshell.iconPath("media-skip-forward")
-							}
-						}
-					}
-				}
-			}
-
-			Osd { id: osd
-				content: RowLayout {
-					width: 160
-					spacing: GlobalVariables.controls.spacing
-
-					IconImage {
-						Layout.margins: GlobalVariables.controls.padding
-						Layout.rightMargin: 0
-						implicitSize: GlobalVariables.controls.iconSize
-						source: Quickshell.iconPath(activePlayer.desktopEntry, true) || Quickshell.iconPath(activePlayer.identity.toLowerCase(), "multimedia-audio-player")
-					}
-
-					ProgressBar {
-						Layout.margins: GlobalVariables.controls.padding
-						Layout.leftMargin: 0
-						Layout.fillWidth: true
-						height: 12
-						progress: activePlayer.volume
-					}
-				}
-			}
 		}
 
 		// display the elapsed time of the track as a % of the total track length
@@ -350,9 +158,10 @@ Loader { id: root
 			leftPadding: 0
 			rightPadding: 0
 			from: 0.0
-			value: elapsed
-			to: 1.0
-			onMoved: activePlayer.position = activePlayer.length *value;
+			value: activePlayer.position
+			to: activePlayer.length
+			onMoved: activePlayer.position = value;
+			stepSize: 1
 			tooltipContent: Text {
 				readonly property TextMetrics textMetrics: TextMetrics {
 					text: formatTime(parseInt(activePlayer.length))
@@ -369,8 +178,345 @@ Loader { id: root
 		}
 	}
 
-	Timer { id: grace
-		interval: 1000
-		onTriggered: parent.active = false;
+	Popout { id: popout
+		anchor: root
+		header: Item { id: headerContent
+			width: screen.width /8
+			height: width + headerLayout.height +GlobalVariables.controls.padding
+
+			// album art wrapper
+			Item {
+				anchors.fill: parent
+				layer.enabled: true
+				layer.effect: OpacityMask {
+					maskSource: Item {
+						width: headerContent.width
+						height: headerContent.height
+
+						RectangularShadow {
+							anchors.fill: trackArtMask
+							radius: trackArtMask.radius
+							offset.y: GlobalVariables.controls.padding
+							spread: 0
+							blur: 30
+							opacity: 0.4
+						}
+
+						Rectangle { id: trackArtMask
+							anchors {
+								horizontalCenter: parent.horizontalCenter
+								top: parent.top
+								topMargin: GlobalVariables.controls.padding +1
+							}
+							width: parent.width -GlobalVariables.controls.padding *2 -2
+							height: width
+							radius: GlobalVariables.controls.radius
+						}
+					}
+				}
+
+				// placeholder fill
+				Rectangle {
+					anchors.fill: parent
+					color: GlobalVariables.colours.light
+				}
+
+				// blurred album art
+				Image {
+					anchors.fill: parent
+					fillMode: Image.PreserveAspectCrop
+					source: root.track.art
+					layer.enabled: true
+					layer.effect: FastBlur { radius: 100; }
+				}
+
+				// album art
+				Item {
+					anchors {
+						horizontalCenter: parent.horizontalCenter
+						top: parent.top
+						topMargin: GlobalVariables.controls.padding
+					}
+					width: parent.width -GlobalVariables.controls.padding *2
+					height: width
+
+					RectangularShadow {
+						anchors.fill: trackArt
+						radius: GlobalVariables.controls.padding
+						spread: 0
+						blur: 30
+						color: GlobalVariables.colours.shadow
+						opacity: 0.6
+					}
+
+					Image { id: trackArt
+						anchors.centerIn: parent
+						width: Math.min(sourceSize.width, parent.width -2)
+						height: Math.min(sourceSize.height, parent.height -2)
+						source: root.track.art
+						layer.enabled: true
+						layer.effect: OpacityMask {
+							maskSource: Rectangle {
+								width: trackArt.width
+								height: trackArt.height
+								radius: GlobalVariables.controls.radius
+							}
+						}
+					}
+
+					Style.Borders { radius: GlobalVariables.controls.radius; opacity: 0.4; }
+				}
+
+				// open player
+				RectangularShadow {
+					visible: raiseButton.visible
+					anchors.fill: raiseButton
+					radius: Math.min(width, height) /2
+					offset { x: -2; y: 2; }
+					spread: 5
+					blur: 30
+					color: GlobalVariables.colours.shadow
+					opacity: 0.4
+				}
+
+				QsButton { id: raiseButton
+					visible: activePlayer.canRaise
+					onClicked: activePlayer.raise();
+					anchors {
+						right: parent.right
+						rightMargin: GlobalVariables.controls.padding +GlobalVariables.controls.spacing
+						top: parent.top
+						topMargin: GlobalVariables.controls.padding +GlobalVariables.controls.spacing
+					}
+					content: IconImage {
+						implicitSize: GlobalVariables.controls.iconSize
+						source: Quickshell.iconPath("window-pop-out")
+					}
+				}
+			}
+
+			// track info
+			ColumnLayout { id: headerLayout
+				spacing: 0
+
+				anchors {
+					bottom: parent.bottom
+					bottomMargin: GlobalVariables.controls.padding
+				}
+				width: parent.width
+
+				// track title
+				Marquee {
+					Layout.leftMargin: GlobalVariables.controls.padding
+					Layout.rightMargin: GlobalVariables.controls.padding
+					Layout.fillWidth: true
+					content: Text {
+						text: track.title
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.semibold
+					}
+				}
+
+				// track artist
+				Marquee {
+					Layout.leftMargin: GlobalVariables.controls.padding
+					Layout.rightMargin: GlobalVariables.controls.padding
+					Layout.fillWidth: true
+					content: Text {
+						text: track.artist || "Unknown Artist"
+						color: GlobalVariables.colours.windowText
+						font: activePlayer.trackArtist? GlobalVariables.font.small : GlobalVariables.font.smallitalics
+					}
+				}
+
+			}
+		}
+		body: Item { id: bodyContent
+			width: screen.width /8
+			height: bodyLayout.height +GlobalVariables.controls.padding *2
+
+			Style.Slider { id: bodyProgressBar
+				showTooltip: false
+				anchors {
+					horizontalCenter: parent.horizontalCenter
+					verticalCenter: parent.top
+				}
+				width: parent.width +4
+				from: 0.0
+				value: activePlayer.position
+				to: activePlayer.length
+				onMoved: activePlayer.position = value;
+				stepSize: 1
+
+				Rectangle {
+					anchors.verticalCenter: parent.verticalCenter
+					x: parent.visualPosition *(parent.availableWidth -6)
+					width: parent.height -6
+					height: width
+					radius: 1
+					gradient: Gradient {
+						orientation: Gradient.Horizontal
+						GradientStop { position: 0.0; color: "#20ffffff" }
+						GradientStop { position: 1.0; color: "#ffffffff" }
+					}
+				}
+			}
+
+			Text {
+				anchors {
+					left: parent.left
+					leftMargin: GlobalVariables.controls.padding
+					top: parent.top
+					topMargin: bodyProgressBar.height /2
+				}
+				text: formatTime(parseInt(activePlayer.position))
+				color: GlobalVariables.colours.windowText
+				font: GlobalVariables.font.monosmall
+			}
+
+			Text {
+				anchors {
+					right: parent.right
+					rightMargin: GlobalVariables.controls.padding
+					top: parent.top
+					topMargin: bodyProgressBar.height /2
+				}
+				text: `-${formatTime(parseInt(activePlayer.length -parseInt(activePlayer.position)))}`
+				color: GlobalVariables.colours.windowText
+				font: GlobalVariables.font.monosmall
+			}
+
+			Row { id: bodyLayout
+				anchors.centerIn: parent
+				spacing: GlobalVariables.controls.spacing
+
+				// shuffle playlist
+				QsButton {
+					anchors.verticalCenter: parent.verticalCenter
+					tooltip: Text {
+						text: "Shuffle"
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+					onClicked: if (activePlayer.shuffleSupported) activePlayer.shuffle = !activePlayer.shuffle;
+					content: IconImage {
+						implicitSize: 26
+						source: {
+							if (activePlayer.shuffle) return Quickshell.iconPath("media-playlist-shuffle");
+							else return Quickshell.iconPath("media-playlist-no-shuffle");
+						}
+					}
+				}
+
+				// go previous
+				QsButton {
+					anchors.verticalCenter: parent.verticalCenter
+					tooltip: Text {
+						text: "Previous"
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+					onClicked: activePlayer.previous();
+					content: IconImage {
+						implicitSize: 24
+						source: Quickshell.iconPath("media-skip-backward")
+					}
+				}
+
+				// toggle playing
+				QsButton {
+					anchors.verticalCenter: parent.verticalCenter
+					onClicked: activePlayer.togglePlaying();
+					tooltip: Text {
+						text: activePlayer.isPlaying? "Pause" : "Play"
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+					content: Style.Button {
+						width: 40 +GlobalVariables.controls.spacing
+						color: GlobalVariables.colours.mid
+
+						IconImage {
+							anchors.centerIn: parent
+							implicitSize: 40
+							source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
+						}
+					}
+				}
+
+				// go forward
+				QsButton {
+					anchors.verticalCenter: parent.verticalCenter
+					tooltip: Text {
+						text: "Skip"
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+					onClicked: activePlayer.next();
+					content: IconImage {
+						implicitSize: 24
+						source: Quickshell.iconPath("media-skip-forward")
+					}
+				}
+
+				// shuffle playlist
+				QsButton {
+					anchors.verticalCenter: parent.verticalCenter
+					tooltip: Text {
+						text: switch (activePlayer.loopState) {
+							case MprisLoopState.Playlist:
+								return "Loop track";
+							case MprisLoopState.Track:
+								return "Disable loop";
+							default:
+								return "Loop album";
+						}
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+					onClicked: if (activePlayer.loopSupported) switch (activePlayer.loopState) {
+							case MprisLoopState.Playlist:
+								activePlayer.loopState = MprisLoopState.Track;
+							case MprisLoopState.Track:
+								activePlayer.loopState = MprisLoopState.None;
+							case MprisLoopState.None:
+								activePlayer.loopState = MprisLoopState.Playlist;
+					}
+					content: IconImage {
+						implicitSize: 26
+						source: switch (activePlayer.loopState) {
+							case MprisLoopState.Playlist:
+								return Quickshell.iconPath("media-playlist-repeat");
+							case MprisLoopState.Track:
+								return Quickshell.iconPath("media-playlist-repeat-song");
+							default:
+								return Quickshell.iconPath("media-playlist-no-repeat");
+						}
+					}
+				}
+			}
+		}
+	}
+
+	Osd { id: osd
+		content: RowLayout {
+			width: 160
+			spacing: GlobalVariables.controls.spacing
+
+			IconImage {
+				Layout.margins: GlobalVariables.controls.padding
+				Layout.rightMargin: 0
+				implicitSize: GlobalVariables.controls.iconSize
+				source: Quickshell.iconPath(activePlayer.desktopEntry, true) || Quickshell.iconPath(activePlayer.identity.toLowerCase(), "multimedia-audio-player")
+			}
+
+			ProgressBar {
+				Layout.margins: GlobalVariables.controls.padding
+				Layout.leftMargin: 0
+				Layout.fillWidth: true
+				height: 12
+				progress: activePlayer.volume
+			}
+		}
 	}
 }
