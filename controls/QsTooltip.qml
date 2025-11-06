@@ -16,13 +16,24 @@ Item { id: root
 
 	anchors.fill: anchor
 
+
 	Loader {
+
 		active: content
-		sourceComponent: PopupWindow {
-			visible: isShown
+		sourceComponent: PopupWindow { id: popout;
+			Connections {
+				target: root
+				function onIsShownChanged() { if (isShown) {
+					popout.anchor.rect.x = root.parent.mouseX +3;
+					popout.anchor.rect.y = root.parent.mouseY +3;
+					popout.visible = true;
+				} else popout.visible = false; }
+			}
+			visible: false
+			mask: Region {}
 			anchor {
 				item: root
-				rect { x: root.width /2 -content.width /2 -GlobalVariables.controls.padding /2; y: root.height +6; }
+				rect {  x: root.width /2 -content.width /2 -GlobalVariables.controls.padding /2; y: root.height +6; }
 			}
 			implicitWidth: content.width +GlobalVariables.controls.padding
 			implicitHeight: content.height +GlobalVariables.controls.padding
