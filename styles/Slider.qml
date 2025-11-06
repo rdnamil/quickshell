@@ -9,6 +9,7 @@ import qs
 import qs.controls
 
 Control.Slider { id: root
+	property bool showTooltip: true
 	property Item tooltipContent: Text {
 		readonly property TextMetrics textMetric: TextMetrics {
 			text: "100"
@@ -24,7 +25,7 @@ Control.Slider { id: root
 	}
 
 	wheelEnabled: true
-	onValueChanged: {
+	onValueChanged: if (showTooltip) {
 		tooltipWrapper.visible = true;
 		tooltipTimer.restart();
 	}
