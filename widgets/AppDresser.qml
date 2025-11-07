@@ -41,7 +41,7 @@ QsButton { id: root
 		function onAccepted() {
 			repeater.model[applicationsLayout.keySelection].execute();
 			root.reset();
-			popout.close();
+			Service.Popout.clear();
 		}
 	}
 
@@ -288,7 +288,8 @@ QsButton { id: root
 								onIsHighlightedChanged: if (isHighlighted) applicationsLayout.keySelection = index;
 								onFillChanged: if (fill) applicationsScrollView.ensureVisible(application);
 								onClicked: {
-									popout.close();
+									root.reset();
+									Service.Popout.clear();
 									modelData.execute();
 								}
 								content: RowLayout {
