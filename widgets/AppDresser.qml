@@ -24,6 +24,7 @@ QsButton { id: root
 		applicationsScrollView.ScrollBar.vertical.position = 0.0;
 		repeater.model = Service.AppDresser.filteredFavourites;
 		categoriesLayout.selection = "Favourites";
+		applicationsLayout.keySelection = 0;
 	}
 
 	Connections {
