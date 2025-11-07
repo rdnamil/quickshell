@@ -121,6 +121,7 @@ Item { id: root
 				radius: contentHeader.radius
 				spread: 0
 				blur: 30
+				color: GlobalVariables.colours.shadow
 			}
 
 			// draw border around wrapper for header
