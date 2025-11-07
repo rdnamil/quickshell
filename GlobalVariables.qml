@@ -31,6 +31,11 @@ Singleton { id: root
 			pointSize: 10,
 			weight: 800
 		})
+		readonly property font italic: Qt.font({
+			family: "Adwaita Sans",
+			pointSize: 10,
+			italic: true
+		})
 		readonly property font mono: Qt.font({
 			family: "JetBrainsMono Nerd Font",
 			pointSize: 10
