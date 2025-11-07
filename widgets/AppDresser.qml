@@ -291,7 +291,7 @@ QsButton { id: root
 									modelData.execute();
 								}
 								content: RowLayout {
-									width: parent.width
+									width: application.width
 									spacing: GlobalVariables.controls.spacing
 
 									IconImage {
