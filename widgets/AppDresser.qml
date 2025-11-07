@@ -1,121 +1,79 @@
-/*------------------------------
---- AppDresser.qml by andrel ---
-------------------------------*/
-
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
-import Quickshell.Io
 import qs
 import qs.controls
+import qs.services as Service
 import qs.styles as Style
 
 QsButton { id: root
-	readonly property list<var> categories: [
-		{ text: "Utility", icon: "applications-utilities-symbolic" },
-		{ text: "Settings", icon: "applications-system-symbolic" },
-		{ text: "Internet", icon: "applications-webbrowsers-symbolic" },
-		{ text: "Multimedia", icon: "applications-multimedia-symbolic" },
-		{ text: "Game", icon: "game-app-symbolic" },
-		{ text: "Security", icon: "security-medium-symbolic" },
-		{ text: "Office", icon: "applications-office-symbolic" },
-		{ text: "Development", icon: "applications-development-symbolic" },
-	]
-
-	property list<string> favourites: [
-		"Ghostty",
-		"Thunar File Manager",
-		"Brave",
-		"Mission Center",
-		"Legcord",
-		"Steam",
-		"Lutris",
-		"OBS Studio",
-		"Timeshift",
-		"Kate",
-		"Krita",
-		"Inkscape"
-	]
-	property string drawer: "Favourites"
-
-	function reset() {
-		root.drawer = "Favourites";
-		categoryScrollView.ScrollBar.vertical.position = 0.0;
-		appScrollView.ScrollBar.vertical.position = 0.0;
-		appRepeater.model = appRepeater.model = DesktopEntries.applications.values.filter(a => favourites.includes(a.name)).sort((a, b) => {
-			return favourites.indexOf(a.name) -favourites.indexOf(b.name);
-		});
-	}
-
-	shade: false
 	anim: false
+	shade: false
 	onClicked: popout.toggle();
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: Quickshell.iconPath("view-app-grid")
 	}
 
+	function reset() {
+		categoriesScrollView.ScrollBar.vertical.position = 0.0;
+		applicationsScrollView.ScrollBar.vertical.position = 0.0;
+		repeater.model = Service.AppDresser.filteredFavourites;
+		categoriesLayout.selection = "Favourites";
+	}
+
+	Connections {
+		target: Service.Popout
+
+		function onKeyPressed(event) { switch (event.key) {
+			case Qt.Key_Up:
+				if (applicationsLayout.keySelection > 0) applicationsLayout.keySelection--;
+				break;
+			case Qt.Key_Down:
+				if (applicationsLayout.keySelection < (repeater.count -1)) applicationsLayout.keySelection++;
+				break;
+		}}
+
+		function onAccepted() {
+			root.reset();
+			repeater.model[applicationsLayout.keySelection].execute();
+		}
+	}
+
 	Popout { id: popout
 		onIsOpenChanged: if (!isOpen) root.reset();
 		anchor: root
 		header: RowLayout { id: headerContent
-			width: Math.max(320, bodyContent.width)
+			width: screen.width /5
 
+			// user's profile picture and name
 			Row {
-				Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-				Layout.leftMargin: GlobalVariables.controls.padding
-				spacing: 6
+				Layout.margins: GlobalVariables.controls.padding
+				spacing: GlobalVariables.controls.spacing
 
-				// get user's full name
-				Process {
-					running: true
-					command: ["sh", "-c", 'getent passwd "$USER" | cut -d: -f5 | cut -d, -f1']
-					stdout: StdioCollector {
-						onStreamFinished: usersname.text = text;
-					}
+				IconImage {
+					implicitSize: GlobalVariables.controls.iconSize
+					source: Quickshell.iconPath("icon_user")
 				}
 
-				Rectangle {
-					width: 20
-					height: width
-					radius: height /2
-					color: GlobalVariables.colours.light
-					layer.enabled: true
-					layer.effect: OpacityMask {
-						maskSource: Rectangle {
-							width: 20
-							height: width
-							radius: height /2
-						}
-					}
-
-					IconImage {
-						anchors{
-							horizontalCenter: parent.horizontalCenter
-							bottom: parent.bottom
-							bottomMargin: -2
-						}
-						implicitSize: 18
-						source: Quickshell.iconPath("user-icon")
-					}
-				}
-
-				Text { id: usersname
-					anchors.verticalCenter: parent.verticalCenter
+				Text {
+					text: Service.AppDresser.usersname
 					color: GlobalVariables.colours.text
-					verticalAlignment: Text.AlignVCenter
 					font: GlobalVariables.font.regular
 				}
 			}
 
+			// power options
 			Row {
-				Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+				Layout.alignment: Qt.AlignRight
 				Layout.margins: GlobalVariables.controls.padding
 				spacing: 3
 
+				// lock screen
 				QsButton {
 					onClicked: {
 						Quickshell.execDetached(["sh", "-c", "/usr/local/bin/lockscreen.sh"]);
@@ -129,6 +87,8 @@ QsButton { id: root
 						}
 					}
 				}
+
+				// log out
 				QsButton {
 					onClicked: {
 						Quickshell.execDetached(["logout"]);
@@ -142,6 +102,8 @@ QsButton { id: root
 						}
 					}
 				}
+
+				// shut down
 				QsButton {
 					onClicked: {
 						Quickshell.execDetached(["poweroff"]);
@@ -157,78 +119,36 @@ QsButton { id: root
 				}
 			}
 		}
-		body: RowLayout { id: bodyContent
+		body: RowLayout {
+			width: screen.width /5
+			height: screen.height /3
 			spacing: 0
 
-			ScrollView { id: categoryScrollView
-				Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-				Layout.preferredWidth: categoryList.width +effectiveScrollBarWidth
-				Layout.preferredHeight: screen.height /3
-				Layout.maximumHeight: screen.height /3
+			// categories list
+			ScrollView { id: categoriesScrollView
+				Layout.preferredWidth: categoriesLayout.width
+				Layout.fillHeight: true
 				topPadding: GlobalVariables.controls.padding
 				bottomPadding: GlobalVariables.controls.padding
-				background: Rectangle {
-					anchors.fill: parent
-					color: GlobalVariables.colours.midlight
-				}
+				background: Rectangle { color: GlobalVariables.colours.midlight; }
 
-				// list category drawer options
-				ColumnLayout { id: categoryList
+				ColumnLayout { id: categoriesLayout
+					property string selection: "Favourites"
+
 					spacing: GlobalVariables.controls.spacing
 
-					// top padding element
 					Item { Layout.preferredHeight: 1; }
 
-					// all apps drawer option
+					// Favourites
 					QsButton {
 						Layout.fillWidth: true
 						shade: false
 						highlight: true
+						fill: categoriesLayout.selection === "Favourites"
 						onClicked: {
-							root.drawer = "All Applications";
-							appRepeater.model = Array.from(DesktopEntries.applications.values).sort((a, b) => a.name.localeCompare(b.name));
-						}
-						content: Row {
-							leftPadding: GlobalVariables.controls.padding
-							rightPadding: GlobalVariables.controls.padding
-							spacing: GlobalVariables.controls.spacing
-
-							IconImage {
-								implicitSize: 20
-								source: Quickshell.iconPath("appgrid-symbolic")
-							}
-
-							Text {
-								anchors.verticalCenter: parent.verticalCenter
-								text: "All Applications"
-								verticalAlignment: Text.AlignVCenter
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
-						}
-
-						Rectangle {
-							visible: drawer === "All Applications"
-							anchors {
-								right: parent.right
-								verticalCenter: parent.verticalCenter
-							}
-							width: 3
-							height: parent.height +4
-							color: GlobalVariables.colours.accent
-						}
-					}
-
-					// favourites drawer option
-					QsButton {
-						Layout.fillWidth: true
-						shade: false
-						highlight: true
-						onClicked: {
-							root.drawer = "Favourites";
-							appRepeater.model = DesktopEntries.applications.values.filter(a => favourites.includes(a.name)).sort((a, b) => {
-								return favourites.indexOf(a.name) -favourites.indexOf(b.name);
-							});
+							categoriesLayout.selection = "Favourites";
+							applicationsLayout.keySelection = 0;
+							repeater.model = Service.AppDresser.filteredFavourites;
 						}
 						content: Row {
 							leftPadding: GlobalVariables.controls.padding
@@ -243,35 +163,56 @@ QsButton { id: root
 							Text {
 								anchors.verticalCenter: parent.verticalCenter
 								text: "Favourites"
-								verticalAlignment: Text.AlignVCenter
 								color: GlobalVariables.colours.text
 								font: GlobalVariables.font.regular
 							}
 						}
+					}
 
-						Rectangle {
-							visible: drawer === "Favourites"
-							anchors {
-								right: parent.right
-								verticalCenter: parent.verticalCenter
+					// All Apps
+					QsButton {
+						Layout.fillWidth: true
+						shade: false
+						highlight: true
+						fill: categoriesLayout.selection === "All Applications"
+						onClicked: {
+							categoriesLayout.selection = "All Applications";
+							applicationsLayout.keySelection = 0;
+							repeater.model = Service.AppDresser.allApplications;
+						}
+						content: Row {
+							leftPadding: GlobalVariables.controls.padding
+							rightPadding: GlobalVariables.controls.padding
+							spacing: GlobalVariables.controls.spacing
+
+							IconImage {
+								implicitSize: 20
+								source: Quickshell.iconPath("appgrid-symbolic")
 							}
-							width: 3
-							height: parent.height +4
-							color: GlobalVariables.colours.accent
+
+							Text {
+								anchors.verticalCenter: parent.verticalCenter
+								text: "All Applications"
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.regular
+							}
 						}
 					}
 
 					Repeater {
-						model: categories
+						model: Service.AppDresser.categories
 						delegate: QsButton {
 							required property var modelData
+							required property int index
 
 							Layout.fillWidth: true
 							shade: false
 							highlight: true
+							fill: categoriesLayout.selection === modelData.text[0]
 							onClicked: {
-								root.drawer = modelData.text;
-								appRepeater.model = Array.from(DesktopEntries.applications.values.filter(a => a.categories.includes(modelData.text))).sort((a, b) => a.name.localeCompare(b.name));
+								categoriesLayout.selection = modelData.text[0];
+								applicationsLayout.keySelection = 0;
+								repeater.model = Service.AppDresser.filteredCategories[index];
 							}
 							content: Row {
 								leftPadding: GlobalVariables.controls.padding
@@ -285,110 +226,255 @@ QsButton { id: root
 
 								Text {
 									anchors.verticalCenter: parent.verticalCenter
-									text: modelData.text
-									verticalAlignment: Text.AlignVCenter
+									text: modelData.text[0]
 									color: GlobalVariables.colours.text
 									font: GlobalVariables.font.regular
 								}
 							}
-
-							Rectangle {
-								visible: drawer === modelData.text
-								anchors {
-									right: parent.right
-									verticalCenter: parent.verticalCenter
-								}
-								width: 3
-								height: parent.height +4
-								color: GlobalVariables.colours.accent
-							}
 						}
 					}
 
-					// bottom padding element
 					Item { Layout.preferredHeight: 1; }
+
 				}
 			}
 
-			Seperator {
-				Layout.preferredHeight: parent.height
-			}
+			Seperator { Layout.fillHeight: true; }
 
-			ScrollView { id: appScrollView
-				Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-				Layout.preferredWidth: screen.width /8
-				Layout.preferredHeight: screen.height /3
-				Layout.maximumHeight: screen.height /3
-				ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-				topPadding: GlobalVariables.controls.padding
-				bottomPadding: GlobalVariables.controls.padding
+			// applications list
+			ColumnLayout {
+				Layout.fillWidth: true
+				Layout.fillHeight: true
+				spacing: 0
 
-				// app list
-				ColumnLayout { id: appList
-					width: parent.width
+				ScrollView { id: applicationsScrollView
+					function ensureVisible(item) {
+						var flick = applicationsScrollView.contentItem
+						var pos = item.mapToItem(flick.contentItem, 0, 0)
+						var itemTop = pos.y
+						var itemBottom = itemTop + item.height
+						var viewTop = flick.contentY
+						var viewBottom = flick.contentY + flick.height
 
-					// top padding element
-					Item { Layout.preferredHeight: 1; }
+						if (itemTop < viewTop) {
+							flick.contentY = itemTop -GlobalVariables.controls.spacing
+						} else if (itemBottom > viewBottom) {
+							flick.contentY = itemBottom - (flick.height -GlobalVariables.controls.spacing)
+						}
+					}
 
-					Repeater { id: appRepeater
-						model: appRepeater.model = DesktopEntries.applications.values.filter(a => favourites.includes(a.name)).sort((a, b) => {
-							return favourites.indexOf(a.name) -favourites.indexOf(b.name);
-						})
-						delegate: QsButton {
-							required property var modelData
+					Layout.fillWidth: true
+					Layout.fillHeight: true
 
-							Layout.fillWidth: true
-							shade: false
-							highlight: true
-							// onMiddleClicked:
-							onClicked: {
-								modelData.categories.push("Favourites");
-								modelData.execute();
-								popout.toggle();
-							}
-							content: Row {
-								leftPadding: GlobalVariables.controls.padding
-								rightPadding: GlobalVariables.controls.padding
-								spacing: GlobalVariables.controls.spacing
+					ColumnLayout { id: applicationsLayout
+						property int keySelection: 0
 
-								IconImage {
-									anchors.verticalCenter: parent.verticalCenter
-									implicitSize: 32
-									source: Quickshell.iconPath(modelData.id, true) || Quickshell.iconPath(modelData.icon, "image-missing")
+						width: parent.width
+						spacing: GlobalVariables.controls.spacing
+
+						Item { Layout.preferredHeight: 1; }
+
+						Repeater { id: repeater
+							model: Service.AppDresser.filteredFavourites
+							delegate: QsButton { id: application
+								required property var modelData
+								required property int index
+
+								Layout.fillWidth: true
+								shade: false
+								highlight: true
+								fill: applicationsLayout.keySelection === index
+								onIsHighlightedChanged: if (isHighlighted) applicationsLayout.keySelection = index;
+								onFillChanged: if (fill) applicationsScrollView.ensureVisible(application);
+								onClicked: {
+									popout.close();
+									modelData.execute();
 								}
+								content: RowLayout {
+									width: parent.width
+									spacing: GlobalVariables.controls.spacing
 
-								Column {
-									anchors.verticalCenter: parent.verticalCenter
-									width: appScrollView.width -appScrollView.effectiveScrollBarWidth -32
-
-									Text {
-										text: modelData.name
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.regular
+									IconImage {
+										Layout.leftMargin: GlobalVariables.controls.padding
+										implicitSize: 32
+										source: Quickshell.iconPath(modelData.id, true) || Quickshell.iconPath(modelData.icon, "image-missing")
 									}
 
-									Text {
-										visible: modelData.comment
-										width: parent.width -GlobalVariables.controls.padding *2
-										text: modelData.comment
-										elide: Text.ElideRight
-										color: GlobalVariables.colours.windowText
-										font: GlobalVariables.font.small
+									Column {
+										Layout.alignment: Qt.AlignVCenter
+										Layout.rightMargin: GlobalVariables.controls.padding
+										Layout.fillWidth: true
+
+										Text {
+											text: modelData.name
+											color: GlobalVariables.colours.text
+											font: GlobalVariables.font.regular
+										}
+
+										Text {
+											visible: modelData.comment
+											width: parent.width
+											text: modelData.comment
+											elide: Text.ElideRight
+											color: GlobalVariables.colours.windowText
+											font: GlobalVariables.font.small
+										}
 									}
 								}
 							}
 						}
+
+						Item { Layout.preferredHeight: 1; }
+					}
+				}
+
+				Item { id: footer
+					readonly property TextMetrics textMetric: TextMetrics {
+						text: "Placeholder"
+						font: GlobalVariables.font.regular
 					}
 
-					// bottom padding element
-					Item { Layout.preferredHeight: 1; }
+					Layout.fillWidth: true
+					Layout.preferredHeight: textMetric.height +(GlobalVariables.controls.padding +GlobalVariables.controls.spacing) *2
+
+					// border
+					Rectangle {
+						anchors.fill: parent
+						color: GlobalVariables.colours.light
+						border { color: GlobalVariables.colours.shadow; width: 1; }
+					}
+
+					// background
+					Rectangle { id: footerBackground
+						anchors.bottom: parent.bottom
+						width: parent.width
+						height: parent.height -2
+						color: GlobalVariables.colours.window
+
+						// text field
+						Rectangle {
+							anchors.centerIn: parent
+							width: parent.width -GlobalVariables.controls.padding *2
+							height: footer.textMetric.height +GlobalVariables.controls.spacing *2
+							radius: GlobalVariables.controls.radius
+							color: GlobalVariables.colours.dark
+							clip: true
+
+							TextInput {
+								anchors {
+									left: parent.left
+									leftMargin: GlobalVariables.controls.padding
+									verticalCenter: parent.verticalCenter
+								}
+								width: parent.width -GlobalVariables.controls.padding *2
+								cursorVisible: text
+								cursorPosition: Service.Popout.cursorPosition
+								text: Service.Popout.text
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.regular
+								onTextChanged: {
+									if (text) {
+										categoriesScrollView.ScrollBar.vertical.position = 0.0;
+										applicationsScrollView.ScrollBar.vertical.position = 0.0;
+										applicationsLayout.keySelection = 0;
+										categoriesLayout.selection = "";
+
+										repeater.model = DesktopEntries.applications.values
+										.map(object => {
+											const stxt = text.toLowerCase();
+											const ntxt = object.name.toLowerCase();
+											let si = 0;
+											let ni = 0;
+
+											let matches = [];
+											let startMatch = -1;
+
+											for (let si = 0; si != stxt.length; ++si) {
+												const sc = stxt[si];
+
+												while (true) {
+													// Drop any entries with letters that don't exist in order
+													if (ni == ntxt.length) return null;
+
+													const nc = ntxt[ni++];
+
+													if (nc == sc) {
+														if (startMatch == -1) startMatch = ni;
+														break;
+													} else {
+														if (startMatch != -1) {
+															matches.push({
+																index: startMatch,
+																length: ni - startMatch,
+															});
+
+															startMatch = -1;
+														}
+													}
+												}
+											}
+
+											if (startMatch != -1) {
+												matches.push({
+													index: startMatch,
+													length: ni - startMatch + 1,
+												});
+											}
+
+											return {
+												object: object,
+												matches: matches,
+											};
+										})
+										.filter(entry => entry !== null)
+										.sort((a, b) => {
+											let ai = 0;
+											let bi = 0;
+											let s = 0;
+
+											while (ai != a.matches.length && bi != b.matches.length) {
+												const am = a.matches[ai];
+												const bm = b.matches[bi];
+
+												s = bm.length - am.length;
+												if (s != 0) return s;
+
+												s = am.index - bm.index;
+												if (s != 0) return s;
+
+												++ai;
+												++bi;
+											}
+
+											s = a.matches.length - b.matches.length;
+											if (s != 0) return s;
+
+											s = a.object.name.length - b.object.name.length;
+											if (s != 0) return s;
+
+											return a.object.name.localeCompare(b.object.name);
+										})
+										.map(entry => entry.object);
+									} else {
+										repeater.model = Service.AppDresser.allApplications;
+										categoriesLayout.selection = "All Applications";
+									}
+								}
+
+								Text {
+									visible: !parent.text
+									text: "Start typing to search..."
+									color: GlobalVariables.colours.windowText
+									font: GlobalVariables.font.italic
+									opacity: 0.4
+								}
+							}
+
+							Style.Borders { opacity: 0.4; }
+						}
+					}
 				}
 			}
 		}
-	}
-
-	IpcHandler {
-		target: "appdresser"
-		function toggle(): void { popout.toggle(); }
 	}
 }
