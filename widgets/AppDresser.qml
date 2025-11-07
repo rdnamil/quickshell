@@ -39,8 +39,9 @@ QsButton { id: root
 		}}
 
 		function onAccepted() {
-			root.reset();
 			repeater.model[applicationsLayout.keySelection].execute();
+			root.reset();
+			popout.close();
 		}
 	}
 
