@@ -16,7 +16,9 @@ Item { id: root
 
 	property bool anim: true
 	property bool shade: true
-	property bool highlight: false
+	property bool highlight
+	property bool fill
+	property bool isHighlighted: (root.highlight && containsMouse)
 	property Item tooltip
 	property bool debug
 
@@ -32,13 +34,13 @@ Item { id: root
 	transform: Translate { id: rootTranslate; }
 
 	// highlight button on hover
-	Rectangle {
+	Rectangle { id: highlight
 		anchors.centerIn: parent
-		visible: highlight && containsMouse
+		visible: isHighlighted || fill
 		width: parent.width +4
 		height: parent.height +4
 		color: GlobalVariables.colours.accent
-		opacity: 0.4
+		opacity: containsMouse? 0.5 : 0.25
 	}
 
 	// contentWrapper
@@ -83,7 +85,7 @@ Item { id: root
 			}
 		}
 
-		acceptedButtons: Qt.AllButtons
+		acceptedButtons: Qt.LeftButton || Qt.MiddleButton
 		onPressed: (mouse) => {
 			switch (mouse.button) {
 				case Qt.LeftButton: {
