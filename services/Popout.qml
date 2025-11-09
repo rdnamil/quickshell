@@ -34,12 +34,13 @@ Singleton { id: root
 			bottom: true
 		}
 		WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+		WlrLayershell.layer: WlrLayer.Top
 		color: "transparent"
 
 		TextInput { id: inputField
-			visible: false
 			focus: true
 			onAccepted: root.accepted()
+			color: "transparent"
 			Keys.onPressed: (event) => {
 				if (event.key === Qt.Key_Escape) root.clear();
 				else root.keyPressed(event)
@@ -49,7 +50,6 @@ Singleton { id: root
 		MouseArea {
 			anchors.fill: parent
 			onClicked: root.clear();
-			focus: true
 		}
 	}
 }
