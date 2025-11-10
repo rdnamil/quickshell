@@ -122,14 +122,13 @@ QsButton { id: root
 				Item { Layout.preferredHeight: 1; }
 
 				Repeater {
-					model: UPower.devices
+					model: UPower.devices.values.filter(d => d.model)
 					delegate: Rectangle {
 						required property var modelData
 						required property int index
 
-						visible: modelData.model
-						width: parent.width
-						height: layout.height
+						Layout.fillWidth: true
+						Layout.preferredHeight: layout.height
 						color: (index %2 === 0)? "transparent" : GlobalVariables.colours.midlight
 
 						RowLayout { id: layout
@@ -148,6 +147,9 @@ QsButton { id: root
 									source: switch (UPowerDeviceType.toString(modelData.type).toLowerCase()) {
 										case "gaming input":
 											return Quickshell.iconPath("input-gaming");
+										case "battery":
+											if (isLaptopBattery) return Quickshell.iconPath("computer-laptop");
+											else return Quickshell.iconPath("computer");
 										default:
 											return Quickshell.iconPath(UPowerDeviceType.toString(modelData.type).toLowerCase());
 									}
