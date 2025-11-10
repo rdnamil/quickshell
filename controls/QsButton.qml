@@ -51,7 +51,10 @@ Item { id: root
 	// shade button on hover
 	Rectangle {
 		visible: shade && containsMouse
-		anchors.fill: parent
+		width: content.width
+		height: content.height
+		x: content.x
+		y: content.y
 		color: GlobalVariables.colours.shadow
 		opacity: 0.2
 		layer.enabled: true
@@ -72,9 +75,10 @@ Item { id: root
 	}
 
 	MouseArea { id: mouseArea
-		anchors.centerIn: root
-		width: root.width +4
-		height: root.height +4
+		width: content.width +4
+		height: content.height +4
+		x: content.x -2
+		y: content.y -2
 		hoverEnabled: true
 		onEntered: { root.mouseEntered(); if (root.tooltip) tooltipTimer.restart(); }
 		onExited: {
