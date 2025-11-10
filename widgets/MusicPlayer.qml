@@ -327,7 +327,7 @@ Loader { id: root
 					content: Text {
 						text: track.artist || "Unknown Artist"
 						color: GlobalVariables.colours.windowText
-						font: activePlayer.trackArtist? GlobalVariables.font.small : GlobalVariables.font.smallitalics
+						font: track.artist? GlobalVariables.font.small : GlobalVariables.font.smallitalics
 					}
 				}
 
@@ -382,6 +382,8 @@ Loader { id: root
 				// shuffle playlist
 				QsButton {
 					anchors.verticalCenter: parent.verticalCenter
+					shade: activePlayer.shuffleSupported
+					anim: activePlayer.shuffleSupported
 					tooltip: Text {
 						text: "Shuffle"
 						color: GlobalVariables.colours.text
@@ -423,7 +425,7 @@ Loader { id: root
 					}
 					content: Style.Button {
 						width: 40 +GlobalVariables.controls.spacing
-						color: GlobalVariables.colours.mid
+						color: "transparent"
 
 						IconImage {
 							anchors.centerIn: parent
@@ -451,6 +453,8 @@ Loader { id: root
 				// shuffle playlist
 				QsButton {
 					anchors.verticalCenter: parent.verticalCenter
+					shade: activePlayer.loopSupported
+					anim: activePlayer.loopSupported
 					tooltip: Text {
 						text: switch (activePlayer.loopState) {
 							case MprisLoopState.Playlist:
