@@ -184,7 +184,137 @@ Loader { id: root
 		anchor: root
 		header: Item { id: headerContent
 			width: screen.width /10
-			height: width + headerLayout.height +GlobalVariables.controls.padding
+			height: width + headerLayout.height  +controls.height +GlobalVariables.controls.padding *2
+
+			Rectangle { id: controls
+				anchors {
+					horizontalCenter: parent.horizontalCenter
+					top: parent.top
+					topMargin: GlobalVariables.controls.padding
+				}
+				width: parent.width -GlobalVariables.controls.padding *2
+				height: controlsLayout.height +GlobalVariables.controls.padding *2
+				radius: GlobalVariables.controls.radius
+				color: GlobalVariables.colours.dark
+
+				Style.Borders { opacity: 0.6; }
+
+				RowLayout { id: controlsLayout
+					readonly property real buttonSize: 20
+
+					anchors.verticalCenter: parent.verticalCenter
+					width: parent.width
+					spacing: GlobalVariables.controls.spacing
+
+					// shuffle playlist
+					QsButton {
+						Layout.fillWidth: true
+						shade: activePlayer.shuffleSupported
+						anim: activePlayer.shuffleSupported
+						tooltip: Text {
+							text: "Shuffle"
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+						onClicked: if (activePlayer.shuffleSupported) activePlayer.shuffle = !activePlayer.shuffle;
+						content: IconImage {
+							anchors.centerIn: parent
+							implicitSize: controlsLayout.buttonSize
+							source: {
+								if (activePlayer.shuffle) return Quickshell.iconPath("media-playlist-shuffle");
+								else return Quickshell.iconPath("media-playlist-no-shuffle");
+							}
+						}
+					}
+
+					// go previous
+					QsButton {
+						Layout.fillWidth: true
+						tooltip: Text {
+							text: "Previous"
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+						onClicked: activePlayer.previous();
+						content: IconImage {
+							anchors.centerIn: parent
+							implicitSize: controlsLayout.buttonSize
+							source: Quickshell.iconPath("media-skip-backward")
+						}
+					}
+
+					// toggle playing
+					QsButton {
+						Layout.fillWidth: true
+						onClicked: activePlayer.togglePlaying();
+						tooltip: Text {
+							text: activePlayer.isPlaying? "Pause" : "Play"
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+						content: IconImage {
+							anchors.centerIn: parent
+							implicitSize: controlsLayout.buttonSize
+							source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
+						}
+					}
+
+					// go forward
+					QsButton {
+						Layout.fillWidth: true
+						tooltip: Text {
+							text: "Skip"
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+						onClicked: activePlayer.next();
+						content: IconImage {
+							anchors.centerIn: parent
+							implicitSize: controlsLayout.buttonSize
+							source: Quickshell.iconPath("media-skip-forward")
+						}
+					}
+
+					// shuffle playlist
+					QsButton {
+						Layout.fillWidth: true
+						shade: activePlayer.loopSupported
+						anim: activePlayer.loopSupported
+						tooltip: Text {
+							text: switch (activePlayer.loopState) {
+								case MprisLoopState.Playlist:
+									return "Loop track";
+								case MprisLoopState.Track:
+									return "Disable loop";
+								default:
+									return "Loop album";
+							}
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+						onClicked: if (activePlayer.loopSupported) switch (activePlayer.loopState) {
+								case MprisLoopState.Playlist:
+									activePlayer.loopState = MprisLoopState.Track;
+								case MprisLoopState.Track:
+									activePlayer.loopState = MprisLoopState.None;
+								case MprisLoopState.None:
+									activePlayer.loopState = MprisLoopState.Playlist;
+						}
+						content: IconImage {
+							anchors.centerIn: parent
+							implicitSize: controlsLayout.buttonSize
+							source: switch (activePlayer.loopState) {
+								case MprisLoopState.Playlist:
+									return Quickshell.iconPath("media-playlist-repeat");
+								case MprisLoopState.Track:
+									return Quickshell.iconPath("media-playlist-repeat-song");
+								default:
+									return Quickshell.iconPath("media-playlist-no-repeat");
+							}
+						}
+					}
+				}
+			}
 
 			// album art wrapper
 			Item {
@@ -208,7 +338,7 @@ Loader { id: root
 							anchors {
 								horizontalCenter: parent.horizontalCenter
 								top: parent.top
-								topMargin: GlobalVariables.controls.padding +1
+								topMargin: GlobalVariables.controls.padding *2 +controls.height +1
 							}
 							width: parent.width -GlobalVariables.controls.padding *2 -2
 							height: width
@@ -237,7 +367,7 @@ Loader { id: root
 					anchors {
 						horizontalCenter: parent.horizontalCenter
 						top: parent.top
-						topMargin: GlobalVariables.controls.padding
+						topMargin: controls.height +GlobalVariables.controls.padding *2
 					}
 					width: parent.width -GlobalVariables.controls.padding *2
 					height: width
@@ -299,7 +429,7 @@ Loader { id: root
 
 			// track info
 			ColumnLayout { id: headerLayout
-				spacing: 0
+				spacing: GlobalVariables.controls.spacing
 
 				anchors {
 					bottom: parent.bottom
@@ -307,43 +437,176 @@ Loader { id: root
 				}
 				width: parent.width
 
-				// track title
-				Marquee {
+				Column {
 					Layout.leftMargin: GlobalVariables.controls.padding
 					Layout.rightMargin: GlobalVariables.controls.padding
 					Layout.fillWidth: true
-					content: Text {
-						text: track.title
-						color: GlobalVariables.colours.text
-						font: GlobalVariables.font.semibold
+
+					// track title
+					Marquee {
+						width: parent.width
+						content: Text {
+							text: track.title
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.semibold
+						}
+					}
+
+					// track artist
+					Marquee {
+						width: parent.width
+						content: Text {
+							text: track.artist || "Unknown Artist"
+							color: GlobalVariables.colours.windowText
+							font: track.artist? GlobalVariables.font.small : GlobalVariables.font.smallitalics
+						}
 					}
 				}
 
-				// track artist
-				Marquee {
-					Layout.leftMargin: GlobalVariables.controls.padding
-					Layout.rightMargin: GlobalVariables.controls.padding
-					Layout.fillWidth: true
-					content: Text {
-						text: track.artist || "Unknown Artist"
-						color: GlobalVariables.colours.windowText
-						font: track.artist? GlobalVariables.font.small : GlobalVariables.font.smallitalics
-					}
-				}
-
+				// Rectangle {
+				// 	Layout.alignment: Qt.AlignHCenter
+				// 	Layout.leftMargin: GlobalVariables.controls.padding
+				// 	Layout.rightMargin: GlobalVariables.controls.padding
+				// 	Layout.fillWidth: true
+				// 	Layout.preferredHeight: controlsLayout.height +GlobalVariables.controls.padding *2
+				// 	radius: GlobalVariables.controls.radius
+				// 	color: GlobalVariables.colours.dark
+    //
+				// 	Style.Borders {}
+    //
+				// 	RowLayout { id: controlsLayout
+				// 		readonly property real buttonSize: 20
+    //
+				// 		anchors.verticalCenter: parent.verticalCenter
+				// 		width: parent.width
+				// 		spacing: GlobalVariables.controls.spacing
+    //
+				// 		// shuffle playlist
+				// 		QsButton {
+				// 			Layout.fillWidth: true
+				// 			shade: activePlayer.shuffleSupported
+				// 			anim: activePlayer.shuffleSupported
+				// 			tooltip: Text {
+				// 				text: "Shuffle"
+				// 				color: GlobalVariables.colours.text
+				// 				font: GlobalVariables.font.regular
+				// 			}
+				// 			onClicked: if (activePlayer.shuffleSupported) activePlayer.shuffle = !activePlayer.shuffle;
+				// 			content: IconImage {
+				// 				anchors.centerIn: parent
+				// 				implicitSize: controlsLayout.buttonSize
+				// 				source: {
+				// 					if (activePlayer.shuffle) return Quickshell.iconPath("media-playlist-shuffle");
+				// 					else return Quickshell.iconPath("media-playlist-no-shuffle");
+				// 				}
+				// 			}
+				// 		}
+    //
+				// 		// go previous
+				// 		QsButton {
+				// 			Layout.fillWidth: true
+				// 			tooltip: Text {
+				// 				text: "Previous"
+				// 				color: GlobalVariables.colours.text
+				// 				font: GlobalVariables.font.regular
+				// 			}
+				// 			onClicked: activePlayer.previous();
+				// 			content: IconImage {
+				// 				anchors.centerIn: parent
+				// 				implicitSize: controlsLayout.buttonSize
+				// 				source: Quickshell.iconPath("media-skip-backward")
+				// 			}
+				// 		}
+    //
+				// 		// toggle playing
+				// 		QsButton {
+				// 			Layout.fillWidth: true
+				// 			onClicked: activePlayer.togglePlaying();
+				// 			tooltip: Text {
+				// 				text: activePlayer.isPlaying? "Pause" : "Play"
+				// 				color: GlobalVariables.colours.text
+				// 				font: GlobalVariables.font.regular
+				// 			}
+				// 			content: IconImage {
+				// 				anchors.centerIn: parent
+				// 				implicitSize: controlsLayout.buttonSize
+				// 				source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
+				// 			}
+				// 		}
+    //
+				// 		// go forward
+				// 		QsButton {
+				// 			Layout.fillWidth: true
+				// 			tooltip: Text {
+				// 				text: "Skip"
+				// 				color: GlobalVariables.colours.text
+				// 				font: GlobalVariables.font.regular
+				// 			}
+				// 			onClicked: activePlayer.next();
+				// 			content: IconImage {
+				// 				anchors.centerIn: parent
+				// 				implicitSize: controlsLayout.buttonSize
+				// 				source: Quickshell.iconPath("media-skip-forward")
+				// 			}
+				// 		}
+    //
+				// 		// shuffle playlist
+				// 		QsButton {
+				// 			Layout.fillWidth: true
+				// 			shade: activePlayer.loopSupported
+				// 			anim: activePlayer.loopSupported
+				// 			tooltip: Text {
+				// 				text: switch (activePlayer.loopState) {
+				// 					case MprisLoopState.Playlist:
+				// 						return "Loop track";
+				// 					case MprisLoopState.Track:
+				// 						return "Disable loop";
+				// 					default:
+				// 						return "Loop album";
+				// 				}
+				// 				color: GlobalVariables.colours.text
+				// 				font: GlobalVariables.font.regular
+				// 			}
+				// 			onClicked: if (activePlayer.loopSupported) switch (activePlayer.loopState) {
+				// 					case MprisLoopState.Playlist:
+				// 						activePlayer.loopState = MprisLoopState.Track;
+				// 					case MprisLoopState.Track:
+				// 						activePlayer.loopState = MprisLoopState.None;
+				// 					case MprisLoopState.None:
+				// 						activePlayer.loopState = MprisLoopState.Playlist;
+				// 			}
+				// 			content: IconImage {
+				// 				anchors.centerIn: parent
+				// 				implicitSize: controlsLayout.buttonSize
+				// 				source: switch (activePlayer.loopState) {
+				// 					case MprisLoopState.Playlist:
+				// 						return Quickshell.iconPath("media-playlist-repeat");
+				// 					case MprisLoopState.Track:
+				// 						return Quickshell.iconPath("media-playlist-repeat-song");
+				// 					default:
+				// 						return Quickshell.iconPath("media-playlist-no-repeat");
+				// 				}
+				// 			}
+				// 		}
+				// 	}
+				// }
 			}
 		}
-		body: Item {
+		body: RowLayout {
 			width: screen.width /10
-			height: bodyLayout.height +GlobalVariables.controls.padding *2
+
+			Text {
+				Layout.margins: GlobalVariables.controls.padding
+				text: formatTime(parseInt(activePlayer.position))
+				color: GlobalVariables.colours.windowText
+				font: GlobalVariables.font.monosmall
+				verticalAlignment: Text.AlignVCenter
+			}
 
 			Style.Slider { id: bodyProgressBar
+				Layout.alignment: Qt.AlignVCenter
+				Layout.fillWidth: true
 				showTooltip: false
-				anchors {
-					horizontalCenter: parent.horizontalCenter
-					verticalCenter: parent.top
-				}
-				width: parent.width +4
 				from: 0.0
 				value: activePlayer.position
 				to: activePlayer.length
@@ -352,141 +615,11 @@ Loader { id: root
 			}
 
 			Text {
-				anchors {
-					left: parent.left
-					leftMargin: GlobalVariables.controls.padding
-					top: parent.top
-					topMargin: bodyProgressBar.height /2
-				}
-				text: formatTime(parseInt(activePlayer.position))
-				color: GlobalVariables.colours.windowText
-				font: GlobalVariables.font.monosmall
-			}
-
-			Text {
-				anchors {
-					right: parent.right
-					rightMargin: GlobalVariables.controls.padding
-					top: parent.top
-					topMargin: bodyProgressBar.height /2
-				}
+				Layout.margins: GlobalVariables.controls.padding
 				text: `-${formatTime(parseInt(activePlayer.length -parseInt(activePlayer.position)))}`
 				color: GlobalVariables.colours.windowText
 				font: GlobalVariables.font.monosmall
-			}
-
-			Row { id: bodyLayout
-				anchors.centerIn: parent
-				spacing: GlobalVariables.controls.spacing
-
-				// shuffle playlist
-				QsButton {
-					anchors.verticalCenter: parent.verticalCenter
-					shade: activePlayer.shuffleSupported
-					anim: activePlayer.shuffleSupported
-					tooltip: Text {
-						text: "Shuffle"
-						color: GlobalVariables.colours.text
-						font: GlobalVariables.font.regular
-					}
-					onClicked: if (activePlayer.shuffleSupported) activePlayer.shuffle = !activePlayer.shuffle;
-					content: IconImage {
-						implicitSize: 26
-						source: {
-							if (activePlayer.shuffle) return Quickshell.iconPath("media-playlist-shuffle");
-							else return Quickshell.iconPath("media-playlist-no-shuffle");
-						}
-					}
-				}
-
-				// go previous
-				QsButton {
-					anchors.verticalCenter: parent.verticalCenter
-					tooltip: Text {
-						text: "Previous"
-						color: GlobalVariables.colours.text
-						font: GlobalVariables.font.regular
-					}
-					onClicked: activePlayer.previous();
-					content: IconImage {
-						implicitSize: 24
-						source: Quickshell.iconPath("media-skip-backward")
-					}
-				}
-
-				// toggle playing
-				QsButton {
-					anchors.verticalCenter: parent.verticalCenter
-					onClicked: activePlayer.togglePlaying();
-					tooltip: Text {
-						text: activePlayer.isPlaying? "Pause" : "Play"
-						color: GlobalVariables.colours.text
-						font: GlobalVariables.font.regular
-					}
-					content: Style.Button {
-						width: 40 +GlobalVariables.controls.spacing
-						color: "transparent"
-
-						IconImage {
-							anchors.centerIn: parent
-							implicitSize: 40
-							source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
-						}
-					}
-				}
-
-				// go forward
-				QsButton {
-					anchors.verticalCenter: parent.verticalCenter
-					tooltip: Text {
-						text: "Skip"
-						color: GlobalVariables.colours.text
-						font: GlobalVariables.font.regular
-					}
-					onClicked: activePlayer.next();
-					content: IconImage {
-						implicitSize: 24
-						source: Quickshell.iconPath("media-skip-forward")
-					}
-				}
-
-				// shuffle playlist
-				QsButton {
-					anchors.verticalCenter: parent.verticalCenter
-					shade: activePlayer.loopSupported
-					anim: activePlayer.loopSupported
-					tooltip: Text {
-						text: switch (activePlayer.loopState) {
-							case MprisLoopState.Playlist:
-								return "Loop track";
-							case MprisLoopState.Track:
-								return "Disable loop";
-							default:
-								return "Loop album";
-						}
-						color: GlobalVariables.colours.text
-						font: GlobalVariables.font.regular
-					}
-					onClicked: if (activePlayer.loopSupported) switch (activePlayer.loopState) {
-							case MprisLoopState.Playlist:
-								activePlayer.loopState = MprisLoopState.Track;
-							case MprisLoopState.Track:
-								activePlayer.loopState = MprisLoopState.None;
-							case MprisLoopState.None:
-								activePlayer.loopState = MprisLoopState.Playlist;
-					}
-					content: IconImage {
-						implicitSize: 26
-						source: switch (activePlayer.loopState) {
-							case MprisLoopState.Playlist:
-								return Quickshell.iconPath("media-playlist-repeat");
-							case MprisLoopState.Track:
-								return Quickshell.iconPath("media-playlist-repeat-song");
-							default:
-								return Quickshell.iconPath("media-playlist-no-repeat");
-						}
-					}
-				}
+				verticalAlignment: Text.AlignVCenter
 			}
 		}
 	}
