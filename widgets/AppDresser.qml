@@ -250,6 +250,9 @@ QsButton { id: root
 				spacing: 0
 
 				ScrollView { id: applicationsScrollView
+					Layout.fillWidth: true
+					Layout.fillHeight: true
+
 					function ensureVisible(item) {
 						var flick = applicationsScrollView.contentItem
 						var pos = item.mapToItem(flick.contentItem, 0, 0)
@@ -264,9 +267,6 @@ QsButton { id: root
 							flick.contentY = itemBottom - (flick.height -GlobalVariables.controls.spacing)
 						}
 					}
-
-					Layout.fillWidth: true
-					Layout.fillHeight: true
 
 					ColumnLayout { id: applicationsLayout
 						property int keySelection: 0
