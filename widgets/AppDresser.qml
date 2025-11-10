@@ -299,7 +299,7 @@ QsButton { id: root
 
 									IconImage {
 										Layout.leftMargin: GlobalVariables.controls.padding
-										implicitSize: 32
+										implicitSize: 28
 										source: Quickshell.iconPath(modelData.id, true) || Quickshell.iconPath(modelData.icon, "image-missing")
 									}
 
