@@ -9,7 +9,10 @@ import Quickshell
 import Quickshell.Io
 
 Singleton { id: root
-	property var location
+	property var location: {
+		"lat": 0.0,
+		"lon": 0.0
+	}
 	property var weather: null
 
 	Process { id: getLocation

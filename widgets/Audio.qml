@@ -15,8 +15,8 @@ import qs.controls
 import qs.styles as Style
 
 IconImage { id: root
-	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted
-	readonly property real volume: Pipewire.defaultAudioSink?.audio.volume
+	readonly property bool isMuted: Pipewire.defaultAudioSink?.audio.muted || null
+	readonly property real volume: Pipewire.defaultAudioSink?.audio.volume || 0.0
 	readonly property TextMetrics textMetrics: TextMetrics {
 		text: "100"
 		font: GlobalVariables.font.regular
@@ -129,7 +129,7 @@ IconImage { id: root
 								property color baseColor: GlobalVariables.colours.shadow
 								property color semiTransparent: Qt.rgba(baseColor.r, baseColor.g, baseColor.b, 0.5)
 
-								color: Pipewire.defaultAudioSink.audio.muted? semiTransparent : "transparent"
+								color: isMuted? semiTransparent : "transparent"
 							}
 						}
 					}
@@ -144,7 +144,7 @@ IconImage { id: root
 					}
 					// onOpened: sourceDropdown.close();
 					options: Pipewire.nodes.values.filter(n => n.isSink && n.description).map(n => n.description)
-					selection: Pipewire.defaultAudioSink?.description
+					selection: Pipewire.defaultAudioSink?.description || null
 					onSelected: (option) => { Pipewire.preferredDefaultAudioSink = Pipewire.nodes.values.find(n => n.description === option); }
 				}
 			}
@@ -211,14 +211,14 @@ IconImage { id: root
 							}
 
 							Text {
-								text: modelData.properties["application.name"]
+								text: modelData.properties["application.name"] || "Application"
 								color: GlobalVariables.colours.text
 								font: GlobalVariables.font.regular
 							}
 
 							Text {
 								Layout.fillWidth: true
-								text: modelData.properties["media.name"]
+								text: modelData.properties["media.name"] || "Media"
 								elide: Text.ElideRight
 								color: GlobalVariables.colours.windowText
 								font: GlobalVariables.font.regular
