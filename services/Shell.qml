@@ -13,6 +13,8 @@ Singleton { id: root
 
 	property list<var> instances
 
+	function init() {}
+
 	Process {
 		running: true
 		command: ["sh", "-c", "qs list -j"]

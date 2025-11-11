@@ -16,7 +16,6 @@ Scope { id: root
 		model: Quickshell.screens
 		delegate: Bar {
 			leftItems: [
-				AppDresser {},
 				Network {}
 				,Bluetooth {}
 				,Audio {}
@@ -43,9 +42,10 @@ Scope { id: root
 	}
 
 	// only show on main/active monitor
-	Notifications {}
+	// Notifications {}
 	Brightness {}
 
 	// connect to shell services
 	Connections { target: Service.Shell; }
+	Component.onCompleted: [Service.Shell.init(), AppLauncher.init()]
 }
