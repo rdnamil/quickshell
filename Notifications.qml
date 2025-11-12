@@ -18,13 +18,15 @@ PanelWindow { id: root
 		left: horizontalPosition === "left"
 		right: horizontalPosition === "right"
 		top: true
-		bottom: true
+		// bottom: true
 	}
 	margins.top: GlobalVariables.controls.barHeight
 	exclusionMode: ExclusionMode.Ignore
 	WlrLayershell.layer: WlrLayer.Overlay
+	WlrLayershell.namespace: "qs:notifications"
 	mask: Region { item: list; }
 	implicitWidth: screen.width /6 +60
+	implicitHeight: repeater.count > 0? list.height +60 : 0
 	color: "transparent"
 
 	Column { id: list
@@ -33,7 +35,7 @@ PanelWindow { id: root
 		anchors.horizontalCenter: parent.horizontalCenter
 		move: Transition { NumberAnimation { property: "y"; duration: 200; easing.type: Easing.OutCubic; }}
 
-		Repeater {
+		Repeater { id: repeater
 			model: Notifications.model
 			delegate: Item { id: notificationWrapper
 				readonly property var match: Notifications.server.trackedNotifications.values.find(n => n.id === model.id)
