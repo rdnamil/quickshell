@@ -207,15 +207,31 @@ Singleton { id: root
 								return results;
 							} else return Array.from(DesktopEntries.applications.values)
 								.filter(a => !a.noDisplay)
+								// .sort((a, b) => {
+								// 	const aRank = jsonAdapter.applications.find(app => app.id === a.id)?.count || null
+								// 	const bRank = jsonAdapter.applications.find(app => app.id === b.id)?.count || null
+        //
+								// 	if (aRank && bRank) return bRank -aRank;
+								// 	else if (aRank) return -1;
+								// 	else if (bRank) return 1;
+								// 	else return a.name.localeCompare(b.name);
+								// });
 								.sort((a, b) => {
-								const aRank = jsonAdapter.applications.find(app => app.id === a.id)?.count || null
-								const bRank = jsonAdapter.applications.find(app => app.id === b.id)?.count || null
+									function calcRelevance(app, now = Date.now(), lambda = 0.2) {
+										const age = (now -app.lastOpened) /(1000 *60 *60 *24);
+										return app.count *Math.exp(-lambda *age);
+									}
 
-								if (aRank && bRank) return bRank -aRank;
-								else if (aRank) return -1;
-								else if (bRank) return 1;
-								else return a.name.localeCompare(b.name);
-							});
+									const a_App = jsonAdapter.applications.find(app => app.id === a.id);
+									const b_App = jsonAdapter.applications.find(app => app.id === b.id);
+									const a_Relevance = a_App? calcRelevance(a_App) : null;
+									const b_Relevance = b_App? calcRelevance(b_App) : null;
+
+									if (a_Relevance && b_Relevance) return b_Relevance -a_Relevance;
+									else if (a_Relevance) return -1;
+									else if (b_Relevance) return 1;
+									else return a.name.localeCompare(b.name);
+								});
 							// } else return Array.from(DesktopEntries.applications.values).sort((a, b) => a.name.localeCompare(b.name))
 						}
 
@@ -230,8 +246,14 @@ Singleton { id: root
 						onClicked: {
 							modelData.execute();
 							loader.active = false;
-							if (jsonAdapter.applications.find(a => a.id === modelData.id)) jsonAdapter.applications.find(a => a.id === modelData.id).count++;
-							else jsonAdapter.applications.push({"id": modelData.id, "count": 1});
+							if (jsonAdapter.applications.find(a => a.id === modelData.id)) {
+								jsonAdapter.applications.find(a => a.id === modelData.id).count++;
+								jsonAdapter.applications.find(a => a.id === modelData.id).lastOpened = Date.now();
+							}else jsonAdapter.applications.push({
+								"id": modelData.id,
+								"count": 1,
+								"lastOpened": Date.now()
+							});
 						}
 
 						RowLayout { id: layout
