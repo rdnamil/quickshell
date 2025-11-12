@@ -37,15 +37,15 @@ Singleton { id: root
 	onNetworkStateChanged: {
 		if (networkState === "connected") {
 			getWirelessNetworks.running = true;
-			Notifications.notify("network", "Quickshell", "Network", `Network is ${networkState} to ${status.connection}.`);
+			Notifications.notify("network-wired", "Quickshell", "Network", `Network is ${networkState} to ${status.connection}.`);
 		} else if (networkState.startsWith("connected")) {
 			getWirelessNetworks.running = true
-			Notifications.notify("network", "Quickshell", "Network", `Network is ${networkState}.`)
+			Notifications.notify("network-wired", "Quickshell", "Network", `Network is ${networkState}.`)
 		}
 	}
 	onRadioStateChanged: {
 		if (!radioState) getWirelessNetworks.running = true;
-		Notifications.notify("network", "Quickshell", "Network", `Wireless is ${radioState? "enabled" : "disabled"}.`);
+		Notifications.notify("network-wired", "Quickshell", "Network", `Wireless is ${radioState? "enabled" : "disabled"}.`);
 	}
 
 	// start the network manager monitor
