@@ -111,7 +111,7 @@ Loader { id: root
 				// track title
 				Text {
 					anchors.verticalCenter: parent.verticalCenter
-					text: track.title
+					text: track.title || activePlayer.trackTitle
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.smallsemibold
 				}
@@ -119,7 +119,7 @@ Loader { id: root
 				// track artist
 				Text {
 					anchors.verticalCenter: parent.verticalCenter
-					text: track.artist
+					text: track.artist || activePlayer.trackArtist
 					color: GlobalVariables.colours.windowText
 					font: GlobalVariables.font.small
 				}
