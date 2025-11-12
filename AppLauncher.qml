@@ -127,7 +127,7 @@ Singleton { id: root
 										if (event.key === Qt.Key_Up) {
 											list.currentIndex = list.currentIndex === 0? list.count -1 : list.currentIndex -1;
 											event.accepted = true;
-										} else if (event.key === Qt.Key_Down) {
+										} else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) {
 											list.currentIndex = list.currentIndex === list.count -1? 0 : list.currentIndex +1;
 											event.accepted = true;
 										} else if (event.key === Qt.Key_Escape) loader.active = false;
