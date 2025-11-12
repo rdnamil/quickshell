@@ -3,6 +3,8 @@ My waybar inspired quickshell config.
 
 ![screenshot](resources/Screenshot_002.png)
 
+![screenshot](resources/Screenshot_003.png)
+
 ## About
 A minimalist and customizable quickshell config inspired by waybar.
 ### Features
