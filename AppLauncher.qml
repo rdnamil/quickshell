@@ -196,7 +196,7 @@ Singleton { id: root
 					model: ScriptModel {
 						values: {
 							if (textInput.text) {
-								const list = Array.from(DesktopEntries.applications.values)
+								const list = Array.from(DesktopEntries.applications.values).filter(a => !a.noDisplay)
 								const options = {
 									keys: ["id", "name", "genericName", "keywords"],
 									threshold: 0.4
@@ -206,6 +206,7 @@ Singleton { id: root
 
 								return results;
 							} else return Array.from(DesktopEntries.applications.values)
+								.filter(a => !a.noDisplay)
 								.sort((a, b) => {
 								const aRank = jsonAdapter.applications.find(app => app.id === a.id)?.count || null
 								const bRank = jsonAdapter.applications.find(app => app.id === b.id)?.count || null
