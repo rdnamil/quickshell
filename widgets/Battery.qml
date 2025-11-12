@@ -151,7 +151,7 @@ QsButton { id: root
 											if (isLaptopBattery) return Quickshell.iconPath("computer-laptop");
 											else return Quickshell.iconPath("computer");
 										default:
-											return Quickshell.iconPath(UPowerDeviceType.toString(modelData.type).toLowerCase());
+											return Quickshell.iconPath(`input-${UPowerDeviceType.toString(modelData.type).toLowerCase()}`);
 									}
 								}
 
