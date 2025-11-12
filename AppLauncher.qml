@@ -26,6 +26,18 @@ Singleton { id: root
 		function toggle(): void { loader.active = !loader.active; }
 	}
 
+	FileView { id: fileView
+		path: Qt.resolvedUrl("./AppRankings.json")
+		watchChanges: true
+		onFileChanged: reload();
+		onAdapterUpdated: writeAdapter();
+
+		JsonAdapter { id: jsonAdapter
+			property list<var> applications
+			onApplicationsChanged: console.log(applications)
+		}
+	}
+
 	Loader { id: loader
 		active: false
 		sourceComponent: PanelWindow {
@@ -194,7 +206,17 @@ Singleton { id: root
 								const results = fuse.search(textInput.text).map(r => r.item);
 
 								return results;
-							} else return Array.from(DesktopEntries.applications.values).sort((a, b) => a.name.localeCompare(b.name))
+							} else return Array.from(DesktopEntries.applications.values)
+								.sort((a, b) => {
+								const aRank = jsonAdapter.applications.find(app => app.id === a.id)?.count || null
+								const bRank = jsonAdapter.applications.find(app => app.id === b.id)?.count || null
+
+								if (aRank && bRank) return bRank -aRank;
+								else if (aRank) return -1;
+								else if (bRank) return 1;
+								else return a.name.localeCompare(b.name);
+							});
+							// } else return Array.from(DesktopEntries.applications.values).sort((a, b) => a.name.localeCompare(b.name))
 						}
 
 						onValuesChanged: list.currentIndex = 0;
@@ -208,6 +230,8 @@ Singleton { id: root
 						onClicked: {
 							modelData.execute();
 							loader.active = false;
+							if (jsonAdapter.applications.find(a => a.id === modelData.id)) jsonAdapter.applications.find(a => a.id === modelData.id).count++;
+							else jsonAdapter.applications.push({"id": modelData.id, "count": 1});
 						}
 
 						RowLayout { id: layout
