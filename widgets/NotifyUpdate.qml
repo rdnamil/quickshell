@@ -55,7 +55,10 @@ QsButton { id: root
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.regular
 				}
-				onClicked: Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
+				onClicked: {
+					Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
+					popout.close();
+				}
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent
