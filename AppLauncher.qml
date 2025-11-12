@@ -13,6 +13,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.styles as Style
+import "fuse.js" as FuseLib
 
 Singleton { id: root
 	function init() {}
@@ -29,17 +30,17 @@ Singleton { id: root
 		active: false
 		sourceComponent: PanelWindow {
 			anchors.top: true
-			margins.top: screen.height /2.5
+			margins.top: screen.height /3
 			implicitWidth: screen.width /7
 			implicitHeight: layout.height
 			// mask: Region {}
 			exclusionMode: ExclusionMode.Ignore
-			// WlrLayershell.layer: WlrLayer.Surface
+			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 			WlrLayershell.namespace: "qs:launcher"
 			color: "transparent"
 
-			Behavior on implicitHeight { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+			// Behavior on implicitHeight { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
 
 			Rectangle {
 				anchors {
@@ -134,6 +135,9 @@ Singleton { id: root
 									onAccepted: {
 										if (list.currentItem) {
 											list.currentItem.clicked(null);
+										} else {
+											Quickshell.execDetached(["sh", "-c", `${textInput.text}`]);
+											loader.active = false;
 										}
 									}
 									onTextChanged: list.currentIndex = 0;
@@ -146,6 +150,9 @@ Singleton { id: root
 				}
 
 				ListView { id: list
+					readonly property real opacityDuration: 150
+					readonly property real translationDuration: 200
+
 					Layout.fillWidth: true
 					Layout.minimumHeight: 28 +GlobalVariables.controls.spacing
 					Layout.preferredHeight: contentHeight
@@ -162,86 +169,35 @@ Singleton { id: root
 						color: GlobalVariables.colours.accent
 						opacity: 0.4
 					}
+					add: Transition { NumberAnimation { property: "opacity"; from: 0; to: 1; duration: list.opacityDuration; }}
+					displaced: Transition {
+						NumberAnimation { property: "y"; duration: list.translationDuration; easing.type: Easing.OutCubic; }
+						NumberAnimation { property: "opacity"; to: 1; duration: list.opacityDuration; }
+					}
+					move: Transition {
+						NumberAnimation { property: "y"; duration: list.translationDuration; easing.type: Easing.OutCubic; }
+						NumberAnimation { property: "opacity"; to: 1; duration: list.opacityDuration; }
+					}
+					remove: Transition {
+						NumberAnimation { property: "y"; duration: list.translationDuration; easing.type: Easing.OutCubic; }
+						NumberAnimation { property: "opacity"; to: 0; duration: list.opacityDuration ; }
+					}
 					model: ScriptModel {
-						// values: Array.from(DesktopEntries.applications.values).sort((a, b) => a.name.localeCompare(b.name));
-						values: DesktopEntries.applications.values
-						.map(object => {
-							const stxt = textInput.text.toLowerCase();
-							const ntxt = object.name.toLowerCase();
-							let si = 0;
-							let ni = 0;
+						values: {
+							if (textInput.text) {
+								const list = Array.from(DesktopEntries.applications.values)
+								const options = {
+									keys: ["id", "name", "genericName", "keywords"],
+									threshold: 0.4
+								};
+								const fuse = new Fuse(list, options);
+								const results = fuse.search(textInput.text).map(r => r.item);
 
-							let matches = [];
-							let startMatch = -1;
+								return results;
+							} else return Array.from(DesktopEntries.applications.values).sort((a, b) => a.name.localeCompare(b.name))
+						}
 
-							for (let si = 0; si != stxt.length; ++si) {
-								const sc = stxt[si];
-
-								while (true) {
-									// Drop any entries with letters that don't exist in order
-									if (ni == ntxt.length) return null;
-
-									const nc = ntxt[ni++];
-
-									if (nc == sc) {
-										if (startMatch == -1) startMatch = ni;
-										break;
-									} else {
-										if (startMatch != -1) {
-											matches.push({
-												index: startMatch,
-												length: ni - startMatch,
-											});
-
-											startMatch = -1;
-										}
-									}
-								}
-							}
-
-							if (startMatch != -1) {
-								matches.push({
-									index: startMatch,
-									length: ni - startMatch + 1,
-								});
-							}
-
-							return {
-								object: object,
-								matches: matches,
-							};
-						})
-						.filter(entry => entry !== null)
-						.sort((a, b) => {
-							let ai = 0;
-							let bi = 0;
-							let s = 0;
-
-							while (ai != a.matches.length && bi != b.matches.length) {
-								const am = a.matches[ai];
-								const bm = b.matches[bi];
-
-								s = bm.length - am.length;
-								if (s != 0) return s;
-
-								s = am.index - bm.index;
-								if (s != 0) return s;
-
-								++ai;
-								++bi;
-							}
-
-							s = a.matches.length - b.matches.length;
-							if (s != 0) return s;
-
-							s = a.object.name.length - b.object.name.length;
-							if (s != 0) return s;
-
-							return a.object.name.localeCompare(b.object.name);
-						})
-						.map(entry => entry.object);
-
-						onValuesChanged: list.currentIndex = 0
+						onValuesChanged: list.currentIndex = 0;
 					}
 					delegate: MouseArea {
 						required property var modelData
@@ -269,10 +225,25 @@ Singleton { id: root
 								Layout.rightMargin: GlobalVariables.controls.padding
 								Layout.fillWidth: true
 
-								Text {
-									text: modelData.name
-									color: GlobalVariables.colours.text
-									font: GlobalVariables.font.regular
+								Row {
+									spacing: 3
+
+									Text {
+										anchors.verticalCenter: parent.verticalCenter
+										text: modelData.name
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.regular
+										verticalAlignment: Text.AlignVCenter
+									}
+
+									Text {
+										visible: modelData.genericName
+										anchors.verticalCenter: parent.verticalCenter
+										text: `(${modelData.genericName})`
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.smalleritalics
+										verticalAlignment: Text.AlignVCenter
+									}
 								}
 
 								Text {
@@ -288,8 +259,6 @@ Singleton { id: root
 					}
 				}
 			}
-
-
 		}
 	}
 }
