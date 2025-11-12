@@ -9,6 +9,7 @@ import Quickshell.Widgets
 import Quickshell.Wayland
 import qs
 import qs.controls
+import qs.services as Service
 
 QsButton { id: root
 	property string startTime
@@ -18,6 +19,7 @@ QsButton { id: root
 
 	anim: false
 	shade: false
+	onClicked: Service.Popout.clear();
 	content: IconImage { id: widget
 		implicitSize: GlobalVariables.controls.iconSize
 		source: Quickshell.iconPath("night-light", "night-light-symbolic")
