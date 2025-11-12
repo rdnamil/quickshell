@@ -13,8 +13,10 @@ Singleton { id: root
 	property var whosOpen: null
 
 	function clear() {
-		root.whosOpen = null;
-		root.open();
+		if (root.whosOpen) {
+			root.whosOpen = null;
+			root.open();
+		}
 	}
 
 	signal open()
