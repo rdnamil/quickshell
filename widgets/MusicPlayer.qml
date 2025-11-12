@@ -45,6 +45,11 @@ Loader { id: root
 			return trackArtist
 		}
 		property string art: activePlayer.trackArtUrl;
+		property ColorQuantizer colorQuantizer: ColorQuantizer {
+			source: root.track.art
+			depth: 8
+			rescaleSize: 64
+		}
 	}
 
 	// format time from total seconds to hours:minutes:seconds
@@ -362,6 +367,19 @@ Loader { id: root
 					layer.effect: FastBlur { radius: 100; }
 				}
 
+				// background color
+				Rectangle {
+					// visible: false
+					anchors.fill: parent
+					color: Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
+						const aScore = a.hsvSaturation *a.hsvValue;
+						const bScore = b.hsvSaturation *b.hsvValue;
+
+						return bScore -aScore;
+					})[0]
+					opacity: 0.7
+				}
+
 				// album art
 				Item {
 					anchors {
@@ -376,9 +394,9 @@ Loader { id: root
 						anchors.fill: trackArt
 						radius: GlobalVariables.controls.padding
 						spread: 0
-						blur: 30
+						blur: parent.width
 						color: GlobalVariables.colours.shadow
-						opacity: 0.6
+						opacity: 0.8
 					}
 
 					Image { id: trackArt
@@ -396,7 +414,7 @@ Loader { id: root
 						}
 					}
 
-					Style.Borders { radius: GlobalVariables.controls.radius; opacity: 0.4; }
+					Style.Borders { radius: GlobalVariables.controls.radius; opacity: 0.5; }
 				}
 
 				// open player
@@ -462,134 +480,6 @@ Loader { id: root
 						}
 					}
 				}
-
-				// Rectangle {
-				// 	Layout.alignment: Qt.AlignHCenter
-				// 	Layout.leftMargin: GlobalVariables.controls.padding
-				// 	Layout.rightMargin: GlobalVariables.controls.padding
-				// 	Layout.fillWidth: true
-				// 	Layout.preferredHeight: controlsLayout.height +GlobalVariables.controls.padding *2
-				// 	radius: GlobalVariables.controls.radius
-				// 	color: GlobalVariables.colours.dark
-    //
-				// 	Style.Borders {}
-    //
-				// 	RowLayout { id: controlsLayout
-				// 		readonly property real buttonSize: 20
-    //
-				// 		anchors.verticalCenter: parent.verticalCenter
-				// 		width: parent.width
-				// 		spacing: GlobalVariables.controls.spacing
-    //
-				// 		// shuffle playlist
-				// 		QsButton {
-				// 			Layout.fillWidth: true
-				// 			shade: activePlayer.shuffleSupported
-				// 			anim: activePlayer.shuffleSupported
-				// 			tooltip: Text {
-				// 				text: "Shuffle"
-				// 				color: GlobalVariables.colours.text
-				// 				font: GlobalVariables.font.regular
-				// 			}
-				// 			onClicked: if (activePlayer.shuffleSupported) activePlayer.shuffle = !activePlayer.shuffle;
-				// 			content: IconImage {
-				// 				anchors.centerIn: parent
-				// 				implicitSize: controlsLayout.buttonSize
-				// 				source: {
-				// 					if (activePlayer.shuffle) return Quickshell.iconPath("media-playlist-shuffle");
-				// 					else return Quickshell.iconPath("media-playlist-no-shuffle");
-				// 				}
-				// 			}
-				// 		}
-    //
-				// 		// go previous
-				// 		QsButton {
-				// 			Layout.fillWidth: true
-				// 			tooltip: Text {
-				// 				text: "Previous"
-				// 				color: GlobalVariables.colours.text
-				// 				font: GlobalVariables.font.regular
-				// 			}
-				// 			onClicked: activePlayer.previous();
-				// 			content: IconImage {
-				// 				anchors.centerIn: parent
-				// 				implicitSize: controlsLayout.buttonSize
-				// 				source: Quickshell.iconPath("media-skip-backward")
-				// 			}
-				// 		}
-    //
-				// 		// toggle playing
-				// 		QsButton {
-				// 			Layout.fillWidth: true
-				// 			onClicked: activePlayer.togglePlaying();
-				// 			tooltip: Text {
-				// 				text: activePlayer.isPlaying? "Pause" : "Play"
-				// 				color: GlobalVariables.colours.text
-				// 				font: GlobalVariables.font.regular
-				// 			}
-				// 			content: IconImage {
-				// 				anchors.centerIn: parent
-				// 				implicitSize: controlsLayout.buttonSize
-				// 				source: activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
-				// 			}
-				// 		}
-    //
-				// 		// go forward
-				// 		QsButton {
-				// 			Layout.fillWidth: true
-				// 			tooltip: Text {
-				// 				text: "Skip"
-				// 				color: GlobalVariables.colours.text
-				// 				font: GlobalVariables.font.regular
-				// 			}
-				// 			onClicked: activePlayer.next();
-				// 			content: IconImage {
-				// 				anchors.centerIn: parent
-				// 				implicitSize: controlsLayout.buttonSize
-				// 				source: Quickshell.iconPath("media-skip-forward")
-				// 			}
-				// 		}
-    //
-				// 		// shuffle playlist
-				// 		QsButton {
-				// 			Layout.fillWidth: true
-				// 			shade: activePlayer.loopSupported
-				// 			anim: activePlayer.loopSupported
-				// 			tooltip: Text {
-				// 				text: switch (activePlayer.loopState) {
-				// 					case MprisLoopState.Playlist:
-				// 						return "Loop track";
-				// 					case MprisLoopState.Track:
-				// 						return "Disable loop";
-				// 					default:
-				// 						return "Loop album";
-				// 				}
-				// 				color: GlobalVariables.colours.text
-				// 				font: GlobalVariables.font.regular
-				// 			}
-				// 			onClicked: if (activePlayer.loopSupported) switch (activePlayer.loopState) {
-				// 					case MprisLoopState.Playlist:
-				// 						activePlayer.loopState = MprisLoopState.Track;
-				// 					case MprisLoopState.Track:
-				// 						activePlayer.loopState = MprisLoopState.None;
-				// 					case MprisLoopState.None:
-				// 						activePlayer.loopState = MprisLoopState.Playlist;
-				// 			}
-				// 			content: IconImage {
-				// 				anchors.centerIn: parent
-				// 				implicitSize: controlsLayout.buttonSize
-				// 				source: switch (activePlayer.loopState) {
-				// 					case MprisLoopState.Playlist:
-				// 						return Quickshell.iconPath("media-playlist-repeat");
-				// 					case MprisLoopState.Track:
-				// 						return Quickshell.iconPath("media-playlist-repeat-song");
-				// 					default:
-				// 						return Quickshell.iconPath("media-playlist-no-repeat");
-				// 				}
-				// 			}
-				// 		}
-				// 	}
-				// }
 			}
 		}
 		body: RowLayout {
