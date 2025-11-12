@@ -5,154 +5,201 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Widgets
 import Quickshell.Services.SystemTray
+import Quickshell.Widgets
 import qs
 import qs.controls
+import qs.styles as Style
 
 Row { id: root
-	spacing: GlobalVariables.controls.spacing /2	// spacing for tray items
+	spacing: GlobalVariables.controls.spacing
 
+	// system tray items
 	Repeater {
-		model: SystemTray.items
-
-		// tray item
-		QsButton {
+		model: SystemTray.items.values
+		delegate: Item { id: systemTrayItem
 			required property var modelData
 
-			anim: false
-			shade: false
-			onClicked: popout.toggle();
-			content: IconImage {
+			width: GlobalVariables.controls.iconSize
+			height: width
+
+			IconImage {
 				implicitSize: GlobalVariables.controls.iconSize
-				// source: modelData.icon
-				source: switch (modelData.id) {
-					case "chrome_status_icon_1":
-						return Quickshell.iconPath("discord", true) || modelData.icon
-					default:
-						return modelData.icon
+				source: modelData.icon
+			}
+
+			Rectangle {
+				visible: modelData.status === Status.NeedsAttention
+				anchors {
+					horizontalCenter: parent.right
+					top: parent.top
+					topMargin: -height /3
+				}
+				width: 10
+				height: width
+				radius: height /2
+				color: "#bb2040"
+				border.color: GlobalVariables.colours.base
+			}
+
+			MouseArea {
+				anchors.centerIn: parent
+				width: parent.width +4
+				height: width
+				hoverEnabled: true
+				// show/hide tooltip
+				onEntered: if (modelData.title) tooltipTimer.restart();
+				onExited: if (modelData.title) {
+					tooltipTimer.stop();
+					tooltip.isShown = false;
+				}
+				onClicked: (mouse) => {
+					switch (mouse.button) {
+						// toggle menu
+						case Qt.LeftButton:
+							if (modelData.hasMenu) popout.toggle();
+							break;
+						// trigger system tray item action
+						case Qt.RightButton:
+							modelData.activate();
+							break;
+						// trigger system tray item secondary action
+						case Qt.MiddleButton:
+							modelData.secondaryActivate();
+							break;
+					}
+				}
+				// trigger system tray scroll action
+				onWheel: (wheel) => {
+					modelData.scroll(wheel.angleDelta.y /120, false);
+				}
+
+				// tooltip
+				QsTooltip { id: tooltip
+					anchor: parent
+					content: Text {
+						text: modelData.title
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+
+					Timer { id: tooltipTimer
+						running: false
+						interval: 1500
+						onTriggered: parent.isShown = true;
+					}
 				}
 			}
 
-			QsMenuOpener { id: menu
-				menu: modelData.menu
-			}
-
+			// system platform menu *must be refreshed to update menu entries
 			QsMenuAnchor { id: menuAnchor
-				anchor.item: root
+				function toggle() {
+					if (menuAnchor.visible) menuAnchor.close();
+					else menuAnchor.open();
+				}
+
+				function refresh() {
+					menuAnchor.open();
+					menuAnchor.close();
+				}
+
+				anchor.item: systemTrayItem
 				menu: modelData.menu
 			}
 
-			// tray item menu
+			// access to menuhandle
+			QsMenuOpener { id: menuOpener
+				readonly property bool hasIcon: children.values.some(e => e.icon)
+				readonly property bool hasButton: children.values.some(e => e.buttonType !== QsMenuButtonType.None)
+
+				menu: modelData.menu
+			}
+
+			// system tray item menu
 			Popout { id: popout
-				// debug: true
-				anchor: parent
-				body: ColumnLayout {
-					spacing: GlobalVariables.controls.spacing /2
-
+				anchor: systemTrayItem
+				body: ColumnLayout { id: bodyLayout
 					// top padding element
-					Item { Layout.preferredHeight: GlobalVariables.controls.padding /2 }
+					Item { Layout.preferredHeight: 1; }
 
-					Repeater { id: menuEntries
-						// get values from the tray item menu to pass to all entries
-						readonly property bool hasIcon: menu.children.values.some(child => child.icon)
-						readonly property bool hasButton: menu.children.values.some(child => child.buttonType)
-						readonly property bool hasChildren: menu.children.values.some(child => child.hasChildren)
-
-						model: menu.children.values.filter(child => !child.hasChildren)	// temporarily hide entries with children until submenus made
-
-						// menu entry
-						QsButton { id: menuEntry
+					// menu entries
+					Repeater {
+						model: menuOpener.children.values
+						delegate: QsButton { id: menuEntry
 							required property var modelData
-							required property int index
 
-							visible: !(modelData.isSeparator && index === 0) // don't show separators above all entries
-							Layout.fillWidth: true
-							anim: !modelData.isSeparator
-							shade: false
-							highlight: !modelData.isSeparator
-							onPressed: {
-								if (modelData.buttonType) {
-									modelData.triggered();
-									menuAnchor.open();
-									menuAnchor.close();
-								}
-							}
-							onClicked: {
-								if (!modelData.isSeparator && !modelData.buttonType) {
-									modelData.triggered();
-									popout.close();
-								}
-							}
-							content: Item {
-								width: entryLayout.width
-								height: modelData.isSeparator? 6 : entryLayout.height
+							// if can interact with meny entry
+							readonly property bool interactive: modelData.enabled && !modelData.isSeparator
+							// seperator item
+							readonly property Item separatorEntry: Style.Margin { anchors.fill: parent; opacity: 0.4; }
+							// regular menu entry item
+							readonly property Item textMenuEntry: RowLayout {
+								anchors.fill: parent
+								spacing: GlobalVariables.controls.spacing
 
-								// separator entry
-								Rectangle {
-									visible: modelData.isSeparator
-									anchors {
-										left: parent.left
-										leftMargin: menuEntry.width /2 -width /2
-										verticalCenter: parent.verticalCenter
-									}
-									width: menuEntry.width *0.75
-									height: 1
-									color: GlobalVariables.colours.text
-									opacity: 0.2
+								// left padding element
+								Item { Layout.preferredWidth: 1; }
 
-									Rectangle {
-										anchors { horizontalCenter: parent.horizontalCenter; top: parent.bottom; }
-										width: parent.width
-										height: 1
-										color: GlobalVariables.colours.midlight
+								// button
+								Item {
+									visible: menuOpener.hasButton
+									width: GlobalVariables.controls.iconSize
+									height: width
+
+									QsStateButton {
+										visible: type
+										type: modelData.buttonType
+										checkState: modelData.checkState
 									}
 								}
 
-								// regular entry
-								Row { id: entryLayout
-									visible: !modelData.isSeparator
-									leftPadding: GlobalVariables.controls.padding
-									rightPadding: GlobalVariables.controls.padding
-									spacing: GlobalVariables.controls.spacing
+								// icon
+								Item {
+									visible: menuOpener.hasIcon
+									width: GlobalVariables.controls.iconSize
+									height: width
 
-									// button; can be checkbox or radio-button
-									Item {
-										anchors.verticalCenter: parent.verticalCenter
-										visible: menuEntries.hasButton
-										width: GlobalVariables.controls.iconSize
-										height: width
-
-										Loader {
-											active: modelData.buttonType !== QsMenuButtonType.None
-											sourceComponent: QsStateButton {
-												checkState: modelData.checkState
-												type: modelData.buttonType
-											}
-										}
-									}
-
-									// icon
 									IconImage {
-										anchors.verticalCenter: parent.verticalCenter
-										visible: menuEntries.hasIcon
+										visible: source
 										implicitSize: GlobalVariables.controls.iconSize
 										source: modelData.icon
 									}
-
-									// entry text
-									Text {
-										text: modelData.text
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.regular
-									}
 								}
+
+								// text
+								Text {
+									Layout.fillWidth: true
+									text: modelData.text
+									color: modelData.hasChildren? "red" : GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+
+								// right padding element
+								Item { Layout.preferredWidth: 1; }
 							}
+
+							Layout.fillWidth: true
+							Layout.minimumWidth: content.implicitWidth
+							shade: false
+							anim: interactive
+							highlight: interactive
+							// update button
+							onPressed: if (interactive && modelData.buttonType !== QsMenuButtonType.None) {
+								modelData.triggered();
+								menuAnchor.refresh();
+							}
+							// trigger menu entry action
+							onClicked: if (interactive && modelData.buttonType === QsMenuButtonType.None) {
+								modelData.triggered();
+								menuAnchor.refresh();
+								popout.close();
+							}
+							content: modelData.isSeparator? separatorEntry : textMenuEntry
 						}
 					}
 
-					// padding bellow menu entries
-					Item { height: GlobalVariables.controls.padding /2 }
+					// bottom padding element
+					Item { Layout.preferredHeight: 1; }
 				}
 			}
 		}
