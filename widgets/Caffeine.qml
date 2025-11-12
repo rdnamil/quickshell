@@ -8,13 +8,17 @@ import Quickshell.Widgets
 import Quickshell.Io
 import qs
 import qs.controls
+import qs.services as Service
 
 QsButton { id: root
 	property bool isCaffeine: inhibitor.running
 
 	anim: false
 	shade: false
-	onClicked: inhibitor.running = !inhibitor.running;
+	onClicked: {
+		 inhibitor.running = !inhibitor.running;
+		 Service.Popout.clear();
+	}
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: isCaffeine? Quickshell.iconPath("caffeine-cup-full", "my-caffeine-on") : Quickshell.iconPath("caffeine-cup-empty", "my-caffeine-off")
