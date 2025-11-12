@@ -21,7 +21,7 @@ QsButton { id: root
 	}
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
-		source: isCaffeine? Quickshell.iconPath("caffeine-cup-full", "my-caffeine-on") : Quickshell.iconPath("caffeine-cup-empty", "my-caffeine-off")
+		source: isCaffeine? Quickshell.iconPath("my-caffeine-on", "caffeine-cup-full") : Quickshell.iconPath("my-caffeine-off", "caffeine-cup-empty")
 	}
 
 	Process { id: inhibitor
