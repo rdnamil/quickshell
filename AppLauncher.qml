@@ -26,7 +26,7 @@ Singleton { id: root
 		function toggle(): void { loader.active = !loader.active; }
 	}
 
-	FileView { id: fileView
+	FileView {
 		path: Qt.resolvedUrl("./AppRankings.json")
 		watchChanges: true
 		onFileChanged: reload();
@@ -34,7 +34,6 @@ Singleton { id: root
 
 		JsonAdapter { id: jsonAdapter
 			property list<var> applications
-			onApplicationsChanged: console.log(applications)
 		}
 	}
 
