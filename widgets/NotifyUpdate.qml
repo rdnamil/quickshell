@@ -60,7 +60,7 @@ QsButton { id: root
 					IconImage {
 						anchors.centerIn: parent
 						implicitSize: GlobalVariables.controls.iconSize
-						source: Quickshell.iconPath("update")
+						source: Quickshell.iconPath("update", "update-none")
 					}
 				}
 			}

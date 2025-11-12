@@ -20,7 +20,7 @@ QsButton { id: root
 	shade: false
 	content: IconImage { id: widget
 		implicitSize: GlobalVariables.controls.iconSize
-		source: Quickshell.iconPath("night-light")
+		source: Quickshell.iconPath("night-light", "night-light-symbolic")
 		layer.enabled: true
 		layer.effect: OpacityMask {
 			maskSource: IconImage {

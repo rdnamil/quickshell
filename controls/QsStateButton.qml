@@ -39,6 +39,8 @@ QsButton {
 						return 3;
 					case QsMenuButtonType.RadioButton:
 						return height /2;
+					default:
+						return height /2;
 				}
 			}
 			color: checkState !== Qt.Checked? GlobalVariables.colours.midlight : GlobalVariables.colours.accent

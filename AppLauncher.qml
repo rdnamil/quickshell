@@ -218,7 +218,7 @@ Singleton { id: root
 								Layout.topMargin: GlobalVariables.controls.spacing /2
 								Layout.bottomMargin: GlobalVariables.controls.spacing /2
 								implicitSize: 28
-								source: Quickshell.iconPath(modelData.id, true) || Quickshell.iconPath(modelData.icon, "image-missing")
+								source: Quickshell.iconPath(modelData.name.toLowerCase(), true) || Quickshell.iconPath(modelData.icon, "image-missing")
 							}
 
 							Column {

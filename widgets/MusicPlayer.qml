@@ -305,11 +305,11 @@ Loader { id: root
 							implicitSize: controlsLayout.buttonSize
 							source: switch (activePlayer.loopState) {
 								case MprisLoopState.Playlist:
-									return Quickshell.iconPath("media-playlist-repeat");
+									return Quickshell.iconPath("media-playlist-repeat", "media-playlist-repeat-symbolic");
 								case MprisLoopState.Track:
-									return Quickshell.iconPath("media-playlist-repeat-song");
+									return Quickshell.iconPath("media-playlist-repeat-song", "media-playlist-repeat-song-symbolic");
 								default:
-									return Quickshell.iconPath("media-playlist-no-repeat");
+									return Quickshell.iconPath("media-playlist-no-repeat", "media-playlist-no-repeat-symbolic");
 							}
 						}
 					}

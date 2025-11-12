@@ -12,7 +12,7 @@ import qs.controls
 import qs.styles as Style
 
 Row { id: root
-	spacing: GlobalVariables.controls.spacing
+	spacing: GlobalVariables.controls.spacing /1.5
 
 	// system tray items
 	Repeater {
@@ -25,7 +25,7 @@ Row { id: root
 
 			IconImage {
 				implicitSize: GlobalVariables.controls.iconSize
-				source: modelData.icon
+				source: Quickshell.iconPath(modelData.id.toLowerCase(), true) || modelData.icon
 			}
 
 			Rectangle {
@@ -124,9 +124,10 @@ Row { id: root
 
 					// menu entries
 					Repeater {
-						model: menuOpener.children.values
+						model: menuOpener.children.values.filter(e => !e.hasChildren)
 						delegate: QsButton { id: menuEntry
 							required property var modelData
+							required property int index
 
 							// if can interact with meny entry
 							readonly property bool interactive: modelData.enabled && !modelData.isSeparator

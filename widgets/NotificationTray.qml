@@ -38,15 +38,15 @@ QsButton { id: root
 		source: {
 			if (Notifications.dnd) {
 				if (unread) {
-					return Quickshell.iconPath("notification-disabled-new")
+					return Quickshell.iconPath("notification-disabled-new-symbolic", "notification-disabled-new")
 				} else {
 					return Quickshell.iconPath("notifications-disabled")
 				}
 			} else {
 				if (unread) {
-					Quickshell.iconPath("notification-new")
+					Quickshell.iconPath("notification-new", "notification-active")
 				} else {
-					Quickshell.iconPath("notification")
+					Quickshell.iconPath("notification", "notification-inactive")
 				}
 			}
 		}

@@ -88,8 +88,7 @@ Item { id: root
 				tooltip.isShown = false;
 			}
 		}
-
-		acceptedButtons: Qt.LeftButton || Qt.MiddleButton
+		acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 		onPressed: (mouse) => {
 			switch (mouse.button) {
 				case Qt.LeftButton: {
