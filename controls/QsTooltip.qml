@@ -18,14 +18,13 @@ Item { id: root
 
 
 	Loader {
-
 		active: content
 		sourceComponent: PopupWindow { id: popout;
 			Connections {
 				target: root
 				function onIsShownChanged() { if (isShown) {
-					popout.anchor.rect.x = root.parent.mouseX +3;
-					popout.anchor.rect.y = root.parent.mouseY +3;
+					popout.anchor.rect.x = root.parent.mouseX;
+					popout.anchor.rect.y = root.parent.mouseY +GlobalVariables.controls.iconSize;
 					popout.visible = true;
 				} else popout.visible = false; }
 			}
