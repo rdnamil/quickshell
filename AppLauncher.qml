@@ -41,7 +41,7 @@ Singleton { id: root
 		active: false
 		sourceComponent: PanelWindow {
 			anchors.top: true
-			margins.top: screen.height /3
+			margins.top: screen.height /2.5 -header.height /2
 			implicitWidth: screen.width /7
 			implicitHeight: layout.height
 			// mask: Region {}
@@ -202,28 +202,29 @@ Singleton { id: root
 									threshold: 0.4
 								};
 								const fuse = new Fuse(list, options);
-								const results = fuse.search(textInput.text).map(r => r.item);
 
-								return results;
-							} else return Array.from(DesktopEntries.applications.values)
+								return fuse.search(textInput.text).map(r => r.item);
+
+							} else {
+								const countMin = Math.min(...jsonAdapter.applications.map(a => a.count));
+								const countNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.count)) -countMin;
+								const ageMin = Math.min(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now();
+								const ageNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now() -ageMin
+								const recencyWeight = 0.4;
+
+								return Array.from(DesktopEntries.applications.values)
 								.filter(a => !a.noDisplay)
-								// .sort((a, b) => {
-								// 	const aRank = jsonAdapter.applications.find(app => app.id === a.id)?.count || null
-								// 	const bRank = jsonAdapter.applications.find(app => app.id === b.id)?.count || null
-        //
-								// 	if (aRank && bRank) return bRank -aRank;
-								// 	else if (aRank) return -1;
-								// 	else if (bRank) return 1;
-								// 	else return a.name.localeCompare(b.name);
-								// });
 								.sort((a, b) => {
-									function calcRelevance(app, now = Date.now(), lambda = 0.2) {
-										const age = (now -app.lastOpened) /(1000 *60 *60 *24);
-										return app.count *Math.exp(-lambda *age);
-									}
-
 									const a_App = jsonAdapter.applications.find(app => app.id === a.id);
 									const b_App = jsonAdapter.applications.find(app => app.id === b.id);
+
+									function calcRelevance(app, now = Date.now()) {
+										console.log(app.id);
+										const countNormal = (app.count -countMin) /countNormalDevisor;
+										const ageNormal = (app.lastOpened -now -ageMin) /ageNormalDevisor;
+										return recencyWeight *ageNormal +(1 -recencyWeight) *countNormal;;
+									}
+
 									const a_Relevance = a_App? calcRelevance(a_App) : null;
 									const b_Relevance = b_App? calcRelevance(b_App) : null;
 
@@ -232,7 +233,7 @@ Singleton { id: root
 									else if (b_Relevance) return 1;
 									else return a.name.localeCompare(b.name);
 								});
-							// } else return Array.from(DesktopEntries.applications.values).sort((a, b) => a.name.localeCompare(b.name))
+							}
 						}
 
 						onValuesChanged: list.currentIndex = 0;
