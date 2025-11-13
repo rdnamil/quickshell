@@ -47,7 +47,7 @@ Loader { id: root
 		property string art: activePlayer.trackArtUrl;
 		property ColorQuantizer colorQuantizer: ColorQuantizer {
 			source: root.track.art
-			depth: 8
+			depth: 4
 			rescaleSize: 64
 		}
 	}
@@ -334,9 +334,9 @@ Loader { id: root
 							anchors.fill: trackArtMask
 							radius: trackArtMask.radius
 							offset.y: GlobalVariables.controls.padding
-							spread: 0
-							blur: 30
-							opacity: 0.4
+							spread: 4
+							blur: 32
+							opacity: 0.6
 						}
 
 						Rectangle { id: trackArtMask
@@ -372,12 +372,22 @@ Loader { id: root
 					// visible: false
 					anchors.fill: parent
 					color: Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
-						const aScore = a.hsvSaturation *a.hsvValue;
-						const bScore = b.hsvSaturation *b.hsvValue;
+						const satWeight = 0.5
+						const satTarget = 0.0025
+						const valueTarget = 0.0025
 
-						return bScore -aScore;
+						const a_satNormal = 1 /(1 +Math.abs(a.hsvSaturation /256 -satTarget));
+						console.log(a_satNormal)
+						const b_satNormal = 1 /(1 +Math.abs(b.hsvSaturation /256 -satTarget));
+						const a_valueNormal = 1 /(1 +Math.abs(a.hsvValue /256 -valueTarget));
+						const b_valueNormal = 1 /(1 +Math.abs(b.hsvValue /256 -valueTarget));
+
+						const a_score = satWeight *a_satNormal +(1 -satWeight) *a_valueNormal
+						const b_score = satWeight *b_satNormal +(1 -satWeight) *b_valueNormal
+
+						return b_score -a_score;
 					})[0]
-					opacity: 0.7
+					opacity: 01.0
 				}
 
 				// album art
@@ -396,7 +406,7 @@ Loader { id: root
 						spread: 0
 						blur: parent.width
 						color: GlobalVariables.colours.shadow
-						opacity: 0.8
+						// opacity: 0.8
 					}
 
 					Image { id: trackArt
@@ -414,7 +424,19 @@ Loader { id: root
 						}
 					}
 
-					Style.Borders { radius: GlobalVariables.controls.radius; opacity: 0.5; }
+					// Grid {
+					// 	x: 6
+					// 	y: 6
+					// 	rows: 16
+					// 	Repeater {
+					// 		model: root.track.colorQuantizer.colors
+					// 		delegate: Rectangle {
+					// 			width: 10
+					// 			height: 10
+					// 			color: modelData
+					// 		}
+					// 	}
+					// }
 				}
 
 				// open player
@@ -443,6 +465,22 @@ Loader { id: root
 						source: Quickshell.iconPath("window-pop-out")
 					}
 				}
+			}
+
+			// album art window border
+			Rectangle {
+				// visible: false
+				anchors {
+					horizontalCenter: parent.horizontalCenter
+					top: parent.top
+					topMargin: controls.height +GlobalVariables.controls.padding *2
+				}
+				width: parent.width -GlobalVariables.controls.padding *2
+				height: width
+				radius: GlobalVariables.controls.radius
+				color: "transparent"
+				border { width: 2; color: GlobalVariables.colours.base; }
+				opacity: 0.25
 			}
 
 			// track info
