@@ -7,6 +7,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
+import Quickshell.Io
 import qs
 import qs.services
 import qs.controls
@@ -46,6 +47,13 @@ QsButton { id: root
 		header: RowLayout { id: headerContent
 			width: screen.width /7
 
+			Process { id: update
+				command: [GlobalVariables.controls.terminal, "-e", "yay", "--noconfirm"]
+				stdout: StdioCollector {
+					onStreamFinished: Notifications.notify("go-down", "Quickshell", "Update", "Updates completed. Reboot for changes to take effect.");
+				}
+			}
+
 			// update button
 			QsButton {
 				Layout.margins: GlobalVariables.controls.padding
@@ -56,14 +64,15 @@ QsButton { id: root
 					font: GlobalVariables.font.regular
 				}
 				onClicked: {
-					Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
+					// Quickshell.execDetached([GlobalVariables.controls.terminal, "-e", "yay"]);
+					update.running = true;
 					popout.close();
 				}
 				content: Style.Button {
 					IconImage {
 						anchors.centerIn: parent
 						implicitSize: GlobalVariables.controls.iconSize
-						source: Quickshell.iconPath("update", "update-none")
+						source: Quickshell.iconPath("update", "go-down")
 					}
 				}
 			}
