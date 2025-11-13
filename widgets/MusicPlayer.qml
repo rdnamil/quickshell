@@ -334,7 +334,7 @@ Loader { id: root
 							anchors.fill: trackArtMask
 							radius: trackArtMask.radius
 							offset.y: GlobalVariables.controls.padding
-							spread: 4
+							spread: 3
 							blur: 32
 							opacity: 0.6
 						}
@@ -386,7 +386,7 @@ Loader { id: root
 
 						return b_score -a_score;
 					})[0]
-					opacity: 01.0
+					opacity: 0.5
 				}
 
 				// album art
