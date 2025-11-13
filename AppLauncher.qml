@@ -195,35 +195,53 @@ Singleton { id: root
 					}
 					model: ScriptModel {
 						values: {
+							const countMin = Math.min(...jsonAdapter.applications.map(a => a.count));
+							const countNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.count)) -countMin;
+							const ageMin = Math.min(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now();
+							const ageNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now() -ageMin
+							const recencyWeight = 0.4;
+
+							function calcRelevance(app, now = Date.now()) {
+								const countNormal = (app.count -countMin) /countNormalDevisor;
+								const ageNormal = (app.lastOpened -now -ageMin) /ageNormalDevisor;
+								return recencyWeight *ageNormal +(1 -recencyWeight) *countNormal;
+							}
+
 							if (textInput.text) {
 								const list = Array.from(DesktopEntries.applications.values).filter(a => !a.noDisplay)
 								const options = {
 									keys: ["id", "name", "genericName", "keywords"],
-									threshold: 0.4
+									threshold: 0.4,
+									includeScore: true,
+									shouldSort: false
 								};
 								const fuse = new Fuse(list, options);
 
-								return fuse.search(textInput.text).map(r => r.item);
+								return fuse.search(textInput.text).sort((a, b) => {
+									const scoreWeight = 0.6;
 
+									const a_App = jsonAdapter.applications.find(app => app.id === a.item.id);
+									const b_App = jsonAdapter.applications.find(app => app.id === b.item.id);
+
+									function calcWeightedMatch(app, score, now = Date.now()) {
+										const relevance = calcRelevance(app);
+										return scoreWeight *(1 -score) +(1 -scoreWeight) *relevance;
+									}
+
+									const a_weightedMatch = a_App? calcWeightedMatch(a_App, a.score) : null;
+									const b_weightedMatch = b_App? calcWeightedMatch(b_App, b.score) : null;
+
+									if (a_weightedMatch && b_weightedMatch) return b_weightedMatch -a_weightedMatch;
+									else if (a_weightedMatch) return -1;
+									else if (b_weightedMatch) return 1;
+									else return a.score -b.score;
+								}).map(r => r.item);
 							} else {
-								const countMin = Math.min(...jsonAdapter.applications.map(a => a.count));
-								const countNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.count)) -countMin;
-								const ageMin = Math.min(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now();
-								const ageNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now() -ageMin
-								const recencyWeight = 0.4;
-
 								return Array.from(DesktopEntries.applications.values)
 								.filter(a => !a.noDisplay)
 								.sort((a, b) => {
 									const a_App = jsonAdapter.applications.find(app => app.id === a.id);
 									const b_App = jsonAdapter.applications.find(app => app.id === b.id);
-
-									function calcRelevance(app, now = Date.now()) {
-										console.log(app.id);
-										const countNormal = (app.count -countMin) /countNormalDevisor;
-										const ageNormal = (app.lastOpened -now -ageMin) /ageNormalDevisor;
-										return recencyWeight *ageNormal +(1 -recencyWeight) *countNormal;;
-									}
 
 									const a_Relevance = a_App? calcRelevance(a_App) : null;
 									const b_Relevance = b_App? calcRelevance(b_App) : null;
