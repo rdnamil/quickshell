@@ -124,7 +124,15 @@ Row { id: root
 
 					// menu entries
 					Repeater {
-						model: menuOpener.children.values.filter(e => !e.hasChildren)
+						model: menuOpener.children.values.filter(e => !e.hasChildren).filter((e, i, arr) => {
+							const prev = arr[i - 1];
+							const next = arr[i + 1];
+
+							if ((i === 0 || i === arr.length - 1) && e.isSeparator) return false;
+							if (e.isSeparator && (prev?.isSeparator || next == null)) return false;
+
+							return true;
+						});
 						delegate: QsButton { id: menuEntry
 							required property var modelData
 							required property int index
