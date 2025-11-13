@@ -377,7 +377,6 @@ Loader { id: root
 						const valueTarget = 0.0025
 
 						const a_satNormal = 1 /(1 +Math.abs(a.hsvSaturation /256 -satTarget));
-						console.log(a_satNormal)
 						const b_satNormal = 1 /(1 +Math.abs(b.hsvSaturation /256 -satTarget));
 						const a_valueNormal = 1 /(1 +Math.abs(a.hsvValue /256 -valueTarget));
 						const b_valueNormal = 1 /(1 +Math.abs(b.hsvValue /256 -valueTarget));
