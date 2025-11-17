@@ -46,22 +46,32 @@ Item { id: root
 	// contentWrapper
 	Item { id: contentWrapper
 		anchors.fill: parent
+		layer.enabled: true
+		layer.effect: ColorOverlay {
+			function setAlpha(colour, alpha) {
+				return Qt.rgba(colour.r, colour.g, colour.b, alpha);
+			}
+			color: {
+				if (shade && containsMouse) return setAlpha(GlobalVariables.colours.shadow, 0.2);
+				else return "transparent";
+			}
+		}
 	}
 
 	// shade button on hover
-	Rectangle {
-		visible: shade && containsMouse
-		width: content.width
-		height: content.height
-		x: content.x
-		y: content.y
-		color: GlobalVariables.colours.shadow
-		opacity: 0.2
-		layer.enabled: true
-		layer.effect: OpacityMask {
-			maskSource: content
-		}
-	}
+	// Rectangle {
+	// 	visible: shade && containsMouse
+	// 	width: content.width
+	// 	height: content.height
+	// 	x: content.x
+	// 	y: content.y
+	// 	color: GlobalVariables.colours.shadow
+	// 	opacity: 0.2
+	// 	layer.enabled: true
+	// 	layer.effect: OpacityMask {
+	// 		maskSource: content
+	// 	}
+	// }
 
 	QsTooltip { id: tooltip
 		anchor: root
