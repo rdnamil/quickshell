@@ -267,6 +267,7 @@ Singleton { id: root
 
 						width: layout.width
 						height: layout.height
+						hoverEnabled: true
 						onClicked: {
 							modelData.execute();
 							loader.active = false;
@@ -281,7 +282,16 @@ Singleton { id: root
 						}
 
 						RowLayout { id: layout
+							function setAlpha(colour, alpha) {
+								return Qt.rgba(colour.r, colour.g, colour.b, alpha);
+							}
+
 							width: list.width
+							layer.enabled: true
+							layer.effect: ColorOverlay { color: {
+								if (parent.containsMouse) return layout.setAlpha(GlobalVariables.colours.shadow, 0.4);
+								else return "transparent";
+							}}
 
 							IconImage {
 								Layout.leftMargin: GlobalVariables.controls.padding
