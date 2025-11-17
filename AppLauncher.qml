@@ -208,7 +208,10 @@ Singleton { id: root
 							}
 
 							if (textInput.text) {
-								const list = Array.from(DesktopEntries.applications.values).filter(a => !a.noDisplay)
+								const list = Array.from(DesktopEntries.applications.values) // list to search from
+								.filter(a => !a.noDisplay) // remove entries that request to not be displayed
+								.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id)) // dedupe list BUG
+
 								const options = {
 									keys: ["id", "name", "genericName", "keywords"],
 									threshold: 0.4,
@@ -217,7 +220,7 @@ Singleton { id: root
 								};
 								const fuse = new Fuse(list, options);
 
-								return fuse.search(textInput.text).sort((a, b) => {
+								return fuse.search(textInput.text).sort((a, b) => { // return search results sorted based on score and relevance
 									const scoreWeight = 0.6;
 
 									const a_App = jsonAdapter.applications.find(app => app.id === a.item.id);
@@ -235,11 +238,13 @@ Singleton { id: root
 									else if (a_weightedMatch) return -1;
 									else if (b_weightedMatch) return 1;
 									else return a.score -b.score;
-								}).map(r => r.item);
+								})
+								.map(r => r.item);
 							} else {
 								return Array.from(DesktopEntries.applications.values)
 								.filter(a => !a.noDisplay)
-								.sort((a, b) => {
+								.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id))
+								.sort((a, b) => { // sort based on relevance
 									const a_App = jsonAdapter.applications.find(app => app.id === a.id);
 									const b_App = jsonAdapter.applications.find(app => app.id === b.id);
 
