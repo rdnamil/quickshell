@@ -289,7 +289,7 @@ Singleton { id: root
 							width: list.width
 							layer.enabled: true
 							layer.effect: ColorOverlay { color: {
-								if (parent.containsMouse) return layout.setAlpha(GlobalVariables.colours.shadow, 0.4);
+								if (parent.containsMouse) return layout.setAlpha(GlobalVariables.colours.shadow, 0.2);
 								else return "transparent";
 							}}
 
