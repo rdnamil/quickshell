@@ -32,7 +32,7 @@ QsButton { id: root
 		anchors {
 			horizontalCenter: parent.right
 			top: parent.top
-			topMargin: -height /4
+			topMargin: -height /3
 		}
 		width: 10
 		height: width
