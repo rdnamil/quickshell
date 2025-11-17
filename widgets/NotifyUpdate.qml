@@ -25,20 +25,20 @@ QsButton { id: root
 	content: IconImage {
 		implicitSize: GlobalVariables.controls.iconSize
 		source: Quickshell.iconPath("package")
+	}
 
-		Rectangle {
-			visible: !(NotifyUpdate.updates.length <10)
-			anchors {
-				horizontalCenter: parent.right
-				top: parent.top
-				topMargin: -height /3
-			}
-			width: 10
-			height: width
-			radius: height /2
-			color: "#bb2040"
-			border.color: GlobalVariables.colours.base
+	Rectangle {
+		visible: !(NotifyUpdate.updates.length <10)
+		anchors {
+			horizontalCenter: parent.right
+			top: parent.top
+			topMargin: -height /4
 		}
+		width: 10
+		height: width
+		radius: height /2
+		color: "#bb2040"
+		border.color: GlobalVariables.colours.base
 	}
 
 	Popout { id: popout
