@@ -11,7 +11,7 @@ import Quickshell.Io
 Singleton { id: root
 	property list<var> updates: []
 
-	function refresh() { getPacmanUpdates.running = true; timer.restart(); }
+	function refresh() { if (!getPacmanUpdates.running) getPacmanUpdates.running = true; timer.restart(); }
 
 	Process { id: getPacmanUpdates
 		running: true
@@ -44,7 +44,8 @@ Singleton { id: root
 					return {
 						package: parts[0],
 						oldVersion: parts[1],
-						newVersion: parts[3]
+						newVersion: parts[3],
+						repo: "aur"
 					}
 				});
 

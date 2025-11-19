@@ -139,7 +139,7 @@ QsButton { id: root
 
 								Text {
 									text: `<b>${modelData.package}</b>`
-									color: GlobalVariables.colours.text
+									color: (modelData.id && modelData.id === "aur")? "blue" : GlobalVariables.colours.text
 									font: GlobalVariables.font.monosmall
 								}
 
