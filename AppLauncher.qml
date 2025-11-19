@@ -12,6 +12,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
+import qs.controls
 import qs.styles as Style
 import "fuse.js" as FuseLib
 
@@ -248,6 +249,13 @@ Singleton { id: root
 									const a_App = jsonAdapter.applications.find(app => app.id === a.id);
 									const b_App = jsonAdapter.applications.find(app => app.id === b.id);
 
+									const a_isFav = a_App? a_App.isFavourite : null;
+									const b_isFav = b_App? b_App.isFavourite : null;
+
+									if (a_isFav && b_isFav) return a_App.favouriteIdx -b_App.favouriteIdx;
+									else if (a_isFav) return -1;
+									else if (b_isFav) return 1;
+
 									const a_Relevance = a_App? calcRelevance(a_App) : null;
 									const b_Relevance = b_App? calcRelevance(b_App) : null;
 
@@ -282,6 +290,8 @@ Singleton { id: root
 						}
 
 						RowLayout { id: layout
+							readonly property bool containsMouse: parent.containsMouse
+
 							function setAlpha(colour, alpha) {
 								return Qt.rgba(colour.r, colour.g, colour.b, alpha);
 							}
@@ -289,7 +299,7 @@ Singleton { id: root
 							width: list.width
 							layer.enabled: true
 							layer.effect: ColorOverlay { color: {
-								if (parent.containsMouse) return layout.setAlpha(GlobalVariables.colours.shadow, 0.2);
+								if (containsMouse) return layout.setAlpha(GlobalVariables.colours.shadow, 0.2);
 								else return "transparent";
 							}}
 
@@ -350,6 +360,22 @@ Singleton { id: root
 									elide: Text.ElideRight
 									color: GlobalVariables.colours.windowText
 									font: GlobalVariables.font.smaller
+								}
+							}
+
+							QsButton {
+								readonly property bool isFavourite: jsonAdapter.applications.find(a => a.id === modelData.id)?.isFavourite || false
+
+								visible: parent.containsMouse || isFavourite
+								Layout.rightMargin: GlobalVariables.controls.padding
+								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								onClicked: {
+									jsonAdapter.applications.find(a => a.id === modelData.id).isFavourite = !isFavourite;
+									if (isFavourite) jsonAdapter.applications.find(a => a.id === modelData.id).favouriteIdx = Date.now();
+								}
+								content: IconImage {
+									implicitSize: GlobalVariables.controls.iconSize
+									source: Quickshell.iconPath("window-pin")
 								}
 							}
 						}
