@@ -102,7 +102,7 @@ Loader { id: root
 		// track info; scroll when too long to fit and mouse is hovering over it
 		Marquee {
 			Layout.preferredWidth: marqueeLayout.width
-			Layout.maximumWidth: 200
+			Layout.maximumWidth: parent.width -75
 			scroll: width < marqueeLayout.width? mouseArea.containsMouse : false
 			leftAlign: true
 			content: Row { id: marqueeLayout
