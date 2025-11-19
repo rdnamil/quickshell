@@ -305,11 +305,13 @@ Singleton { id: root
 								Layout.rightMargin: GlobalVariables.controls.padding
 								Layout.fillWidth: true
 
-								Row {
+								RowLayout {
+									width: parent.width
 									spacing: 3
 
 									Text {
-										anchors.verticalCenter: parent.verticalCenter
+										// anchors.verticalCenter: parent.verticalCenter
+										Layout.alignment: Qt.AlignVCenter
 										text: modelData.name
 										color: GlobalVariables.colours.text
 										font: GlobalVariables.font.regular
@@ -318,8 +320,11 @@ Singleton { id: root
 
 									Text {
 										visible: modelData.genericName
-										anchors.verticalCenter: parent.verticalCenter
+										// anchors.verticalCenter: parent.verticalCenter
+										Layout.alignment: Qt.AlignVCenter
+										Layout.fillWidth: true
 										text: `(${modelData.genericName})`
+										elide: Text.ElideRight
 										color: GlobalVariables.colours.text
 										font: GlobalVariables.font.smalleritalics
 										verticalAlignment: Text.AlignVCenter
