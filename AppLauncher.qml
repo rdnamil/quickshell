@@ -369,13 +369,15 @@ Singleton { id: root
 								visible: parent.containsMouse || isFavourite
 								Layout.rightMargin: GlobalVariables.controls.padding
 								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+								Layout.fillHeight: true
 								onClicked: {
 									jsonAdapter.applications.find(a => a.id === modelData.id).isFavourite = !isFavourite;
 									if (isFavourite) jsonAdapter.applications.find(a => a.id === modelData.id).favouriteIdx = Date.now();
 								}
 								content: IconImage {
+									anchors.centerIn: parent
 									implicitSize: GlobalVariables.controls.iconSize
-									source: Quickshell.iconPath("window-pin")
+									source: Quickshell.iconPath("view-pin", "window-pin")
 								}
 							}
 						}
