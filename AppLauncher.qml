@@ -298,7 +298,19 @@ Singleton { id: root
 								Layout.topMargin: GlobalVariables.controls.spacing /2
 								Layout.bottomMargin: GlobalVariables.controls.spacing /2
 								implicitSize: 28
-								source: Quickshell.iconPath(modelData.name.toLowerCase(), true) || Quickshell.iconPath(modelData.icon, "image-missing")
+								// source: Quickshell.iconPath(modelData.name.toLowerCase(), true) || Quickshell.iconPath(modelData.icon, "image-missing")
+								source: switch (modelData.name.toLowerCase()) {
+									case "outlook":
+									case "outlook (pwa)":
+										return Quickshell.iconPath("ms-outlook");
+										break;
+									case "microsoft teams":
+									case "microsoft teams (pwa)":
+										return Quickshell.iconPath("teams");
+										break;
+									default:
+										Quickshell.iconPath(modelData.name.toLowerCase(), true) || Quickshell.iconPath(modelData.icon, "image-missing")
+								}
 							}
 
 							Column {
