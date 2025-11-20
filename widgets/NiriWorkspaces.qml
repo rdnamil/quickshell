@@ -3,6 +3,7 @@
 --------------------------------------------*/
 
 import QtQuick
+import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
@@ -42,8 +43,7 @@ Loader { id: root
 					width: isActive? Math.max(layout.width, 16) : 10
 					height: isActive? Math.max(layout.height, 10) : 10
 					radius: Math.min(width /2, height /2) -1
-					color: isActive? GlobalVariables.colours.light : GlobalVariables.colours.base
-					clip: true
+					color: isActive? GlobalVariables.colours.light : GlobalVariables.colours.mid
 					layer.enabled: true
 					layer.effect: OpacityMask {
 						maskSource: Rectangle {
@@ -53,19 +53,43 @@ Loader { id: root
 						}
 					}
 
+					Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					// Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
+
+					Rectangle {
+						visible: isActive && repeater.count > 0
+						anchors.fill: parent
+						radius: height /2
+						gradient: Gradient {
+							orientation: Gradient.Vertical
+							GradientStop { position: 0.0; color: "#80000000" }
+							GradientStop { position: 1.0; color: "#40000000" }
+						}
+						opacity: 0.4
+					}
+
 					// highlight the currently focused column
 					Rectangle { id: highlight
 						readonly property int activeIdx: windows.findIndex(w => w.layout.pos_in_scrolling_layout[0] === windows.find(w => w.is_focused)?.layout.pos_in_scrolling_layout[0])
 
-						visible: isActive
-						x: repeater.itemAt(highlight.activeIdx)?.x || 2 /*+repeater.itemAt(highlight.activeIdx).width /2 -width /2*/
-						y: repeater.itemAt(highlight.activeIdx)?.y || 2 /*+repeater.itemAt(highlight.activeIdx).height /2 -height /2*/
+						visible: isActive && repeater.itemAt(highlight.activeIdx)
+						x: repeater.itemAt(highlight.activeIdx)?.x || 3 /*+repeater.itemAt(highlight.activeIdx).width /2 -width /2*/
+						y: repeater.itemAt(highlight.activeIdx)?.y +1 || 4 /*+repeater.itemAt(highlight.activeIdx).height /2 -height /2*/
 						width: repeater.itemAt(highlight.activeIdx)?.width *windows.filter(w => {
-							 return w.layout.pos_in_scrolling_layout[0] === windows.find(w => w.is_focused)?.layout.pos_in_scrolling_layout[0]
+							return w.layout.pos_in_scrolling_layout[0] === windows.find(w => w.is_focused)?.layout.pos_in_scrolling_layout[0]
 						}).length
-						height: repeater.itemAt(highlight.activeIdx)?.height
+						height: repeater.itemAt(highlight.activeIdx)?.height -1
 						radius: height /2
-						color: GlobalVariables.colours.accent
+						color: GlobalVariables.colours.highlight
+						layer.enabled: true
+						layer.effect: DropShadow {
+							color: GlobalVariables.colours.text
+							spread: 0
+							radius: 0
+							samples: 1
+							verticalOffset: -1
+						}
 
 						Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 						Behavior on x { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
@@ -78,27 +102,35 @@ Loader { id: root
 						spacing: 0
 
 						Repeater { id: repeater
-							model: ScriptModel {
-								values: windows
-							}
-							delegate: Item {
+							model: windows
+							delegate: QsButton {
 								required property var modelData
 
-								width: 16
+								width: GlobalVariables.controls.iconSize +4
 								height: width
-
-
-								IconImage { id: icon
+								onClicked: Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", modelData.id])
+								content: Item {
 									anchors.centerIn: parent
-									implicitSize: 12
-									source: Quickshell.iconPath(modelData.app_id, "window")
+									width: GlobalVariables.controls.iconSize
+									height: width
+
+									RectangularShadow {
+										anchors.fill: window
+										offset.y: 2
+										spread: -3
+										blur: 6
+										radius: height /2
+										color: GlobalVariables.colours.shadow
+									}
+
+									IconImage { id: window
+										implicitSize: parent.width
+										source: Quickshell.iconPath(modelData.app_id, "window")
+									}
 								}
 							}
 						}
 					}
-
-					Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic; }}
-					Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
 				}
 			}
 		}
