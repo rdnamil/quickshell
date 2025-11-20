@@ -11,11 +11,19 @@ import qs
 import qs.controls
 import qs.styles as Style
 
-QsButton { id: root
-	shade: false
-	anim: false
-	onClicked: popout.toggle();
-	content: Row {
+Item { id: root
+	width: layout.width
+	height: layout.height
+
+	QsButton {
+		anchors.fill: parent
+		shade: false
+		anim: false
+		onClicked: popout.toggle();
+		content: Item { anchors.fill: parent; }
+	}
+
+	Row { id: layout
 		spacing: 4
 
 		SystemClock { id: clock

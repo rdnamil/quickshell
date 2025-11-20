@@ -38,7 +38,7 @@ QsButton { id: root
 		height: width
 		radius: height /2
 		color: "#bb2040"
-		border.color: GlobalVariables.colours.base
+		border.color: GlobalVariables.colours.dark
 	}
 
 	Popout { id: popout

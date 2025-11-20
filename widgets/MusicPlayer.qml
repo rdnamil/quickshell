@@ -90,6 +90,7 @@ Loader { id: root
 		}
 	}
 	active: false
+	width: active? screen.width /8 : 0
 	sourceComponent: RowLayout {
 		width: screen.width /8
 

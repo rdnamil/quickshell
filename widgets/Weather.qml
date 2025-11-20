@@ -72,11 +72,19 @@ Loader { id: root
 	}
 
 	active: Service.Weather.weather
-	sourceComponent: QsButton { id: icon
-		shade: false
-		anim: false
-		onClicked: popout.toggle();
-		content: Row {
+	sourceComponent: Item { id: root
+		width: layout.width
+		height: layout.height
+
+		QsButton { id: icon
+			anchors.fill: parent
+			shade: false
+			anim: false
+			onClicked: popout.toggle();
+			content: Item { anchors.fill: parent; }
+		}
+
+		Row { id: layout
 			spacing: 3
 
 			IconImage { id: weatherIcon
