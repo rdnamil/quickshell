@@ -53,7 +53,7 @@ Loader { id: root
 						}
 					}
 
-					Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					// Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 					// Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 					Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
 
@@ -100,6 +100,10 @@ Loader { id: root
 						anchors.centerIn: parent
 						padding: 3
 						spacing: 0
+
+						width: implicitWidth
+
+						Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 
 						Repeater { id: repeater
 							model: windows
