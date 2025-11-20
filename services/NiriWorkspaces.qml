@@ -15,13 +15,19 @@ Singleton { id: root
 	// list of all niri workspaces
 	property list<var> workspaces: []
 
+	// list of all windows
+	property list<var> windows: []
+
 	// update list on a 'workspace' event
 	Process { id: eventStream
 		running: true
 		command: ["niri", "msg", "event-stream"]
 		stdout: SplitParser {
-			splitMarker: "Workspace"
-			onRead: getWorkspaces.running = true
+			// splitMarker: "Workspace"
+			onRead: {
+				getWorkspaces.running = true
+				getWindows.running = true
+			}
 		}
 	}
 
@@ -30,6 +36,14 @@ Singleton { id: root
 		command: ["niri", "msg", "--json", "workspaces"]
 		stdout: StdioCollector {
 			onStreamFinished: workspaces = JSON.parse(text)
+		}
+	}
+
+	Process { id: getWindows
+		running: true
+		command: ["niri", "msg", "--json", "windows"]
+		stdout: StdioCollector {
+			onStreamFinished: windows = JSON.parse(text)
 		}
 	}
 }

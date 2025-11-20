@@ -5,6 +5,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Widgets
 import qs
 import qs.services
 import qs.controls
@@ -30,15 +31,49 @@ Loader { id: root
 				// get wether this.workspace is active
 				readonly property bool isActive: activeWorkspace === index
 
+				anchors.verticalCenter: parent.verticalCenter
+
 				onClicked: {
 					workspace = index +1;
 					Quickshell.execDetached(command)
 				}
 				content: Rectangle {
-					width: isActive? 12 : 8
-					height: 8
+					width: isActive? Math.max(layout.width, 14) : 8
+					height: isActive? Math.max(layout.height, 10) : 8
 					radius: height /2
-					color: isActive? GlobalVariables.colours.highlightedText : GlobalVariables.colours.midlight
+					color: isActive? GlobalVariables.colours.light : GlobalVariables.colours.base
+					clip: true
+
+					Row { id: layout
+						visible: isActive
+						anchors.centerIn: parent
+						padding: 2
+						spacing: 2
+
+						Repeater {
+							model: ScriptModel {
+								values: Array.from(NiriWorkspaces.windows)
+								.filter(w => w.workspace_id === NiriWorkspaces.activeWorkspace.filter(w => w.output === screen.name).find(w => w.is_active).id)
+								.sort((a, b) => {
+									return a.layout.pos_in_scrolling_layout[0] -b.layout.pos_in_scrolling_layout[0];
+								})
+							}
+							delegate: Rectangle {
+								required property var modelData
+
+								width: 18
+								height: width
+								radius: height /2
+								color: modelData.is_focused? GlobalVariables.colours.accent : "transparent"
+
+								IconImage {
+									anchors.centerIn: parent
+									implicitSize: 12
+									source: Quickshell.iconPath(modelData.app_id)
+								}
+							}
+						}
+					}
 
 					// add workspace names in future
 					Text {
@@ -49,6 +84,7 @@ Loader { id: root
 
 					// animations on change
 					Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 					Behavior on color { ColorAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 				}
 			}
