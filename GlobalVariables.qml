@@ -12,7 +12,7 @@ Singleton { id: root
 		readonly property int padding: 10
 		readonly property int spacing: 8
 		readonly property int radius: 8
-		readonly property int barHeight: 34
+		readonly property int barHeight: 38
 		readonly property int iconSize: 16
 		readonly property string terminal: "ghostty"
 	}
