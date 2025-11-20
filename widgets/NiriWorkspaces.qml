@@ -41,7 +41,7 @@ Loader { id: root
 				content: Rectangle { id: content
 					width: isActive? Math.max(layout.width, 16) : 10
 					height: isActive? Math.max(layout.height, 10) : 10
-					radius: Math.min(width /2, height /2)
+					radius: Math.min(width /2, height /2) -1
 					color: isActive? GlobalVariables.colours.light : GlobalVariables.colours.base
 					clip: true
 					layer.enabled: true
@@ -74,7 +74,7 @@ Loader { id: root
 					Row { id: layout
 						visible: isActive
 						anchors.centerIn: parent
-						padding: 2
+						padding: 3
 						spacing: 0
 
 						Repeater { id: repeater
@@ -84,13 +84,13 @@ Loader { id: root
 							delegate: Item {
 								required property var modelData
 
-								width: 18
+								width: 16
 								height: width
 
 
 								IconImage { id: icon
 									anchors.centerIn: parent
-									implicitSize: 14
+									implicitSize: 12
 									source: Quickshell.iconPath(modelData.app_id, "window")
 								}
 							}
