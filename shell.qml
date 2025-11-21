@@ -53,5 +53,13 @@ Scope { id: root
 	Brightness {}
 
 	// connect to shell services
-	Component.onCompleted: [Service.Shell.init(), AppLauncher.init()]
+	Component.onCompleted: [
+		Service.Shell.init(),
+		AppLauncher.init(),
+		Service.Redshift.init(
+			true, // enable geo located sunset/sunrise times (static times will be ignored if 'true')
+			"19:00", // static start time
+			"7:00" // static end time
+		)
+	]
 }
