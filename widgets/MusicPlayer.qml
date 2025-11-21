@@ -35,6 +35,7 @@ Loader { id: root
 		return players[players.length - 1];
 	} else return null; }
 
+	property int minBarWidth: 100
 	property var track: QtObject {
 		property string title: {
 			var trackTitle = activePlayer.trackTitle;
@@ -103,7 +104,7 @@ Loader { id: root
 		// track info; scroll when too long to fit and mouse is hovering over it
 		Marquee {
 			Layout.preferredWidth: marqueeLayout.width
-			Layout.maximumWidth: parent.width -100
+			Layout.maximumWidth: parent.width -minBarWidth
 			scroll: width < marqueeLayout.width? mouseArea.containsMouse : false
 			leftAlign: true
 			content: Row { id: marqueeLayout
