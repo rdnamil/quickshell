@@ -19,6 +19,7 @@ Loader { id: root
 	// get windows in the current active workspace
 	readonly property var windows: Array.from(NiriWorkspaces.windows)
 	.filter(w => w.workspace_id === NiriWorkspaces.activeWorkspace.filter(w => w.output === screen.name).find(w => w.is_active).id)
+	.filter(w => w.layout.pos_in_scrolling_layout)
 	.sort((a, b) => {
 		if (a.layout.pos_in_scrolling_layout[0] === b.layout.pos_in_scrolling_layout[0]) {
 			return a.layout.pos_in_scrolling_layout[1] -b.layout.pos_in_scrolling_layout[1];
@@ -119,6 +120,11 @@ Loader { id: root
 
 							width: GlobalVariables.controls.iconSize +4
 							height: width
+							tooltip: Text {
+								text: modelData.title
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.regular
+							}
 							onClicked: {
 								Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", modelData.id]);
 								Quickshell.execDetached(["niri", "msg", "action", "center-column"]);
