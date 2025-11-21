@@ -3,41 +3,22 @@
 ------------------*/
 
 import QtQuick
-import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Widgets
-import Quickshell.Wayland
+// import Quickshell.Io
 import qs
 import qs.controls
 import qs.services as Service
 
 QsButton { id: root
-	property string startTime
-	property string endTime
-
-	property bool enabled
-
 	anim: false
 	shade: false
-	onClicked: Service.Popout.clear();
+	onClicked: {
+		Service.Popout.clear();
+		Service.Redshift.toggle();
+	}
 	content: IconImage { id: widget
 		implicitSize: GlobalVariables.controls.iconSize
-		source: Quickshell.iconPath("night-light", "night-light-symbolic")
-		layer.enabled: true
-		layer.effect: OpacityMask {
-			maskSource: IconImage {
-				implicitSize: widget.implicitSize
-				source: widget.source
-			}
-		}
-
-		Rectangle {
-			visible: root.enabled
-			anchors.fill: parent
-			color: GlobalVariables.colours.shadow
-			opacity: 0.4
-		}
+		source: Service.Redshift.enabled? Quickshell.iconPath("night-light", "night-light-symbolic") : Quickshell.iconPath("night-light-disabled", "night-light-disabled-symbolic")
 	}
-
-	SystemClock { id: clock; precision: SystemClock.Minutes; }
 }
