@@ -335,6 +335,7 @@ Singleton { id: root
 										// anchors.verticalCenter: parent.verticalCenter
 										Layout.alignment: Qt.AlignVCenter
 										text: modelData.name
+										elide: modelData.genericName? Text.ElideNone : Text.ElideRight
 										color: GlobalVariables.colours.text
 										font: GlobalVariables.font.regular
 										verticalAlignment: Text.AlignVCenter
