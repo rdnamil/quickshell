@@ -25,13 +25,16 @@ Loader { id: root
 		} else return a.layout.pos_in_scrolling_layout[0] -b.layout.pos_in_scrolling_layout[0];
 	})
 
+	property bool isMaterial
+	property bool noTasks
+
 	active: NiriWorkspaces.workspaces
 	sourceComponent: Row {
 		spacing: 6
 
 		Repeater {
 			model: workspaces.length
-			delegate: QsButton {
+			delegate: QsButton { id: workspace
 				required property int index
 
 				// get wether this.workspace is active
@@ -44,14 +47,6 @@ Loader { id: root
 					height: isActive? Math.max(layout.height, 10) : 10
 					radius: Math.min(width /2, height /2) -1
 					color: isActive? GlobalVariables.colours.light : GlobalVariables.colours.mid
-					layer.enabled: true
-					layer.effect: OpacityMask {
-						maskSource: Rectangle {
-							width: content.width
-							height: content.height
-							radius: content.radius
-						}
-					}
 
 					// Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 					// Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
@@ -68,69 +63,84 @@ Loader { id: root
 						}
 						opacity: 0.4
 					}
+				}
+				layer.enabled: true
+				layer.effect: OpacityMask {
+					maskSource: Rectangle {
+						width: content.width
+						height: content.height
+						radius: content.radius
+					}
+				}
 
-					// highlight the currently focused column
-					Rectangle { id: highlight
-						readonly property int activeIdx: windows.findIndex(w => w.layout.pos_in_scrolling_layout[0] === windows.find(w => w.is_focused)?.layout.pos_in_scrolling_layout[0])
+				// highlight the currently focused column
+				Rectangle { id: highlight
+					readonly property int activeIdx: windows.findIndex(w => w.layout.pos_in_scrolling_layout[0] === windows.find(w => w.is_focused)?.layout.pos_in_scrolling_layout[0])
+					readonly property int windowsInCol: windows.filter(w => {
+						return w.layout.pos_in_scrolling_layout[0] === windows.find(w => w.is_focused)?.layout.pos_in_scrolling_layout[0]
+					}).length
 
-						visible: isActive && repeater.itemAt(highlight.activeIdx)
-						x: repeater.itemAt(highlight.activeIdx)?.x || 3 /*+repeater.itemAt(highlight.activeIdx).width /2 -width /2*/
-						y: repeater.itemAt(highlight.activeIdx)?.y +1 || 4 /*+repeater.itemAt(highlight.activeIdx).height /2 -height /2*/
-						width: repeater.itemAt(highlight.activeIdx)?.width *windows.filter(w => {
-							return w.layout.pos_in_scrolling_layout[0] === windows.find(w => w.is_focused)?.layout.pos_in_scrolling_layout[0]
-						}).length
-						height: repeater.itemAt(highlight.activeIdx)?.height -1
-						radius: height /2
-						color: GlobalVariables.colours.highlight
-						layer.enabled: true
-						layer.effect: DropShadow {
-							color: GlobalVariables.colours.text
-							spread: 0
-							radius: 0
-							samples: 1
-							verticalOffset: -1
-						}
-
-						Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
-						Behavior on x { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					visible: isActive && repeater.itemAt(highlight.activeIdx)
+					x: repeater.itemAt(highlight.activeIdx)?.x || 3 /*+repeater.itemAt(highlight.activeIdx).width /2 -width /2*/
+					y: repeater.itemAt(highlight.activeIdx)?.y +(root.isMaterial? 0 : 1) || 4 /*+repeater.itemAt(highlight.activeIdx).height /2 -height /2*/
+					width: repeater.itemAt(highlight.activeIdx)?.width *windowsInCol +layout.spacing *(windowsInCol -1)
+					height: repeater.itemAt(highlight.activeIdx)?.height -(root.isMaterial? 0 : 1)
+					radius: height /2
+					color: GlobalVariables.colours.highlight
+					layer.enabled: true
+					layer.effect: MultiEffect {
+						shadowEnabled: !root.isMaterial
+						shadowColor: GlobalVariables.colours.text
+						// shadowColor: "red"
+						shadowBlur: 0.03
+						shadowVerticalOffset: -1
+						shadowOpacity: 1.0
+						saturation: 1.0
 					}
 
-					Row { id: layout
-						visible: isActive
-						anchors.centerIn: parent
-						padding: 3
-						spacing: 0
+					Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					Behavior on x { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+				}
 
-						width: implicitWidth
+				Row { id: layout
+					visible: isActive
+					anchors.centerIn: parent
+					padding: 3
+					spacing: GlobalVariables.controls.spacing *1 /4
 
-						Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+					width: implicitWidth
 
-						Repeater { id: repeater
-							model: windows
-							delegate: QsButton {
-								required property var modelData
+					Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 
-								width: GlobalVariables.controls.iconSize +4
+					Repeater { id: repeater
+						model: noTasks? 0 : windows
+						delegate: QsButton {
+							required property var modelData
+
+							width: GlobalVariables.controls.iconSize +4
+							height: width
+							onClicked: {
+								Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", modelData.id]);
+								Quickshell.execDetached(["niri", "msg", "action", "center-column"]);
+							}
+							content: Item {
+								anchors.centerIn: parent
+								width: GlobalVariables.controls.iconSize
 								height: width
-								onClicked: Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", modelData.id])
-								content: Item {
-									anchors.centerIn: parent
-									width: GlobalVariables.controls.iconSize
-									height: width
 
-									RectangularShadow {
-										anchors.fill: window
-										offset.y: 2
-										spread: -3
-										blur: 6
-										radius: height /2
-										color: GlobalVariables.colours.shadow
-									}
+								RectangularShadow {
+									visible: !root.isMaterial
+									anchors.fill: window
+									offset.y: 2
+									spread: -3
+									blur: 6
+									radius: height /2
+									color: GlobalVariables.colours.shadow
+								}
 
-									IconImage { id: window
-										implicitSize: parent.width
-										source: Quickshell.iconPath(modelData.app_id, "window")
-									}
+								IconImage { id: window
+									implicitSize: parent.width
+									source: Quickshell.iconPath(DesktopEntries.byId(modelData.app_id).name.toLowerCase(), true) || Quickshell.iconPath(modelData.app_id, "image-missing")
 								}
 							}
 						}
