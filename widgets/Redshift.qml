@@ -1,11 +1,10 @@
-/*------------------
---- Redshift.qml ---
-------------------*/
+/*--------------------------------------
+--- Redshift.qml - widgets by andrel ---
+--------------------------------------*/
 
 import QtQuick
 import Quickshell
 import Quickshell.Widgets
-// import Quickshell.Io
 import qs
 import qs.controls
 import qs.services as Service
