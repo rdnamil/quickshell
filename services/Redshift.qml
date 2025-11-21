@@ -19,7 +19,7 @@ transition_mode = "static"
 static_temp = ${nightTemp}
 static_gamma = ${nightGamma}
 `
-	readonly property bool enabled: (socket.preset.current_temp === 3300)
+	readonly property bool enabled: (socket.preset?.current_temp === 3300)
 	readonly property string sunset: Qt.formatTime(new Date(Weather.weather?.daily.sunset[0]), "hh:mm")
 	readonly property string sunrise: Qt.formatTime(new Date(Weather.weather?.daily.sunrise[1]), "hh:mm")
 
@@ -66,9 +66,9 @@ static_gamma = ${nightGamma}
 		property var preset
 
 		path: "/run/user/1000/sunsetr-events.sock"
-		onConnectedChanged: {
-			console.log(connected ? "new connection!" : "connection dropped!")
-		}
+		// onConnectedChanged: {
+		// 	console.log(connected ? "new connection!" : "connection dropped!")
+		// }
 		parser: SplitParser {
 			onRead: message => {
 				// console.log(`read message from socket: ${message}`);
