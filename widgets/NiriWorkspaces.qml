@@ -46,7 +46,7 @@ Loader { id: root
 					width: isActive? Math.max(layout.width, 16) : 10
 					height: isActive? Math.max(layout.height, 10) : 10
 					radius: Math.min(width /2, height /2) -1
-					color: isActive? GlobalVariables.colours.light : GlobalVariables.colours.mid
+					color: isActive? (repeater.count > 0? GlobalVariables.colours.light : GlobalVariables.colours.text) : GlobalVariables.colours.mid
 
 					// Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 					// Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
