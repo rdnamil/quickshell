@@ -15,13 +15,15 @@ PanelWindow { id: root
 	property list<Item> centreItems
 	property list<Item> rightItems
 
+	property int barHeight: GlobalVariables.controls.barHeight
+
 	anchors {
 		left: true
 		right: true
 		top: true
 	}
 	screen: modelData
-	implicitHeight: GlobalVariables.controls.barHeight
+	implicitHeight: barHeight
 	color: "transparent"
 
 	Rectangle {

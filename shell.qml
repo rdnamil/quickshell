@@ -15,16 +15,23 @@ Scope { id: root
 	Variants {
 		model: Quickshell.screens
 		delegate: Bar {
+			// barHeight: 36
+
 			leftItems: [
 				Network {}
 				,Bluetooth {}
 				,Audio {}
-				,MusicPlayer {}
+				,MusicPlayer {
+					minBarWidth: 100
+				}
 				// ,Shazam {}
 			]
 
 			centreItems: [
-				NiriWorkspaces {}
+				NiriWorkspaces {
+					// isMaterial: true
+					// noTasks: true
+				}
 			]
 
 			rightItems: [
