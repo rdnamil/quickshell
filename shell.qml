@@ -57,8 +57,8 @@ Scope { id: root
 		Service.Shell.init(),
 		AppLauncher.init(),
 		Service.Redeye.init(
-			3300,		// temperature in K
-			90,		// gamma (0-100)
+			5500,		// temperature in K
+			95,		// gamma (0-100)
 			true,		// enable geo located sunset/sunrise times (static times will be ignored if 'true')
 			"19:00",	// static start time
 			"7:00"	// static end time
