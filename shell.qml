@@ -38,7 +38,7 @@ Scope { id: root
 				Tray {}
 				,NotifyUpdate {}
 				,Caffeine {}
-				,Redshift {}
+				,Redeye {}
 				,Seperator {}
 				,Weather {}
 				,Clock {}
