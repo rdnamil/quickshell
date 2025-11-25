@@ -67,14 +67,12 @@ Loader { id: root
 		target: activePlayer
 		function onTrackTitleChanged() { if (activePlayer.trackTitle) {
 			var trackTitle = activePlayer.trackTitle;
+			var trackArtist = activePlayer.trackArtist;
 			grace.stop();
 			root.active = true;
 			track.title = trackTitle;
-		} else grace.restart(); }
-		function onTrackArtistChanged() { if (activePlayer.trackArtist) {
-			var trackArtist = activePlayer.trackArtist;
 			track.artist = trackArtist;
-		}}
+		} else grace.restart(); }
 	}
 
 	Timer { id: grace
