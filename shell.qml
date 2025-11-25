@@ -56,7 +56,7 @@ Scope { id: root
 	Component.onCompleted: [
 		Service.Shell.init(),
 		AppLauncher.init(),
-		Service.Redshift.init(
+		Service.Redeye.init(
 			3300,		// temperature in K
 			90,		// gamma (0-100)
 			true,		// enable geo located sunset/sunrise times (static times will be ignored if 'true')
