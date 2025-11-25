@@ -32,6 +32,7 @@ Row { id: root
 			required property var modelData
 
 			anchors.verticalCenter: parent.verticalCenter
+			onClicked: Quickshell.execDetached(["niri", "msg", "action", "focus-workspace", modelData.idx]);
 			content: Rectangle {
 				width: modelData.is_active? Math.max(windowsLayout.width, 16) : 10
 				height: modelData.is_active? Math.max(windowsLayout.height, 10) : 10
@@ -59,7 +60,7 @@ Row { id: root
 				width: focusedWindow?.width
 				height: focusedWindow?.height
 				radius: height /2
-				color: GlobalVariables.colours.mid
+				color: GlobalVariables.colours.midlight
 
 				Behavior on x { ParallelAnimation {
 					NumberAnimation { duration: 250; }
@@ -91,7 +92,7 @@ Row { id: root
 							// from: width
 							to: highlight.focusedWindow?.height *3 /4 || null
 							duration: 125
-							easing.type: Easing.OutCubic;
+							easing.type: Easing.InCubic;
 						}
 
 						NumberAnimation {
@@ -100,7 +101,7 @@ Row { id: root
 							// from: width *1 /3
 							to: highlight.focusedWindow?.height || null
 							duration: 125
-							easing.type: Easing.OutCubic;
+							easing.type: Easing.InCubic;
 						}
 					}
 				}}
@@ -133,6 +134,15 @@ Row { id: root
 
 						width: content.width +6
 						height: width
+						tooltip: Text {
+							text: modelData.title
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.regular
+						}
+						onClicked: {
+							Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", modelData.id]);
+							Quickshell.execDetached(["niri", "msg", "action", "center-window"]);
+						}
 						content: Rectangle{
 							readonly property list<color> colours: [
 								"#f4dbd6",
