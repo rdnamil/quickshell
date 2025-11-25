@@ -14,10 +14,10 @@ QsButton { id: root
 	shade: false
 	onClicked: {
 		Service.Popout.clear();
-		Service.Redshift.toggle();
+		Service.Redeye.toggle();
 	}
 	content: IconImage { id: widget
 		implicitSize: GlobalVariables.controls.iconSize
-		source: Service.Redshift.enabled? Quickshell.iconPath("night-light", "night-light-symbolic") : Quickshell.iconPath("night-light-disabled", "night-light-disabled-symbolic")
+		source: Service.Redeye.enabled? Quickshell.iconPath("night-light", "night-light-symbolic") : Quickshell.iconPath("night-light-disabled", "night-light-disabled-symbolic")
 	}
 }
