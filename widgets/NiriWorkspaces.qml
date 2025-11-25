@@ -15,7 +15,7 @@ Row { id: root
 	spacing: GlobalVariables.controls.spacing *3 /4
 	width: implicitWidth
 
-	Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic; }}
+	Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 
 	Repeater {
 		model: ScriptModel {
@@ -50,17 +50,60 @@ Row { id: root
 				}
 			}
 
-			Rectangle {
+			// highlight focused window
+			Rectangle { id: highlight
 				readonly property Item focusedWindow: windowRepeater.itemAt(windowModel.values.findIndex(w => w.is_focused))
 
-				x: focusedWindow.x
-				y: focusedWindow.y
-				width: focusedWindow.width
-				height: width
+				x: focusedWindow?.x
+				y: focusedWindow?.y +focusedWindow?.height /2 -height /2
+				width: focusedWindow?.width
+				height: focusedWindow?.height
 				radius: height /2
-				color: GlobalVariables.colours.highlight
+				color: GlobalVariables.colours.mid
 
-				Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic; }}
+				Behavior on x { ParallelAnimation {
+					NumberAnimation { duration: 250; }
+
+					SequentialAnimation {
+						NumberAnimation {
+							target: highlight
+							property: "width"
+							// from: width
+							to: highlight.focusedWindow?.width *3 /2 || null
+							duration: 125
+							easing.type: Easing.OutCubic;
+						}
+
+						NumberAnimation {
+							target: highlight
+							property: "width"
+							// from: width *1 /3
+							to: highlight.focusedWindow?.width || null
+							duration: 125
+							easing.type: Easing.OutCubic;
+						}
+					}
+
+					SequentialAnimation {
+						NumberAnimation {
+							target: highlight
+							property: "height"
+							// from: width
+							to: highlight.focusedWindow?.height *3 /4 || null
+							duration: 125
+							easing.type: Easing.OutCubic;
+						}
+
+						NumberAnimation {
+							target: highlight
+							property: "height"
+							// from: width *1 /3
+							to: highlight.focusedWindow?.height || null
+							duration: 125
+							easing.type: Easing.OutCubic;
+						}
+					}
+				}}
 			}
 
 			// windows
@@ -88,7 +131,7 @@ Row { id: root
 					delegate: QsButton {
 						required property var modelData
 
-						width: content.width +4
+						width: content.width +6
 						height: width
 						content: Rectangle{
 							readonly property list<color> colours: [
@@ -108,11 +151,12 @@ Row { id: root
 							]
 
 							anchors.centerIn: parent
-							width: 8
+							width: 6
 							height: width
 							radius: height /2
+							// color: GlobalVariables.colours.accent
 							color: colours[Math.floor(Math.random() * colours.length)];
-							border { width: 1; color: Qt.darker(GlobalVariables.colours.highlight, 1.6); }
+							// border { width: 1; color: Qt.darker(GlobalVariables.colours.highlight, 1.6); }
 						}
 					}
 				}
