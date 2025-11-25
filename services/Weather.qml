@@ -27,7 +27,7 @@ Singleton { id: root
 	}
 
 	Process { id: getWeather
-		command: ["curl", "-s", `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min&current=weather_code,temperature_2m,is_day&timeformat=unixtime`]
+		command: ["curl", "-s", `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lon}&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min&current=weather_code,temperature_2m,is_day`]
 		stdout: StdioCollector {
 			onStreamFinished: root.weather = JSON.parse(text);
 		}

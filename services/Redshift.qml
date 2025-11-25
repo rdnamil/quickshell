@@ -19,22 +19,32 @@ transition_mode = "static"
 static_temp = ${nightTemp}
 static_gamma = ${nightGamma}
 `
-	readonly property bool enabled: (socket.preset?.current_temp === 3300)
-	readonly property string sunset: Qt.formatTime(new Date(Weather.weather?.daily.sunset[0]), "hh:mm")
-	readonly property string sunrise: Qt.formatTime(new Date(Weather.weather?.daily.sunrise[1]), "hh:mm")
+	readonly property bool enabled: (socket.preset?.current_temp !== 6500)
+	readonly property string sunset: Qt.formatTime(root.offsetTime(new Date(Weather.weather?.daily.sunset[0]), root.timezone), "hh:mm")
+	readonly property string sunrise: Qt.formatTime(root.offsetTime(new Date(Weather.weather?.daily.sunrise[1]), root.timezone), "hh:mm")
 
 	property bool geo
 	property string startTime
 	property string endTime
 	property int nightTemp
 	property int nightGamma
+	property string timezone
 
-	function init(initNightTemp, initNightGamma, intitGeo = true, initStartTime = "19:00", initEndTime = "7:00") {
-		root.geo = intitGeo;
+	function init(initNightTemp, initNightGamma, initGeo = true, initStartTime = "19:00", initEndTime = "7:00") {
+		root.geo = initGeo;
 		root.startTime = initStartTime;
 		root.endTime = initEndTime;
 		root.nightTemp = initNightTemp;
 		root.nightGamma = initNightGamma;
+	}
+
+	function offsetTime(time, offset) {
+		let sign = offset.startsWith('-')? -1 : 1;
+		let hours = parseInt(offset.slice(1, 3));
+		let min = parseInt(offset.slice(3, 5));
+		let totalMs = (hours *3600000 +min *60000) *sign;
+
+		return new Date(time.getTime() +totalMs);
 	}
 
 	function toggle() {
@@ -52,6 +62,14 @@ static_gamma = ${nightGamma}
 	FileView { id: config
 		path: Qt.resolvedUrl("./sunsetr.toml")
 		blockWrites: true
+	}
+
+	Process {
+		running: true
+		command: ['date', '+%z']
+		stdout: StdioCollector {
+			onStreamFinished: root.timezone = text;
+		}
 	}
 
 	Process {
