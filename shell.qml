@@ -28,10 +28,7 @@ Scope { id: root
 			]
 
 			centreItems: [
-				NiriWorkspaces {
-					// isMaterial: true
-					// noTasks: true
-				}
+				NiriWorkspaces {}
 			]
 
 			rightItems: [
