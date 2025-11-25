@@ -9,9 +9,6 @@ import Quickshell
 import Quickshell.Io
 
 Singleton { id: root
-	// filter for only active workspaces
-	readonly property list<var> activeWorkspace: workspaces.filter(w => w.is_active)
-
 	// list of all niri workspaces
 	property list<var> workspaces: []
 
@@ -23,10 +20,9 @@ Singleton { id: root
 		running: true
 		command: ["niri", "msg", "event-stream"]
 		stdout: SplitParser {
-			// splitMarker: "Workspace"
-			onRead: {
-				getWorkspaces.running = true
-				getWindows.running = true
+			onRead: (data) => {
+				if (data.startsWith("Workspace")) getWorkspaces.running = true;
+				if (data.startsWith("Window")) getWindows.running = true;
 			}
 		}
 	}
