@@ -118,7 +118,7 @@ Loader { id: root
 						delegate: QsButton {
 							required property var modelData
 
-							width: GlobalVariables.controls.iconSize +4
+							width: GlobalVariables.controls.iconSize *9 /8
 							height: width
 							tooltip: Text {
 								text: modelData.title
@@ -131,7 +131,7 @@ Loader { id: root
 							}
 							content: Item {
 								anchors.centerIn: parent
-								width: GlobalVariables.controls.iconSize
+								width: GlobalVariables.controls.iconSize *3 /4
 								height: width
 
 								RectangularShadow {
@@ -146,7 +146,7 @@ Loader { id: root
 
 								IconImage { id: window
 									implicitSize: parent.width
-									source: Quickshell.iconPath(DesktopEntries.byId(modelData.app_id).name.toLowerCase(), true) || Quickshell.iconPath(modelData.app_id, "image-missing")
+									source: Quickshell.iconPath(DesktopEntries.byId(modelData.app_id)?.name.toLowerCase(), true) || Quickshell.iconPath(modelData.app_id, "app")
 								}
 							}
 						}
