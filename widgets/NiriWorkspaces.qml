@@ -63,10 +63,10 @@ Row { id: root
 				radius: height /2
 				// color: GlobalVariables.colours.dark
 				color: focusedWindow?.randomColour || GlobalVariables.colours.highlight
-				transform: Scale { id: highlightTrans
-					// origin.x: highlight.width /2
-					origin.y: highlight.height /2
-				}
+				// transform: Scale { id: highlightTrans
+				// 	// origin.x: highlight.width /2
+				// 	origin.y: highlight.height /2
+				// }
 
 				Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
 				Behavior on x { ParallelAnimation {
@@ -92,25 +92,25 @@ Row { id: root
 					// 	}
 					// }
 
-					SequentialAnimation {
-						NumberAnimation {
-							target: highlightTrans
-							property: "yScale"
-							// from: width
-							to: 3 /4
-							duration: 125
-							easing.type: Easing.OutCubic;
-						}
-
-						NumberAnimation {
-							target: highlightTrans
-							property: "yScale"
-							// from: width *1 /3
-							to: 1.0
-							duration: 125
-							easing.type: Easing.OutCubic;
-						}
-					}
+					// SequentialAnimation {
+					// 	NumberAnimation {
+					// 		target: highlightTrans
+					// 		property: "yScale"
+					// 		// from: width
+					// 		to: 3 /4
+					// 		duration: 125
+					// 		easing.type: Easing.OutCubic;
+					// 	}
+     //
+					// 	NumberAnimation {
+					// 		target: highlightTrans
+					// 		property: "yScale"
+					// 		// from: width *1 /3
+					// 		to: 1.0
+					// 		duration: 125
+					// 		easing.type: Easing.OutCubic;
+					// 	}
+					// }
 				}}
 			}
 
