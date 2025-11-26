@@ -127,7 +127,7 @@ QsButton { id: root
 				Item { Layout.preferredHeight: 1; }
 
 				// contected network entry
-				QsButton {
+				QsButton { id: connectedWirelessNetwork
 					visible: Network.wirelessNetworks.find(n => n.ssid === Network.status.connection) || false
 					Layout.fillWidth: true
 					Layout.minimumWidth: networkLayout.width
@@ -139,6 +139,7 @@ QsButton { id: root
 						leftPadding: GlobalVariables.controls.padding
 						rightPadding: GlobalVariables.controls.padding
 						spacing: GlobalVariables.controls.spacing
+						width: connectedWirelessNetwork.width
 
 						// network icon
 						IconImage {
@@ -176,7 +177,7 @@ QsButton { id: root
 
 				Repeater {
 					model: Network.wirelessNetworks.filter(n => n.ssid && n.ssid !== Network.status.connection) // don't list connected network
-					delegate: QsButton {
+					delegate: QsButton { id: wirelessNetwork
 						required property var modelData
 
 						shade: false
@@ -187,6 +188,7 @@ QsButton { id: root
 							leftPadding: GlobalVariables.controls.padding
 							rightPadding: GlobalVariables.controls.padding
 							spacing: GlobalVariables.controls.spacing
+							width: wirelessNetwork.width
 
 							// network icon
 							IconImage {
