@@ -62,7 +62,7 @@ Row { id: root
 				height: focusedWindow?.height +4
 				radius: height /2
 				// color: GlobalVariables.colours.dark
-				color: focusedWindow.randomColour
+				color: focusedWindow?.randomColour || GlobalVariables.colours.highlight
 				transform: Scale { id: highlightTrans
 					// origin.x: highlight.width /2
 					origin.y: highlight.height /2
