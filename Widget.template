@@ -7,8 +7,9 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
-import "../"
-import "../controls"
+import qs
+import qs.controls as Ctrl
+import qs.services as Service
 
 QsButton { id: root
 	anim: false
@@ -39,13 +40,20 @@ QsButton { id: root
 
 				Repeater {
 					model: ${model}
-					delegate: QsButton {
+					delegate: QsButton { id: delegate
 						required property var modelData
 
 						shade: false
 						highlight: true
 						Layout.fillWidth: true
-						content: ${cursor}
+						content: Row {
+							leftPadding: GlobalVariables.controls.padding
+							rightPadding: GlobalVariables.controls.padding
+							spacing: GlobalVariables.controls.spacing
+							width: delegate.width
+
+							${cursor}
+						}
 					}
 				}
 
