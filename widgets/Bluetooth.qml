@@ -98,7 +98,7 @@ QsButton { id: root
 
 				Repeater {
 					model: Bluetooth.defaultAdapter.devices
-					delegate: QsButton { id: bluetoothDevice
+					delegate: QsButton { id: delegate
 						required property var modelData
 
 						shade: false
@@ -117,7 +117,7 @@ QsButton { id: root
 							leftPadding: GlobalVariables.controls.padding
 							rightPadding: GlobalVariables.controls.padding
 							spacing: GlobalVariables.controls.spacing
-							width: bluetoothDevice.width
+							width: delegate.width
 
 							IconImage {
 								anchors.verticalCenter: parent.verticalCenter
