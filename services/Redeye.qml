@@ -75,18 +75,21 @@ static_gamma = ${nightGamma}
 	Process {
 		running: true
 		command: ['sunsetr', '--config', `${Quickshell.shellDir}/services/`]
-		stdout: SplitParser {
-			onRead: socket.connected = true;
-		}
+		// stdout: SplitParser {
+		// 	onRead: socket.connected = true;
+		// }
 	}
 
 	Socket { id: socket
 		property var preset
 
+		connected: true
 		path: `${Quickshell.env("XDG_RUNTIME_DIR")}/sunsetr-events.sock`
-		// onConnectedChanged: {
-		// 	console.log(connected ? "new connection!" : "connection dropped!")
-		// }
+		onConnectedChanged: {
+			// console.log(connected ? "new connection!" : "connection dropped!")
+
+			if (!connected) connected = true;
+		}
 		parser: SplitParser {
 			onRead: message => {
 				// console.log(`read message from socket: ${message}`);
