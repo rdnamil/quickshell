@@ -18,7 +18,7 @@ Row { id: root
 	Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 
 	Repeater {
-		model: ScriptModel {
+		model: ScriptModel { id: workspacesModel
 			values: NiriWorkspaces.workspaces
 			// filter worskpaces on this.output
 			.filter(w => w.output === screen.name)
@@ -53,7 +53,8 @@ Row { id: root
 
 			// highlight focused window
 			Loader { id: loader
-				readonly property Item focusedWindow: windowRepeater.itemAt(windowModel.values.findIndex(w => w.is_focused))
+				// readonly property Item focusedWindow: windowRepeater.itemAt(windowModel.values.findIndex(w => w.is_focused))
+				readonly property Item focusedWindow: windowRepeater.itemAt(windowModel.values.findIndex(w => w.id === modelData.active_window_id))
 
 				active: focusedWindow
 				sourceComponent: Rectangle { id: highlight
