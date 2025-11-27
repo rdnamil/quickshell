@@ -36,6 +36,7 @@ Loader { id: root
 	} else return null; }
 
 	property int minBarWidth: 100
+	// store track current data
 	property var track: QtObject {
 		property string title: {
 			var trackTitle = activePlayer.trackTitle;
@@ -66,28 +67,39 @@ Loader { id: root
 	Connections {
 		target: activePlayer
 		function onTrackTitleChanged() { if (activePlayer.trackTitle) {
-			var trackTitle = activePlayer.trackTitle;
-			var trackArtist = activePlayer.trackArtist;
+			// prevent widget from unloading
 			grace.stop();
 			root.active = true;
+
+			// update track title
+			var trackTitle = activePlayer.trackTitle;
 			track.title = trackTitle;
+		} else grace.restart(); /*restart timer to unload widget*/ }
+
+		function onTrackArtistChanged() { if (activePlayer.trackArtist) {
+			// update track artist
+			var trackArtist = activePlayer.trackArtist;
 			track.artist = trackArtist;
-		} else grace.restart(); }
+		}}
 	}
 
+	// unload widget after inactivity
 	Timer { id: grace
 		interval: 1000
 		onTriggered: parent.active = false;
 	}
 
-	onActivePlayerChanged: {
-		if (activePlayer && activePlayer.trackTitle) {
+	onActivePlayerChanged: { if (activePlayer) {
+			// prevent widget from unloading
 			grace.stop();
 			root.active = true;
-		} else {
-			grace.restart();
-		}
-	}
+
+			// update track title and artist
+			var trackArtist = activePlayer.trackArtist;
+			var trackTitle = activePlayer.trackTitle;
+			track.title = trackTitle;
+			track.artist = trackArtist;
+		} else { grace.restart(); /*restart timer to unload widget*/ }}
 	active: false
 	width: active? screen.width /8 : 0
 	sourceComponent: RowLayout {
@@ -422,6 +434,17 @@ Loader { id: root
 							}
 						}
 					}
+
+					// Column {
+					// 	Repeater {
+					// 		model: Mpris.players.values
+					// 		delegate: Text {
+					// 			text: modelData.metadata["xesam:asText"]
+					// 			color: GlobalVariables.colours.text
+					// 			font: GlobalVariables.font.regular
+					// 		}
+					// 	}
+					// }
 
 					// Grid {
 					// 	x: 6
