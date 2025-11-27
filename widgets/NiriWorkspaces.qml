@@ -12,13 +12,16 @@ import qs.controls
 import qs.services
 
 Row { id: root
+	property bool clean
+	property color focusedColour: GlobalVariables.colours.text
+
 	spacing: GlobalVariables.controls.spacing *3 /4
 	width: implicitWidth
 
 	Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 
 	Repeater {
-		model: ScriptModel { id: workspacesModel
+		model: ScriptModel {
 			values: NiriWorkspaces.workspaces
 			// filter worskpaces on this.output
 			.filter(w => w.output === screen.name)
@@ -37,7 +40,7 @@ Row { id: root
 				width: modelData.is_active? Math.max(windowsLayout.width, 16) : 10
 				height: modelData.is_active? Math.max(windowsLayout.height, 10) : 10
 				radius: Math.min(width, height) /2 -1
-				color: modelData.is_active? GlobalVariables.colours.light : GlobalVariables.colours.mid
+				color: modelData.is_active? (root.clean > 0? root.focusedColour : GlobalVariables.colours.light) : GlobalVariables.colours.mid
 
 				Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
 				Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic; }}
@@ -127,7 +130,7 @@ Row { id: root
 
 				Repeater { id: windowRepeater
 					model: ScriptModel { id: windowModel
-						values: NiriWorkspaces.windows
+						values: root.clean? [] : NiriWorkspaces.windows
 						// filter for windows in workspace
 						.filter(w => w.workspace_id === modelData.id)
 						// filter out floating windows
