@@ -1,6 +1,6 @@
 /*-------------------------
- * --- Audio.qml by andrel ---
- * -------------------------*/
+--- Audio.qml by andrel ---
+-------------------------*/
 
 import QtQuick
 import QtQuick.Controls
@@ -174,71 +174,76 @@ IconImage { id: root
 				width: bodyContent.width -bodyContent.effectiveScrollBarWidth
 
 				// top padding element
-				Item { Layout.preferredHeight: 1; }
+				// Item { Layout.preferredHeight: 1; }
 
 				Repeater { id: repeater
 					model: Pipewire.nodes.values.filter(n => n.isStream && n.isSink)
-					delegate: ColumnLayout {
+					delegate: RowLayout {
 						required property var modelData
 
 						Layout.leftMargin: GlobalVariables.controls.padding
 						Layout.rightMargin: GlobalVariables.controls.padding
 
-						RowLayout {
-							QsButton {
-								tooltip: Text {
-									text: `Mute ${modelData.properties["application.name"]}`
-									color: GlobalVariables.colours.text
-									font: GlobalVariables.font.regular
-								}
-								onClicked: modelData.audio.muted = !modelData.audio.muted;
-								content: Style.Button {
-									color: GlobalVariables.colours.base
-
-									IconImage {
-										anchors.centerIn: parent
-										implicitSize: GlobalVariables.controls.iconSize
-										source: Quickshell.iconPath(modelData.properties["application.icon-name"], "multimedia-audio-player")
-										layer.enabled: true
-										layer.effect: ColorOverlay {
-											property color baseColor: GlobalVariables.colours.shadow
-											property color semiTransparent: Qt.rgba(baseColor.r, baseColor.g, baseColor.b, 0.5)
-
-											color: modelData.audio.muted? semiTransparent : "transparent"
-										}
-									}
-								}
-							}
-
-							Text {
-								text: modelData.properties["application.name"] || "Application"
+						QsButton {
+							tooltip: Text {
+								text: `Mute ${modelData.properties["application.name"]}`
 								color: GlobalVariables.colours.text
 								font: GlobalVariables.font.regular
 							}
+							onClicked: modelData.audio.muted = !modelData.audio.muted;
+							content: Style.Button {
+								color: GlobalVariables.colours.base
 
-							Text {
-								Layout.fillWidth: true
-								text: modelData.properties["media.name"] || "Media"
-								elide: Text.ElideRight
-								color: GlobalVariables.colours.windowText
-								font: GlobalVariables.font.regular
+								IconImage {
+									anchors.centerIn: parent
+									implicitSize: GlobalVariables.controls.iconSize
+									source: Quickshell.iconPath(modelData.properties["application.icon-name"], "multimedia-audio-player")
+									layer.enabled: true
+									layer.effect: ColorOverlay {
+										property color baseColor: GlobalVariables.colours.shadow
+										property color semiTransparent: Qt.rgba(baseColor.r, baseColor.g, baseColor.b, 0.5)
+
+										color: modelData.audio.muted? semiTransparent : "transparent"
+									}
+								}
 							}
 						}
 
-						Style.Slider {
-							Layout.fillWidth: true
-							Layout.minimumWidth: 200
-							from: 0.0
-							value: modelData.audio.volume
-							to: 1.0
-							onMoved: modelData.audio.volume = value;
-							stepSize: 0.01
+						ColumnLayout {
+							Row {
+								bottomPadding: -4
+								spacing: 3
+
+								Text {
+									text: modelData.properties["application.name"] || "Application"
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.small
+									verticalAlignment: Text.AlignBottom
+								}
+
+								Text {
+									text: modelData.properties["media.name"] || "Media"
+									color: GlobalVariables.colours.windowText
+									font: GlobalVariables.font.smallitalics
+									verticalAlignment: Text.AlignBottom
+								}
+							}
+
+							Style.Slider {
+								Layout.fillWidth: true
+								Layout.minimumWidth: 200
+								from: 0.0
+								value: modelData.audio.volume
+								to: 1.0
+								onMoved: modelData.audio.volume = value;
+								stepSize: 0.01
+							}
 						}
 					}
 				}
 
 				// bottom padding element
-				Item { Layout.preferredHeight: 1; }
+				// Item { Layout.preferredHeight: 1; }
 			}
 		}
 	}
