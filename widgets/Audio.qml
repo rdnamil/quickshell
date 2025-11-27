@@ -180,11 +180,17 @@ IconImage { id: root
 					model: Pipewire.nodes.values.filter(n => n.isStream && n.isSink)
 					delegate: RowLayout {
 						required property var modelData
+						required property int index
 
-						Layout.leftMargin: GlobalVariables.controls.padding
-						Layout.rightMargin: GlobalVariables.controls.padding
+						Rectangle {
+							anchors.fill: parent
+							color: (index % 2 === 0)? "transparent" : GlobalVariables.colours.mid
+						}
 
 						QsButton {
+							Layout.leftMargin: GlobalVariables.controls.padding
+							Layout.topMargin: GlobalVariables.controls.padding /2
+							Layout.bottomMargin: GlobalVariables.controls.padding /2
 							tooltip: Text {
 								text: `Mute ${modelData.properties["application.name"]}`
 								color: GlobalVariables.colours.text
@@ -210,6 +216,8 @@ IconImage { id: root
 						}
 
 						ColumnLayout {
+							Layout.rightMargin: GlobalVariables.controls.padding
+
 							Row {
 								bottomPadding: -4
 								spacing: 3
@@ -239,6 +247,8 @@ IconImage { id: root
 								stepSize: 0.01
 							}
 						}
+
+
 					}
 				}
 
