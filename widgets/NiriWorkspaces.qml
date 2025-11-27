@@ -52,66 +52,69 @@ Row { id: root
 			}
 
 			// highlight focused window
-			Rectangle { id: highlight
+			Loader { id: loader
 				readonly property Item focusedWindow: windowRepeater.itemAt(windowModel.values.findIndex(w => w.is_focused))
 
-				visible: modelData.is_active
-				x: focusedWindow?.x +focusedWindow?.width /2 -width /2
-				y: focusedWindow?.y +focusedWindow?.height /2 -height /2
-				width: focusedWindow?.height +4
-				height: focusedWindow?.height +4
-				radius: height /2
-				// color: GlobalVariables.colours.dark
-				color: focusedWindow?.randomColour || GlobalVariables.colours.highlight
-				// transform: Scale { id: highlightTrans
-				// 	// origin.x: highlight.width /2
-				// 	origin.y: highlight.height /2
-				// }
-
-				Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
-				Behavior on x { ParallelAnimation {
-					NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }
-
-					// SequentialAnimation {
-					// 	NumberAnimation {
-					// 		target: highlightTrans
-					// 		property: "xScale"
-					// 		// from: width
-					// 		to: 3 /2
-					// 		duration: 125
-					// 		easing.type: Easing.OutCubic;
-					// 	}
-     //
-					// 	NumberAnimation {
-					// 		target: highlightTrans
-					// 		property: "xScale"
-					// 		// from: width *1 /3
-					// 		to: 1.0
-					// 		duration: 125
-					// 		easing.type: Easing.OutCubic;
-					// 	}
+				active: focusedWindow
+				sourceComponent: Rectangle { id: highlight
+					visible: modelData.is_active
+					x: focusedWindow?.x /*+focusedWindow?.width /2 -width /2*/
+					y: focusedWindow?.y +focusedWindow?.height /2 -height /2
+					width: focusedWindow?.width
+					height: focusedWindow?.height
+					radius: height /2
+					// color: GlobalVariables.colours.dark
+					color: focusedWindow?.randomColour || GlobalVariables.colours.highlight
+					// transform: Scale { id: highlightTrans
+					// 	origin.x: highlight.width /2
+					// 	origin.y: highlight.height /2
 					// }
 
-					// SequentialAnimation {
-					// 	NumberAnimation {
-					// 		target: highlightTrans
-					// 		property: "yScale"
-					// 		// from: width
-					// 		to: 3 /4
-					// 		duration: 125
-					// 		easing.type: Easing.OutCubic;
-					// 	}
-     //
-					// 	NumberAnimation {
-					// 		target: highlightTrans
-					// 		property: "yScale"
-					// 		// from: width *1 /3
-					// 		to: 1.0
-					// 		duration: 125
-					// 		easing.type: Easing.OutCubic;
-					// 	}
-					// }
-				}}
+					Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
+					Behavior on x { ParallelAnimation {
+						NumberAnimation { duration: 150; /*easing.type: Easing.OutCubic;*/ }
+
+						SequentialAnimation {
+							NumberAnimation {
+								target: highlight
+								property: "width"
+								// from: width
+								to: highlight.width *4 /3
+								duration: 75
+								easing.type: Easing.OutCubic;
+							}
+
+							NumberAnimation {
+								target: highlight
+								property: "width"
+								// from: width *1 /3
+								to: highlight.width
+								duration: 75
+								easing.type: Easing.OutCubic;
+							}
+						}
+
+						SequentialAnimation {
+							NumberAnimation {
+								target: highlight
+								property: "height"
+								// from: width
+								to: highlight.height *3 /4
+								duration: 75
+								easing.type: Easing.OutCubic;
+							}
+
+							NumberAnimation {
+								target: highlight
+								property: "height"
+								// from: width *1 /3
+								to: highlight.height
+								duration: 75
+								easing.type: Easing.OutCubic;
+							}
+						}
+					}}
+				}
 			}
 
 			// windows
@@ -156,8 +159,8 @@ Row { id: root
 						]
 						readonly property color randomColour: colours[Math.floor(Math.random() * colours.length)];
 
-						// width: content.width +6
-						// height: width
+						width: content.width +6
+						height: width
 						tooltip: Text {
 							text: modelData.title
 							color: GlobalVariables.colours.text
