@@ -371,6 +371,7 @@ Loader { id: root
 
 				// blurred album art
 				Image {
+					// visible: false
 					anchors.fill: parent
 					fillMode: Image.PreserveAspectCrop
 					source: root.track.art
@@ -382,22 +383,45 @@ Loader { id: root
 				Rectangle {
 					// visible: false
 					anchors.fill: parent
-					color: Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
-						const satWeight = 0.5
-						const satTarget = 0.0025
-						const valueTarget = 0.0025
+					color: {
+						// get the average hue
+						let avgHue = 0;
+						for (const c of root.track.colorQuantizer.colors) {
+							avgHue += c.hsvHue
+						}
+						avgHue /= root.track.colorQuantizer.colors.length;
 
-						const a_satNormal = 1 /(1 +Math.abs(a.hsvSaturation /256 -satTarget));
-						const b_satNormal = 1 /(1 +Math.abs(b.hsvSaturation /256 -satTarget));
-						const a_valueNormal = 1 /(1 +Math.abs(a.hsvValue /256 -valueTarget));
-						const b_valueNormal = 1 /(1 +Math.abs(b.hsvValue /256 -valueTarget));
+						// sort based on hue furthest from avg & highest saturation/value
+						var colours = Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
+							// scoring weights
+							const hueWeight =  0.4;
+							const satWeight = 0.3;
+							const valWeight = 1 -hueWeight -satWeight; // don't edit
 
-						const a_score = satWeight *a_satNormal +(1 -satWeight) *a_valueNormal
-						const b_score = satWeight *b_satNormal +(1 -satWeight) *b_valueNormal
+							const a_hueDiff = Math.abs(avgHue -a.hsvHue);
+							const b_hueDiff = Math.abs(avgHue -b.hsvHue);
+							const a_circularHueDiff = Math.min(a_hueDiff, 1 -a_hueDiff);
+							const b_circularHueDiff = Math.min(b_hueDiff, 1 -b_hueDiff);
 
-						return b_score -a_score;
-					})[0]
+							const a_score = hueWeight *a_circularHueDiff +satWeight *a.hsvSaturation +valWeight *a.hsvValue;
+							const b_score = hueWeight *a_circularHueDiff +satWeight *b.hsvSaturation +valWeight *b.hsvValue;
+
+							return b_score -a_score;
+						});
+
+						return colours[0];
+					}
 					opacity: 0.5
+
+					// Text {
+					// 	anchors {
+					// 		left: parent.left
+					// 		leftMargin: 20
+					// 		top: parent.top
+					// 		topMargin: 70
+					// 	}
+					// 	text: `${parent.color.hsvHue.toFixed(2)} ${parent.color.hsvSaturation.toFixed(2)} ${parent.color.hsvValue.toFixed(2)}`
+					// }
 				}
 
 				RectangularShadow {
@@ -407,7 +431,7 @@ Loader { id: root
 					spread: 10
 					blur: 32
 					color: GlobalVariables.colours.shadow
-					opacity: 0.725
+					opacity: 0.8
 					layer.enabled: true
 					layer.effect: OpacityMask {
 						invert: true
