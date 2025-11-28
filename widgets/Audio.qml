@@ -182,13 +182,15 @@ IconImage { id: root
 						required property var modelData
 						required property int index
 
+						spacing: GlobalVariables.controls.spacing
+
 						Rectangle {
 							anchors.fill: parent
 							color: (index % 2 === 0)? "transparent" : GlobalVariables.colours.mid
 						}
 
 						QsButton {
-							Layout.leftMargin: GlobalVariables.controls.padding
+							Layout.leftMargin: GlobalVariables.controls.padding -parent.spacing
 							Layout.topMargin: GlobalVariables.controls.padding /2
 							Layout.bottomMargin: GlobalVariables.controls.padding /2
 							tooltip: Text {
@@ -219,6 +221,7 @@ IconImage { id: root
 							Layout.rightMargin: GlobalVariables.controls.padding
 
 							Row {
+								leftPadding: 4
 								bottomPadding: -4
 								spacing: 3
 
