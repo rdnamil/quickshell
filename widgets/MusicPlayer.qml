@@ -334,7 +334,7 @@ Loader { id: root
 			}
 
 			// album art wrapper
-			Item {
+			Item { id: artWrapper
 				anchors.fill: parent
 				layer.enabled: true
 				layer.effect: OpacityMask {
@@ -345,10 +345,9 @@ Loader { id: root
 						RectangularShadow {
 							anchors.fill: trackArtMask
 							radius: trackArtMask.radius
-							offset.y: GlobalVariables.controls.padding
+							offset.y: 10
 							spread: 3
 							blur: 32
-							opacity: 0.6
 						}
 
 						Rectangle { id: trackArtMask
@@ -401,6 +400,35 @@ Loader { id: root
 					opacity: 0.5
 				}
 
+				RectangularShadow {
+					anchors.fill: parent
+					offset.y: 10
+					// offset.x: 10
+					spread: 10
+					blur: 32
+					color: GlobalVariables.colours.shadow
+					opacity: 0.725
+					layer.enabled: true
+					layer.effect: OpacityMask {
+						invert: true
+						maskSource: Item {
+							width: artWrapper.width
+							height: artWrapper.height
+
+							Rectangle {
+								anchors {
+									horizontalCenter: parent.horizontalCenter
+									top: parent.top
+									topMargin: (controls.height +GlobalVariables.controls.padding *2) +1
+								}
+								width: (parent.width -GlobalVariables.controls.padding *2) -2
+								height: width
+								radius: GlobalVariables.controls.radius
+							}
+						}
+					}
+				}
+
 				// album art
 				Item {
 					anchors {
@@ -413,11 +441,12 @@ Loader { id: root
 
 					RectangularShadow {
 						anchors.fill: trackArt
-						radius: GlobalVariables.controls.padding
+						radius: GlobalVariables.controls.radius
+						offset.y: 10
 						spread: 0
-						blur: parent.width
+						blur: 30
 						color: GlobalVariables.colours.shadow
-						// opacity: 0.8
+						opacity: 0.975
 					}
 
 					Image { id: trackArt
@@ -490,20 +519,19 @@ Loader { id: root
 			}
 
 			// album art window border
-			Rectangle {
-				// visible: false
-				anchors {
-					horizontalCenter: parent.horizontalCenter
-					top: parent.top
-					topMargin: controls.height +GlobalVariables.controls.padding *2
-				}
-				width: parent.width -GlobalVariables.controls.padding *2
-				height: width
-				radius: GlobalVariables.controls.radius
-				color: "transparent"
-				border { width: 2; color: GlobalVariables.colours.base; }
-				opacity: 0.25
-			}
+			// Rectangle {
+			// 	anchors {
+			// 		horizontalCenter: parent.horizontalCenter
+			// 		top: parent.top
+			// 		topMargin: controls.height +GlobalVariables.controls.padding *2
+			// 	}
+			// 	width: parent.width -GlobalVariables.controls.padding *2
+			// 	height: width
+			// 	radius: GlobalVariables.controls.radius
+			// 	color: "transparent"
+			// 	border { width: 2; color: GlobalVariables.colours.base; }
+			// 	opacity: 0.25
+			// }
 
 			// track info
 			ColumnLayout { id: headerLayout
