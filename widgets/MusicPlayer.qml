@@ -391,13 +391,14 @@ Loader { id: root
 						}
 						avgHue /= root.track.colorQuantizer.colors.length;
 
-						// sort based on hue furthest from avg & highest saturation/value
-						var colours = Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
+						// sort based on hue furthest from avg & highest sat/val
+						const colours = Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
 							// scoring weights
 							const hueWeight =  0.4;
 							const satWeight = 0.3;
 							const valWeight = 1 -hueWeight -satWeight; // don't edit
 
+							// get hue diff from avg
 							const a_hueDiff = Math.abs(avgHue -a.hsvHue);
 							const b_hueDiff = Math.abs(avgHue -b.hsvHue);
 							const a_circularHueDiff = Math.min(a_hueDiff, 1 -a_hueDiff);
@@ -411,7 +412,7 @@ Loader { id: root
 
 						return colours[0];
 					}
-					opacity: 0.5
+					opacity: 0.8
 
 					// Text {
 					// 	anchors {
@@ -431,7 +432,7 @@ Loader { id: root
 					spread: 10
 					blur: 32
 					color: GlobalVariables.colours.shadow
-					opacity: 0.8
+					opacity: 0.75
 					layer.enabled: true
 					layer.effect: OpacityMask {
 						invert: true
@@ -465,12 +466,11 @@ Loader { id: root
 
 					RectangularShadow {
 						anchors.fill: trackArt
-						radius: GlobalVariables.controls.radius
-						offset.y: 10
+						offset.y: 15
 						spread: 0
 						blur: 30
 						color: GlobalVariables.colours.shadow
-						opacity: 0.975
+						opacity: 0.8
 					}
 
 					Image { id: trackArt
