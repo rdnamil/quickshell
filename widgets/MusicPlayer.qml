@@ -387,30 +387,34 @@ Loader { id: root
 						// get the average hue
 						let avgHue = 0;
 						for (const c of root.track.colorQuantizer.colors) {
-							avgHue += c.hsvHue
+							avgHue += c.hsvHue;
 						}
 						avgHue /= root.track.colorQuantizer.colors.length;
+
+						function circularDiff(h1, h2 = avgHue) {
+							const diff = Math.abs(h1 -h2)
+							return Math.min(diff, 1 -diff) *2;
+						}
 
 						// sort based on hue furthest from avg & highest sat/val
 						const colours = Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
 							// scoring weights
-							const hueWeight =  0.4;
-							const satWeight = 0.3;
+							const hueWeight =  0.5;
+							const satWeight = 0.25;
 							const valWeight = 1 -hueWeight -satWeight; // don't edit
 
 							// get hue diff from avg
-							const a_hueDiff = Math.abs(avgHue -a.hsvHue);
-							const b_hueDiff = Math.abs(avgHue -b.hsvHue);
-							const a_circularHueDiff = Math.min(a_hueDiff, 1 -a_hueDiff);
-							const b_circularHueDiff = Math.min(b_hueDiff, 1 -b_hueDiff);
+							const a_circularHueDiff = circularDiff(a.hsvHue);
+							const b_circularHueDiff = circularDiff(b.hsvHue);
 
 							const a_score = hueWeight *a_circularHueDiff +satWeight *a.hsvSaturation +valWeight *a.hsvValue;
-							const b_score = hueWeight *a_circularHueDiff +satWeight *b.hsvSaturation +valWeight *b.hsvValue;
+							const b_score = hueWeight *b_circularHueDiff +satWeight *b.hsvSaturation +valWeight *b.hsvValue;
 
 							return b_score -a_score;
 						});
 
 						return colours[0];
+						// return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
 					}
 					opacity: 0.8
 
@@ -432,7 +436,7 @@ Loader { id: root
 					spread: 10
 					blur: 32
 					color: GlobalVariables.colours.shadow
-					opacity: 0.75
+					opacity: 0.8
 					layer.enabled: true
 					layer.effect: OpacityMask {
 						invert: true
