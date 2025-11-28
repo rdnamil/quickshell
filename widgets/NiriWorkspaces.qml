@@ -13,7 +13,21 @@ import qs.services
 
 Row { id: root
 	property bool clean
-	property color focusedColour: GlobalVariables.colours.text
+	property list<color> colours: [
+		"#f4dbd6",
+		"#f0c6c6",
+		"#ee99a0",
+		"#ed8796",
+		"#f5a97f",
+		"#eed49f",
+		"#a6da95",
+		"#8bd5ca",
+		"#91d7e3",
+		"#7dc4e4",
+		"#8aadf4",
+		"#b7bdf8",
+		"#c6a0f6"
+	]
 
 	spacing: GlobalVariables.controls.spacing *3 /4
 	width: implicitWidth
@@ -40,7 +54,7 @@ Row { id: root
 				width: modelData.is_active? Math.max(windowsLayout.width, 16) : 10
 				height: modelData.is_active? Math.max(windowsLayout.height, 10) : 10
 				radius: Math.min(width, height) /2 -1
-				color: modelData.is_active? (root.clean > 0? root.focusedColour : GlobalVariables.colours.light) : GlobalVariables.colours.mid
+				color: modelData.is_active? (root.clean > 0? GlobalVariables.colours.text : GlobalVariables.colours.light) : GlobalVariables.colours.mid
 
 				Behavior on color { ColorAnimation { duration: 300; easing.type: Easing.OutCubic; }}
 				Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic; }}
@@ -146,21 +160,6 @@ Row { id: root
 					delegate: QsButton { id: window
 						required property var modelData
 
-						readonly property list<color> colours: [
-							"#f4dbd6",
-							"#f0c6c6",
-							"#ee99a0",
-							"#ed8796",
-							"#f5a97f",
-							"#eed49f",
-							"#a6da95",
-							"#8bd5ca",
-							"#91d7e3",
-							"#7dc4e4",
-							"#8aadf4",
-							"#b7bdf8",
-							"#c6a0f6"
-						]
 						readonly property color randomColour: colours[Math.floor(Math.random() * colours.length)];
 
 						width: content.width +6

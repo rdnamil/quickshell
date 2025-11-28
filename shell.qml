@@ -31,8 +31,8 @@ Scope { id: root
 
 			centreItems: [
 				NiriWorkspaces {
-					clean: false // hide window dots (focusedColour will be ignored if 'false')
-					focusedColour: colour.text // colour of focused window
+					// colours: [colour.highlight] // list of possible highlight colours
+					clean: false // hide windows' dots
 				}
 			]
 
