@@ -86,7 +86,7 @@ static_gamma = ${nightGamma}
 		connected: true
 		path: `${Quickshell.env("XDG_RUNTIME_DIR")}/sunsetr-events.sock`
 		onConnectedChanged: {
-			// console.log(connected ? "new connection!" : "connection dropped!")
+			console.log(connected ? "new connection!" : "connection dropped!")
 
 			if (!connected) connected = true;
 		}
