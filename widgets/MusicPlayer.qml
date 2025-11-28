@@ -49,7 +49,7 @@ Loader { id: root
 		property string art: activePlayer.trackArtUrl;
 		property ColorQuantizer colorQuantizer: ColorQuantizer {
 			source: root.track.art
-			depth: 4
+			depth: 8
 			rescaleSize: 64
 		}
 	}
@@ -397,7 +397,12 @@ Loader { id: root
 						}
 
 						// sort based on hue furthest from avg & highest sat/val
-						const colours = Array.from(root.track.colorQuantizer.colors).sort((a, b) => {
+						const colours = Array.from(root.track.colorQuantizer.colors)
+						.filter(c => {
+							if (c.hsvSaturation > 0.5 && c.hsvValue > 0.1) return true;
+							else return false;
+						})
+						.sort((a, b) => {
 							// scoring weights
 							const hueWeight =  0.5;
 							const satWeight = 0.25;
@@ -413,10 +418,15 @@ Loader { id: root
 							return b_score -a_score;
 						});
 
-						return colours[0];
+						if (colours.length > 0) {
+							console.log("no colours")
+							return colours[0];
+						}
+						else return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
+
 						// return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
 					}
-					opacity: 0.8
+					opacity: 0.975
 
 					// Text {
 					// 	anchors {
