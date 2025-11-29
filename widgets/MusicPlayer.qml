@@ -396,12 +396,13 @@ Loader { id: root
 							return Math.min(diff, 1 -diff) *2;
 						}
 
-						// sort based on hue furthest from avg & highest sat/val
 						const colours = Array.from(root.track.colorQuantizer.colors)
+						// filter out colours that don't meet min req
 						.filter(c => {
 							if (c.hsvSaturation > 0.5 && c.hsvValue > 0.1) return true;
 							else return false;
 						})
+						// sort based on hue furthest from avg & highest sat/val
 						.sort((a, b) => {
 							// scoring weights
 							const hueWeight =  0.5;
@@ -418,15 +419,17 @@ Loader { id: root
 							return b_score -a_score;
 						});
 
+						// console.log(avgHue);
+
 						if (colours.length > 0) {
-							console.log("no colours")
 							return colours[0];
 						}
+						else if (avgHue < 0) return Qt.hsva(-1, 0.5, 0.5, 1.0);
 						else return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
 
 						// return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
 					}
-					opacity: 0.975
+					opacity: 0.8
 
 					// Text {
 					// 	anchors {
