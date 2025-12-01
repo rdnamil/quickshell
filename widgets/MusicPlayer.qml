@@ -435,7 +435,7 @@ Loader { id: root
 						if (colours.length > 0) {
 							return colours[0];
 						}
-						else if (avgHue < 0) return Qt.hsva(-1, 1.0, Math.min(avgVal, 0.6), 1.0);
+						else if (avgHue < 0) return Qt.hsva(-1, 1.0, Math.max(Math.min(avgVal, 0.6), 0.3), 1.0);
 						else return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
 
 						// return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
