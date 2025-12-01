@@ -34,24 +34,34 @@ Loader { id: root
 		// fallback to last available player
 		return players[players.length - 1];
 	} else return null; }
+	readonly property string activeTitle: activePlayer.trackTitle
+	readonly property string activeArtist: activePlayer.trackArtist
 
 	property int minBarWidth: 100
 	// store track current data
 	property var track: QtObject {
-		property string title: {
-			var trackTitle = activePlayer.trackTitle;
-			return trackTitle
-		}
-		property string artist: {
-			var trackArtist = activePlayer.trackArtist;
-			return trackArtist
-		}
+		property string title
+		property string artist
 		property string art: activePlayer.trackArtUrl;
 		property ColorQuantizer colorQuantizer: ColorQuantizer {
 			source: root.track.art
 			depth: 8
 			rescaleSize: 64
 		}
+	}
+
+	// update track title
+	function updateTitle() {
+		var title = activeTitle;
+
+		track.title = title;
+	}
+
+	// update track artist
+	function updateArtist() {
+		var artist = activeArtist;
+
+		track.artist = artist;
 	}
 
 	// format time from total seconds to hours:minutes:seconds
@@ -63,43 +73,36 @@ Loader { id: root
 		return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
 	}
 
-	// update track title and artist only when ready
-	Connections {
-		target: activePlayer
-		function onTrackTitleChanged() { if (activePlayer.trackTitle) {
-			// prevent widget from unloading
-			grace.stop();
-			root.active = true;
-
-			// update track title
-			var trackTitle = activePlayer.trackTitle;
-			track.title = trackTitle;
-		} else grace.restart(); /*restart timer to unload widget*/ }
-
-		function onTrackArtistChanged() { if (activePlayer.trackArtist) {
-			// update track artist
-			var trackArtist = activePlayer.trackArtist;
-			track.artist = trackArtist;
-		}}
-	}
-
 	// unload widget after inactivity
 	Timer { id: grace
 		interval: 1000
-		onTriggered: parent.active = false;
+		onTriggered: root.active = false;
 	}
 
-	onActivePlayerChanged: { if (activePlayer) {
-			// prevent widget from unloading
-			grace.stop();
-			root.active = true;
+	// period that track artist can be updated
+	Timer { id: trackChangedWait
+		interval: 500
+	}
 
-			// update track title and artist
-			var trackArtist = activePlayer.trackArtist;
-			var trackTitle = activePlayer.trackTitle;
-			track.title = trackTitle;
-			track.artist = trackArtist;
-		} else { grace.restart(); /*restart timer to unload widget*/ }}
+	onActiveTitleChanged: {
+		if (activeTitle) {
+			// prevent widget from unloading
+			root.active = true;
+			grace.stop();
+
+			// update the track title and artist
+			root.updateTitle();
+			root.updateArtist();
+
+			// start timer to wait for track artist
+			trackChangedWait.restart();
+
+		} else grace.restart(); // start timer to unload widget on inactivity
+	}
+
+	onActiveArtistChanged: {
+		if (trackChangedWait.running) root.updateArtist();
+	}
 	active: false
 	width: active? screen.width /8 : 0
 	sourceComponent: RowLayout {
@@ -117,21 +120,24 @@ Loader { id: root
 			Layout.maximumWidth: parent.width -minBarWidth
 			scroll: width < marqueeLayout.width? mouseArea.containsMouse : false
 			leftAlign: true
-			content: Row { id: marqueeLayout
+			content: RowLayout { id: marqueeLayout
 				spacing: 3
 
 				// track title
 				Text {
-					anchors.verticalCenter: parent.verticalCenter
-					text: track.title || activePlayer.trackTitle
+					Layout.alignment: Qt.AlignVCenter
+					// anchors.verticalCenter: parent.verticalCenter
+					text: track.title
 					color: GlobalVariables.colours.text
 					font: GlobalVariables.font.smallsemibold
 				}
 
 				// track artist
 				Text {
-					anchors.verticalCenter: parent.verticalCenter
-					text: track.artist || activePlayer.trackArtist
+					visible: text
+					Layout.alignment: Qt.AlignVCenter
+					// anchors.verticalCenter: parent.verticalCenter
+					text: track.artist
 					color: GlobalVariables.colours.windowText
 					font: GlobalVariables.font.small
 				}
