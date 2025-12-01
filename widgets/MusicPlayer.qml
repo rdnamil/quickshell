@@ -384,12 +384,17 @@ Loader { id: root
 					// visible: false
 					anchors.fill: parent
 					color: {
-						// get the average hue
+						// get the average hue and val
 						let avgHue = 0;
+						let avgVal = 0;
+
 						for (const c of root.track.colorQuantizer.colors) {
 							avgHue += c.hsvHue;
+							avgVal += c.hsvValue;
 						}
+
 						avgHue /= root.track.colorQuantizer.colors.length;
+						avgVal /= root.track.colorQuantizer.colors.length;
 
 						function circularDiff(h1, h2 = avgHue) {
 							const diff = Math.abs(h1 -h2)
@@ -424,7 +429,7 @@ Loader { id: root
 						if (colours.length > 0) {
 							return colours[0];
 						}
-						else if (avgHue < 0) return Qt.hsva(-1, 0.5, 0.5, 1.0);
+						else if (avgHue < 0) return Qt.hsva(-1, 1.0, Math.min(avgVal, 0.6), 1.0);
 						else return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
 
 						// return Qt.hsva(avgHue, 0.5, 0.5, 1.0);
