@@ -262,10 +262,11 @@ Singleton { id: root
 								return recencyWeight *ageNormal +(1 -recencyWeight) *countNormal;
 							}
 
-							if (textInput.text) {
-								if (textInput.text.startsWith("run ")) {
+							switch (true) {
+								case textInput.text.startsWith("run "):
 									return [];
-								} else {
+									break;
+								case textInput.text.length > 0:
 									const list = Array.from(DesktopEntries.applications.values) // list to search from
 									.filter(a => !a.noDisplay) // remove entries that request to not be displayed
 									.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id)) // dedupe list BUG
@@ -298,30 +299,30 @@ Singleton { id: root
 										else return a.score -b.score;
 									})
 									.map(r => r.item);
-								}
-							} else {
-								return Array.from(DesktopEntries.applications.values)
-								.filter(a => !a.noDisplay)
-								.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id))
-								.sort((a, b) => { // sort based on relevance
-									const a_App = jsonAdapter.applications.find(app => app.id === a.id);
-									const b_App = jsonAdapter.applications.find(app => app.id === b.id);
+									break;
+								default:
+									return Array.from(DesktopEntries.applications.values)
+									.filter(a => !a.noDisplay)
+									.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id))
+									.sort((a, b) => { // sort based on relevance
+										const a_App = jsonAdapter.applications.find(app => app.id === a.id);
+										const b_App = jsonAdapter.applications.find(app => app.id === b.id);
 
-									const a_isFav = a_App? a_App.isFavourite : null;
-									const b_isFav = b_App? b_App.isFavourite : null;
+										const a_isFav = a_App? a_App.isFavourite : null;
+										const b_isFav = b_App? b_App.isFavourite : null;
 
-									if (a_isFav && b_isFav) return a_App.favouriteIdx -b_App.favouriteIdx;
-									else if (a_isFav) return -1;
-									else if (b_isFav) return 1;
+										if (a_isFav && b_isFav) return a_App.favouriteIdx -b_App.favouriteIdx;
+										else if (a_isFav) return -1;
+										else if (b_isFav) return 1;
 
-									const a_Relevance = a_App? calcRelevance(a_App) : null;
-									const b_Relevance = b_App? calcRelevance(b_App) : null;
+										const a_Relevance = a_App? calcRelevance(a_App) : null;
+										const b_Relevance = b_App? calcRelevance(b_App) : null;
 
-									if (a_Relevance && b_Relevance) return b_Relevance -a_Relevance;
-									else if (a_Relevance) return -1;
-									else if (b_Relevance) return 1;
-									else return a.name.localeCompare(b.name);
-								});
+										if (a_Relevance && b_Relevance) return b_Relevance -a_Relevance;
+										else if (a_Relevance) return -1;
+										else if (b_Relevance) return 1;
+										else return a.name.localeCompare(b.name);
+									});
 							}
 						}
 
