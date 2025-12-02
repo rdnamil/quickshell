@@ -108,7 +108,14 @@ Singleton { id: root
 								Layout.leftMargin: GlobalVariables.controls.spacing
 								Layout.rightMargin: 0
 								implicitSize: GlobalVariables.controls.iconSize
-								source: Quickshell.iconPath("search")
+								// source: Quickshell.iconPath("search")
+								source: switch (true) {
+									case textInput.text.startsWith("run "):
+										return Quickshell.iconPath("cm_runterm");
+										break;
+									default:
+										return Quickshell.iconPath("search");
+								}
 								layer.enabled: true
 								layer.effect: ColorOverlay {
 									color: GlobalVariables.colours.text
@@ -131,6 +138,23 @@ Singleton { id: root
 								}
 
 								TextInput { id: textInput
+									readonly property Component cursorRect: Rectangle { id: cursor
+										width: 1
+										height: textInput.height
+										opacity: textInput.blink? 0.0 : 1.0
+									}
+									readonly property list<string> keys: ["run "]
+
+									property bool blink
+
+									function formattedText(str = textInput.displayText) {
+										for (const key of textInput.keys) {
+											if (str.startsWith(key)) return "<i>" + key + "</i>" + str.slice(key.length);
+										}
+
+										return str;
+									}
+
 									width: parent.width
 									clip: true
 									focus: true
@@ -144,17 +168,47 @@ Singleton { id: root
 											event.accepted = true;
 										} else if (event.key === Qt.Key_Escape) loader.active = false;
 									}
-									onAccepted: {
-										if (list.currentItem) {
+									// onAccepted: {
+									// 	if (list.currentItem) {
+									// 		list.currentItem.clicked(null);
+									// 	} else {
+									// 		Quickshell.execDetached(["sh", "-c", `${textInput.text}`]);
+									// 		loader.active = false;
+									// 	}
+									// }
+									onAccepted: switch (true) {
+										case list.currentItem !== null:
 											list.currentItem.clicked(null);
-										} else {
-											Quickshell.execDetached(["sh", "-c", `${textInput.text}`]);
+											break;
+										case textInput.text.startsWith("run "):
+											Quickshell.execDetached(["sh", "-c", `${textInput.text.replace("run ", "")}`]);
 											loader.active = false;
-										}
+											break;
+										default:
+											loader.active = false;
 									}
-									onTextChanged: list.currentIndex = 0;
+									onTextChanged: {
+										list.currentIndex = 0;
+										blinkInterval.restart();
+										blink = false;
+									}
 									font: GlobalVariables.font.regular
-									color: GlobalVariables.colours.text
+									// color: GlobalVariables.colours.text
+									color: "transparent"
+									cursorDelegate: cursorRect
+
+									Timer { id: blinkInterval
+										running: true
+										repeat: true
+										interval: 500
+										onTriggered: parent.blink = !parent.blink
+									}
+
+									Text {
+										text: parent.formattedText()
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.regular
+									}
 								}
 							}
 						}
@@ -209,38 +263,42 @@ Singleton { id: root
 							}
 
 							if (textInput.text) {
-								const list = Array.from(DesktopEntries.applications.values) // list to search from
-								.filter(a => !a.noDisplay) // remove entries that request to not be displayed
-								.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id)) // dedupe list BUG
+								if (textInput.text.startsWith("run ")) {
+									return [];
+								} else {
+									const list = Array.from(DesktopEntries.applications.values) // list to search from
+									.filter(a => !a.noDisplay) // remove entries that request to not be displayed
+									.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id)) // dedupe list BUG
 
-								const options = {
-									keys: ["id", "name", "genericName", "keywords"],
-									threshold: 0.4,
-									includeScore: true,
-									shouldSort: false
-								};
-								const fuse = new Fuse(list, options);
+									const options = {
+										keys: ["id", "name", "genericName", "keywords"],
+										threshold: 0.4,
+										includeScore: true,
+										shouldSort: false
+									};
+									const fuse = new Fuse(list, options);
 
-								return fuse.search(textInput.text).sort((a, b) => { // return search results sorted based on score and relevance
-									const scoreWeight = 0.6;
+									return fuse.search(textInput.text).sort((a, b) => { // return search results sorted based on score and relevance
+										const scoreWeight = 0.6;
 
-									const a_App = jsonAdapter.applications.find(app => app.id === a.item.id);
-									const b_App = jsonAdapter.applications.find(app => app.id === b.item.id);
+										const a_App = jsonAdapter.applications.find(app => app.id === a.item.id);
+										const b_App = jsonAdapter.applications.find(app => app.id === b.item.id);
 
-									function calcWeightedMatch(app, score, now = Date.now()) {
-										const relevance = calcRelevance(app);
-										return scoreWeight *(1 -score) +(1 -scoreWeight) *relevance;
-									}
+										function calcWeightedMatch(app, score, now = Date.now()) {
+											const relevance = calcRelevance(app);
+											return scoreWeight *(1 -score) +(1 -scoreWeight) *relevance;
+										}
 
-									const a_weightedMatch = a_App? calcWeightedMatch(a_App, a.score) : null;
-									const b_weightedMatch = b_App? calcWeightedMatch(b_App, b.score) : null;
+										const a_weightedMatch = a_App? calcWeightedMatch(a_App, a.score) : null;
+										const b_weightedMatch = b_App? calcWeightedMatch(b_App, b.score) : null;
 
-									if (a_weightedMatch && b_weightedMatch) return b_weightedMatch -a_weightedMatch;
-									else if (a_weightedMatch) return -1;
-									else if (b_weightedMatch) return 1;
-									else return a.score -b.score;
-								})
-								.map(r => r.item);
+										if (a_weightedMatch && b_weightedMatch) return b_weightedMatch -a_weightedMatch;
+										else if (a_weightedMatch) return -1;
+										else if (b_weightedMatch) return 1;
+										else return a.score -b.score;
+									})
+									.map(r => r.item);
+								}
 							} else {
 								return Array.from(DesktopEntries.applications.values)
 								.filter(a => !a.noDisplay)
