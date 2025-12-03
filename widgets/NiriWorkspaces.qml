@@ -32,7 +32,7 @@ Row { id: root
 	spacing: GlobalVariables.controls.spacing *3 /4
 	width: implicitWidth
 
-	Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
+	// Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 
 	Repeater {
 		model: ScriptModel {

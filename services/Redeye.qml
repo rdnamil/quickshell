@@ -73,11 +73,9 @@ static_gamma = ${nightGamma}
 	}
 
 	Process {
-		running: true
+		// running: true
 		command: ['sunsetr', '--config', `${Quickshell.shellDir}/services/`]
-		// stdout: SplitParser {
-		// 	onRead: socket.connected = true;
-		// }
+		Component.onCompleted: running = true;
 	}
 
 	Socket { id: socket

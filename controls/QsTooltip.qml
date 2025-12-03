@@ -16,7 +16,6 @@ Item { id: root
 
 	anchors.fill: anchor
 
-
 	Loader {
 		active: content
 		sourceComponent: PopupWindow { id: popout;
