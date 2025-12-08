@@ -17,7 +17,9 @@ import qs.styles as Style
 import "fuse.js" as FuseLib
 
 Singleton { id: root
-	function init() {}
+	function init() {
+		loader.active = true;
+	}
 
 	IpcHandler {
 		target: "launcher"
