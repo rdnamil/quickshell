@@ -36,6 +36,7 @@ static_gamma = ${nightGamma}
 		root.endTime = initEndTime;
 		root.nightTemp = initNightTemp;
 		root.nightGamma = initNightGamma;
+		sunsetr.running = true;
 	}
 
 	function offsetTime(time, offset) {
@@ -72,19 +73,27 @@ static_gamma = ${nightGamma}
 		}
 	}
 
-	Process {
+	Process { id: sunsetr
 		// running: true
 		command: ['sunsetr', '--config', `${Quickshell.shellDir}/services/`]
-		Component.onCompleted: running = true;
+		onRunningChanged: if (running) console.log("Redeye: Sunsetr starting...");
+		stdout: SplitParser {
+			onRead: message => {
+				if (message.includes("Successfully connected")) {
+					console.log("Redeye: Sunsetr started successfully!");
+					socket.connected = true;
+				}
+			}
+		}
 	}
 
 	Socket { id: socket
 		property var preset
 
-		connected: true
+		connected: false
 		path: `${Quickshell.env("XDG_RUNTIME_DIR")}/sunsetr-events.sock`
 		onConnectedChanged: {
-			console.log(connected ? "new connection!" : "connection dropped!")
+			console.log("Redeye: " + (connected ? "New connection!" : "Connection dropped!"))
 
 			if (!connected) connected = true;
 		}
