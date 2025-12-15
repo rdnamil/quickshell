@@ -99,10 +99,10 @@ Loader { id: root
 
 		} else grace.restart(); // start timer to unload widget on inactivity
 	}
-
 	onActiveArtistChanged: {
 		if (trackChangedWait.running) root.updateArtist();
 	}
+	onActivePlayerChanged: if (!activePlayer) grace.restart();
 	active: false
 	width: active? screen.width /8 : 0
 	sourceComponent: RowLayout {
