@@ -2,23 +2,26 @@
 --- AppLauncher.qml by andrel ---
 -------------------------------*/
 
-pragma Singleton
-pragma ComponentBehavior: Bound
+// pragma Singleton
 
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
+import QtQuick.Controls
+import QtQuick.Effects
 import Quickshell
-import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
-import qs.controls
+import Quickshell.Io
+import qs
+import qs.controls as Ctrl
 import qs.styles as Style
 import "fuse.js" as FuseLib
 
 Singleton { id: root
-	function init() {
-		loader.active = true;
+	// close the launcher
+	function close() {
+		fileView.writeAdapter(); // write changes to file
+		loader.active = false; // unload the launcher
 	}
 
 	IpcHandler {
@@ -29,11 +32,12 @@ Singleton { id: root
 		function toggle(): void { loader.active = !loader.active; }
 	}
 
-	FileView {
+	// keep properties stored for persistence
+	FileView { id: fileView
 		path: Qt.resolvedUrl("./AppRankings.json")
 		watchChanges: true
 		onFileChanged: reload();
-		onAdapterUpdated: writeAdapter();
+		// onAdapterUpdated: writeAdapter();
 
 		JsonAdapter { id: jsonAdapter
 			property list<var> applications
@@ -41,405 +45,334 @@ Singleton { id: root
 	}
 
 	Loader { id: loader
-		active: false
-		sourceComponent: PanelWindow {
+		active: true
+		sourceComponent: PanelWindow { id: launcher
 			anchors.top: true
 			margins.top: screen.height /2.5 -header.height /2
-			implicitWidth: screen.width /7
-			implicitHeight: layout.height
-			// mask: Region {}
 			exclusionMode: ExclusionMode.Ignore
 			WlrLayershell.layer: WlrLayer.Overlay
 			WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 			WlrLayershell.namespace: "qs:launcher"
+			implicitWidth: screen.width *(1 /6)
+			implicitHeight: layout.height
 			color: "transparent"
 
-			// Behavior on implicitHeight { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
-
-			Rectangle {
-				anchors {
-					top: parent.top
-					topMargin: header.height -GlobalVariables.controls.radius
-				}
-				width: parent.width
-				height: parent.height -header.height +GlobalVariables.controls.radius
-				radius: GlobalVariables.controls.radius
-				color: GlobalVariables.colours.dark
-			}
-
-			ColumnLayout { id: layout
+			Column { id: layout
+				spacing: -1
 				width: parent.width
 
 				Rectangle { id: header
-					Layout.fillWidth: true
-					Layout.preferredHeight: textField.height +GlobalVariables.controls.padding *2
-					color: "transparent"
-					layer.enabled: true
-					layer.effect: OpacityMask {
-						maskSource: Rectangle {
-							width: header.width
-							height: header.height
-							topLeftRadius: GlobalVariables.controls.radius
-							topRightRadius: GlobalVariables.controls.radius
-						}
+					readonly property TextMetrics textMetrics: TextMetrics {
+						font: GlobalVariables.font.regular
+						text: "test"
 					}
 
-					Style.Borders {}
+					width: parent.width
+					height: textMetrics.height +GlobalVariables.controls.padding *3
+					topLeftRadius: GlobalVariables.controls.radius
+					topRightRadius: GlobalVariables.controls.radius
+					color: GlobalVariables.colours.base
 
 					Rectangle {
-						width: parent.width
-						height: parent.height -2
-						color: GlobalVariables.colours.base
-					}
-
-					Rectangle { id: textField
 						anchors.centerIn: parent
-						width: parent.width -GlobalVariables.controls.padding *2
-						height: textFieldLayout.height +GlobalVariables.controls.spacing
-						radius: GlobalVariables.controls.radius
+						width: parent.width -GlobalVariables.controls.padding *2 +2
+						height: parent.height -GlobalVariables.controls.padding *2
+						radius: GlobalVariables.controls.radius *(2 /3)
 						color: GlobalVariables.colours.dark
+						border { width: 2; color: GlobalVariables.colours.light; }
 
-						Style.Borders { opacity: 0.4; }
+						Rectangle { anchors.fill: parent; radius: parent.radius; color: "transparent"; border { width: 1; color: GlobalVariables.colours.dark; }}
 
-						RowLayout { id: textFieldLayout
-							anchors.centerIn: parent
+						Row {
+							anchors.verticalCenter: parent.verticalCenter
+							leftPadding: GlobalVariables.controls.spacing
 							width: parent.width
 
 							IconImage {
-								Layout.margins: 3
-								Layout.leftMargin: GlobalVariables.controls.spacing
-								Layout.rightMargin: 0
 								implicitSize: GlobalVariables.controls.iconSize
-								// source: Quickshell.iconPath("search")
-								source: switch (true) {
-									case textInput.text.startsWith("run "):
-										return Quickshell.iconPath("cm_runterm");
-										break;
-									default:
-										return Quickshell.iconPath("search");
-								}
-								layer.enabled: true
-								layer.effect: ColorOverlay {
-									color: GlobalVariables.colours.text
-								}
+								source: Quickshell.iconPath("search")
 							}
 
-							Item {
-								Layout.margins: 3
-								Layout.leftMargin: 0
-								Layout.rightMargin: GlobalVariables.controls.spacing
-								Layout.fillWidth: true
-								Layout.preferredHeight: textInput.height
-
-								Text {
-									visible: !textInput.text
-									text: " Start typing..."
-									color: GlobalVariables.colours.windowText
-									font: GlobalVariables.font.italic
-									opacity: 0.4
+							TextInput { id: textInput
+								readonly property Component cursorRect: Rectangle { id: cursor
+									width: 1
+									height: textInput.height
+									opacity: textInput.blink? 0.0 : 1.0
 								}
 
-								TextInput { id: textInput
-									readonly property Component cursorRect: Rectangle { id: cursor
-										width: 1
-										height: textInput.height
-										opacity: textInput.blink? 0.0 : 1.0
-									}
-									readonly property list<string> keys: ["run "]
+								property bool blink
 
-									property bool blink
+								leftPadding: GlobalVariables.controls.spacing /2
+								width: parent.width
+								clip: true
+								focus: true
+								// use arrow keys and tab to navigate entries
+								Keys.onPressed: event => {
+									if (event.key === Qt.Key_Up) listView.decrementCurrentIndex();
+									else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) listView.incrementCurrentIndex();
+									else if (event.key === Qt.Key_Escape) root.close();
+								}
+								onAccepted: switch (true) {
+									case listView.currentItem !== null:
+										listView.currentItem.clicked(null);
+										break;
+									default:
+										root.close();
+										break;
+								}
+								onTextChanged: {
+									listView.currentIndex = 0;
+									blinkInterval.restart();
+									blink = false;
+								}
+								font: GlobalVariables.font.regular
+								// color: GlobalVariables.colours.text
+								color: "transparent"
+								cursorDelegate: cursorRect
 
-									function formattedText(str = textInput.displayText) {
-										for (const key of textInput.keys) {
-											if (str.startsWith(key)) return "<i>" + key + "</i>" + str.slice(key.length);
-										}
+								Timer { id: blinkInterval
+									running: true
+									repeat: true
+									interval: 500
+									onTriggered: parent.blink = !parent.blink
+								}
 
-										return str;
-									}
-
-									width: parent.width
-									clip: true
-									focus: true
-									// Keys.forwardTo: [list]
-									Keys.onPressed: event => {
-										if (event.key === Qt.Key_Up) {
-											list.currentIndex = list.currentIndex === 0? list.count -1 : list.currentIndex -1;
-											event.accepted = true;
-										} else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) {
-											list.currentIndex = list.currentIndex === list.count -1? 0 : list.currentIndex +1;
-											event.accepted = true;
-										} else if (event.key === Qt.Key_Escape) loader.active = false;
-									}
-									// onAccepted: {
-									// 	if (list.currentItem) {
-									// 		list.currentItem.clicked(null);
-									// 	} else {
-									// 		Quickshell.execDetached(["sh", "-c", `${textInput.text}`]);
-									// 		loader.active = false;
-									// 	}
-									// }
-									onAccepted: switch (true) {
-										case list.currentItem !== null:
-											list.currentItem.clicked(null);
-											break;
-										case textInput.text.startsWith("run "):
-											Quickshell.execDetached(["sh", "-c", `${textInput.text.replace("run ", "")}`]);
-											loader.active = false;
-											break;
-										default:
-											loader.active = false;
-									}
-									onTextChanged: {
-										list.currentIndex = 0;
-										blinkInterval.restart();
-										blink = false;
-									}
+								// display text
+								Text {
+									leftPadding: GlobalVariables.controls.spacing /2
+									text: parent.displayText
+									color: GlobalVariables.colours.text
 									font: GlobalVariables.font.regular
-									// color: GlobalVariables.colours.text
-									color: "transparent"
-									cursorDelegate: cursorRect
+								}
 
-									Timer { id: blinkInterval
-										running: true
-										repeat: true
-										interval: 500
-										onTriggered: parent.blink = !parent.blink
-									}
-
-									Text {
-										text: parent.formattedText()
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.regular
-									}
+								// placeholder text
+								Text {
+									visible: !parent.displayText
+									leftPadding: GlobalVariables.controls.spacing /2
+									width: parent.width
+									height: parent.height
+									verticalAlignment: Text.AlignVCenter
+									text: " Start typing..."
+									font: GlobalVariables.font.italic
+									color: GlobalVariables.colours.windowText
+									opacity: 0.4
 								}
 							}
 						}
 					}
 				}
 
-				ListView { id: list
-					readonly property real opacityDuration: 150
-					readonly property real translationDuration: 200
+				ScrollView { id: scrollView
+					width: parent.width
+					height: Math.min((32 +GlobalVariables.controls.spacing) *10 +GlobalVariables.controls.padding *2, listView.contentHeight +GlobalVariables.controls.padding *2)
+					topPadding: GlobalVariables.controls.padding
+					bottomPadding: GlobalVariables.controls.padding
+					ScrollBar.vertical.policy: ScrollBar.AlwaysOn
 
-					Layout.fillWidth: true
-					Layout.minimumHeight: 28 +GlobalVariables.controls.spacing
-					Layout.preferredHeight: contentHeight
-					Layout.maximumHeight: screen.height /4
-					Layout.bottomMargin: GlobalVariables.controls.padding
-					clip: true
-					spacing: GlobalVariables.controls.spacing /2
-					// snapMode: ListView.SnapToItem
-					preferredHighlightBegin: 0
-					preferredHighlightEnd: height
-					highlightRangeMode: ListView.ApplyRange
-					highlightMoveDuration: 250
-					highlight: Rectangle {
-						color: GlobalVariables.colours.accent
-						opacity: 0.4
-					}
-					add: Transition { NumberAnimation { property: "opacity"; from: 0; to: 1; duration: list.opacityDuration; }}
-					displaced: Transition {
-						NumberAnimation { property: "y"; duration: list.translationDuration; easing.type: Easing.OutCubic; }
-						NumberAnimation { property: "opacity"; to: 1; duration: list.opacityDuration; }
-					}
-					move: Transition {
-						NumberAnimation { property: "y"; duration: list.translationDuration; easing.type: Easing.OutCubic; }
-						NumberAnimation { property: "opacity"; to: 1; duration: list.opacityDuration; }
-					}
-					remove: Transition {
-						NumberAnimation { property: "y"; duration: list.translationDuration; easing.type: Easing.OutCubic; }
-						NumberAnimation { property: "opacity"; to: 0; duration: list.opacityDuration ; }
-					}
-					model: ScriptModel {
-						values: {
-							const countMin = Math.min(...jsonAdapter.applications.map(a => a.count));
-							const countNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.count)) -countMin;
-							const ageMin = Math.min(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now();
-							const ageNormalDevisor = Math.max(...jsonAdapter.applications.map(a => a.lastOpened)) -Date.now() -ageMin
-							const recencyWeight = 0.4;
+					background: Rectangle {
+						anchors.fill: parent
+						bottomLeftRadius: GlobalVariables.controls.radius
+						bottomRightRadius: GlobalVariables.controls.radius
+						color: GlobalVariables.colours.dark
 
-							function calcRelevance(app, now = Date.now()) {
-								const countNormal = (app.count -countMin) /countNormalDevisor;
-								const ageNormal = (app.lastOpened -now -ageMin) /ageNormalDevisor;
-								return recencyWeight *ageNormal +(1 -recencyWeight) *countNormal;
+						Rectangle {
+							anchors {
+								horizontalCenter: parent.horizontalCenter
+								top: parent.top
 							}
-
-							switch (true) {
-								case textInput.text.startsWith("run "):
-									return [];
-									break;
-								case textInput.text.length > 0:
-									const list = Array.from(DesktopEntries.applications.values) // list to search from
-									.filter(a => !a.noDisplay) // remove entries that request to not be displayed
-									.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id)) // dedupe list BUG
-
-									const options = {
-										keys: ["id", "name", "genericName", "keywords"],
-										threshold: 0.4,
-										includeScore: true,
-										shouldSort: false
-									};
-									const fuse = new Fuse(list, options);
-
-									return fuse.search(textInput.text).sort((a, b) => { // return search results sorted based on score and relevance
-										const scoreWeight = 0.6;
-
-										const a_App = jsonAdapter.applications.find(app => app.id === a.item.id);
-										const b_App = jsonAdapter.applications.find(app => app.id === b.item.id);
-
-										function calcWeightedMatch(app, score, now = Date.now()) {
-											const relevance = calcRelevance(app);
-											return scoreWeight *(1 -score) +(1 -scoreWeight) *relevance;
-										}
-
-										const a_weightedMatch = a_App? calcWeightedMatch(a_App, a.score) : null;
-										const b_weightedMatch = b_App? calcWeightedMatch(b_App, b.score) : null;
-
-										if (a_weightedMatch && b_weightedMatch) return b_weightedMatch -a_weightedMatch;
-										else if (a_weightedMatch) return -1;
-										else if (b_weightedMatch) return 1;
-										else return a.score -b.score;
-									})
-									.map(r => r.item);
-									break;
-								default:
-									return Array.from(DesktopEntries.applications.values)
-									.filter(a => !a.noDisplay)
-									.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id))
-									.sort((a, b) => { // sort based on relevance
-										const a_App = jsonAdapter.applications.find(app => app.id === a.id);
-										const b_App = jsonAdapter.applications.find(app => app.id === b.id);
-
-										const a_isFav = a_App? a_App.isFavourite : null;
-										const b_isFav = b_App? b_App.isFavourite : null;
-
-										if (a_isFav && b_isFav) return a_App.favouriteIdx -b_App.favouriteIdx;
-										else if (a_isFav) return -1;
-										else if (b_isFav) return 1;
-
-										const a_Relevance = a_App? calcRelevance(a_App) : null;
-										const b_Relevance = b_App? calcRelevance(b_App) : null;
-
-										if (a_Relevance && b_Relevance) return b_Relevance -a_Relevance;
-										else if (a_Relevance) return -1;
-										else if (b_Relevance) return 1;
-										else return a.name.localeCompare(b.name);
-									});
-							}
+							width: parent.width -2
+							height: 1
+							color: GlobalVariables.colours.light
 						}
-
-						onValuesChanged: list.currentIndex = 0;
 					}
-					delegate: MouseArea {
-						required property var modelData
-						required property int index
 
-						width: layout.width
-						height: layout.height
-						hoverEnabled: true
-						onClicked: {
-							modelData.execute();
-							loader.active = false;
-							if (jsonAdapter.applications.find(a => a.id === modelData.id)) {
-								jsonAdapter.applications.find(a => a.id === modelData.id).count++;
-								jsonAdapter.applications.find(a => a.id === modelData.id).lastOpened = Date.now();
-							}else jsonAdapter.applications.push({
-								"id": modelData.id,
-								"count": 1,
-								"lastOpened": Date.now()
-							});
+					ListView { id: listView
+						readonly property real opacityDuration: 150
+						readonly property real translationDuration: 200
+
+						clip: true
+						spacing: GlobalVariables.controls.spacing
+						preferredHighlightBegin: 0
+						preferredHighlightEnd: height
+						highlightRangeMode: ListView.ApplyRange
+						highlightMoveDuration: 250
+						highlight: Rectangle {
+							color: GlobalVariables.colours.accent
+							opacity: 0.4
 						}
+						keyNavigationWraps: true
+						boundsBehavior: Flickable.StopAtBounds
+						add: Transition { NumberAnimation { property: "opacity"; from: 0; to: 1; duration: listView.opacityDuration; }}
+						displaced: Transition {
+							NumberAnimation { property: "y"; duration: listView.translationDuration; easing.type: Easing.OutCubic; }
+							NumberAnimation { property: "opacity"; to: 1; duration: listView.opacityDuration; }
+						}
+						move: Transition {
+							NumberAnimation { property: "y"; duration: listView.translationDuration; easing.type: Easing.OutCubic; }
+							NumberAnimation { property: "opacity"; to: 1; duration: listView.opacityDuration; }
+						}
+						remove: Transition {
+							NumberAnimation { property: "y"; duration: listView.translationDuration; easing.type: Easing.OutCubic; }
+							NumberAnimation { property: "opacity"; to: 0; duration: listView.opacityDuration ; }
+						}
+						model: ScriptModel { id: model
+							values: {
+								let list = Array.from(DesktopEntries.applications.values) // list to search from
+								.filter(a => !a.noDisplay) // remove entries that request to not be displayed
+								.filter((obj, idx, item) => idx === item.findIndex(r => r.id === obj.id)) // dedupe list BUG
 
-						RowLayout { id: layout
-							readonly property bool containsMouse: parent.containsMouse
+								const countMin = Math.min(...jsonAdapter.applications.filter(a => a.count).map(a => a.count));
+								const countNormalDevisor = Math.max(...jsonAdapter.applications.filter(a => a.count).map(a => a.count)) -countMin;
+								const ageMin = Math.min(...jsonAdapter.applications.filter(a => a.lastOpened).map(a => a.lastOpened)) -Date.now();
+								const ageNormalDevisor = Math.max(...jsonAdapter.applications.filter(a => a.lastOpened).map(a => a.lastOpened)) -Date.now() -ageMin
+								const recencyWeight = 0.4;
 
-							function setAlpha(colour, alpha) {
-								return Qt.rgba(colour.r, colour.g, colour.b, alpha);
-							}
+								function calcRelevance(app, now = Date.now()) {
+									const countNormal = (app.count -countMin) /countNormalDevisor;
+									const ageNormal = (app.lastOpened -now -ageMin) /ageNormalDevisor;
+									return recencyWeight *ageNormal +(1 -recencyWeight) *countNormal;
+								}
 
-							width: list.width
-							layer.enabled: true
-							layer.effect: ColorOverlay { color: {
-								if (containsMouse) return layout.setAlpha(GlobalVariables.colours.shadow, 0.2);
-								else return "transparent";
-							}}
+								const relevanceMap = new Map(
+									jsonAdapter.applications.map(app => [app.id, calcRelevance(app)])
+								);
 
-							IconImage {
-								Layout.leftMargin: GlobalVariables.controls.padding
-								Layout.topMargin: GlobalVariables.controls.spacing /2
-								Layout.bottomMargin: GlobalVariables.controls.spacing /2
-								implicitSize: 28
-								// source: Quickshell.iconPath(modelData.name.toLowerCase(), true) || Quickshell.iconPath(modelData.icon, "image-missing")
-								source: switch (modelData.name.toLowerCase()) {
-									case "outlook":
-									case "outlook (pwa)":
-										return Quickshell.iconPath("ms-outlook");
-										break;
-									case "microsoft teams":
-									case "microsoft teams (pwa)":
-										return Quickshell.iconPath("teams");
+								switch (true) {
+									case textInput.text.length > 0:
+										const options = {
+											keys: ["id", "name", "genericName", "keywords"],
+											threshold: 0.4,
+											includeScore: true,
+											shouldSort: true
+										};
+										const fuse = new Fuse(list, options);
+
+										return fuse.search(textInput.text).map(r => r.item);
 										break;
 									default:
-										Quickshell.iconPath(modelData.name.toLowerCase(), true) || Quickshell.iconPath(modelData.icon, "image-missing")
+										return list
+										.sort((a, b) => {
+											const a_App = jsonAdapter.applications.find(app => app.id === a.id);
+											const b_App = jsonAdapter.applications.find(app => app.id === b.id);
+
+											const a_Fav = a_App? a_App.isFavourite : null;
+											const b_Fav = b_App? b_App.isFavourite : null;
+
+											// move favourites to top of the list
+											if (a_Fav && b_Fav) return b_Fav -a_Fav;
+											else if (a_Fav) return -1;
+											else if (b_Fav) return 1;
+
+											// sort by relevance
+											const a_Relevance = relevanceMap.get(a.id);
+											const b_Relevance = relevanceMap.get(b.id);
+
+											if (a_Relevance && b_Relevance) { return b_Relevance -a_Relevance; console.log("debug") }
+											else if (a_Relevance) return -1;
+											else if (b_Relevance) return 1;
+
+											// sort alphabetically
+											return a.name.localeCompare(b.name);
+										});
+										break;
 								}
 							}
+							onValuesChanged: listView.currentIndex = 0;
+							objectProp: "id"
+						}
+						delegate: Ctrl.QsButton { id: application
+							required property var modelData
 
-							Column {
-								Layout.rightMargin: GlobalVariables.controls.padding
-								Layout.fillWidth: true
+							onClicked: {
+								// add an etry if none exist
+								if (!jsonAdapter.applications.find(a => a.id === modelData.id)) {
+									jsonAdapter.applications.push({
+										"id": modelData.id,
+										"count": 1,
+										"lastOpened": Date.now()
+									});
+									// console.log("Startmenu: Added entry.");
+									// update entry if there's already one
+								} else {
+									jsonAdapter.applications.find(a => a.id === modelData.id).count += 1;
+									jsonAdapter.applications.find(a => a.id === modelData.id).lastOpened = Date.now();
+									// console.log("Startmenu: Updated entry.");
+								}
+								modelData.execute();
+								root.close();
+							}
+							content: RowLayout {
+								width: scrollView.availableWidth
 
-								RowLayout {
-									width: parent.width
-									spacing: 3
+								IconImage {
+									Layout.leftMargin: GlobalVariables.controls.padding
+									backer.cache: true
+									implicitSize: 32
+									source: Quickshell.iconPath(modelData.name.toLowerCase(), modelData.icon)
+								}
 
-									Text {
-										// anchors.verticalCenter: parent.verticalCenter
-										Layout.alignment: Qt.AlignVCenter
-										text: modelData.name
-										elide: modelData.genericName? Text.ElideNone : Text.ElideRight
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.regular
-										verticalAlignment: Text.AlignVCenter
+								Column {
+									Layout.rightMargin: GlobalVariables.controls.padding
+									Layout.fillWidth: true
+
+									RowLayout {
+										width: parent.width
+
+										Text {
+											text: modelData.name
+											color: GlobalVariables.colours.text
+											font: GlobalVariables.font.regular
+										}
+
+										Text {
+											visible: modelData.genericName
+											Layout.fillWidth: true
+											text: `(${modelData.genericName})`
+											elide: Text.ElideRight
+											color: GlobalVariables.colours.text
+											font: GlobalVariables.font.smallitalics
+										}
 									}
 
 									Text {
-										visible: modelData.genericName
-										// anchors.verticalCenter: parent.verticalCenter
-										Layout.alignment: Qt.AlignVCenter
-										Layout.fillWidth: true
-										text: `(${modelData.genericName})`
+										visible: modelData.comment
+										width: parent.width
+										text: modelData.comment
 										elide: Text.ElideRight
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.smalleritalics
-										verticalAlignment: Text.AlignVCenter
+										color: GlobalVariables.colours.windowText
+										font: GlobalVariables.font.smaller
 									}
 								}
 
-								Text {
-									visible: modelData.comment
-									width: parent.width
-									text: modelData.comment
-									elide: Text.ElideRight
-									color: GlobalVariables.colours.windowText
-									font: GlobalVariables.font.smaller
-								}
+								Item { visible: pin.visible; Layout.preferredWidth: 24 +GlobalVariables.controls.padding; }
 							}
 
-							QsButton {
-								readonly property bool isFavourite: jsonAdapter.applications.find(a => a.id === modelData.id)?.isFavourite || false
+							Ctrl.QsButton { id: pin
+								readonly property var isFavourite: jsonAdapter.applications.find(a => a.id === modelData.id)?.isFavourite || false
 
-								visible: parent.containsMouse || isFavourite
-								Layout.rightMargin: GlobalVariables.controls.padding
-								Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-								Layout.fillHeight: true
+								visible: containsMouse || parent.containsMouse || isFavourite
+								anchors {
+									right: parent.right
+									rightMargin: GlobalVariables.controls.padding
+									verticalCenter: parent.verticalCenter
+								}
 								onClicked: {
-									jsonAdapter.applications.find(a => a.id === modelData.id).isFavourite = !isFavourite;
-									if (isFavourite) jsonAdapter.applications.find(a => a.id === modelData.id).favouriteIdx = Date.now();
+									// add an etry if none exist
+									if (!jsonAdapter.applications.find(a => a.id === modelData.id)) {
+										jsonAdapter.applications.push({
+											"id": modelData.id,
+											"isFavourite": Date.now()
+										});
+										// console.log("Startmenu: Added entry.");
+										// update entry if there's already one
+									} else {
+										jsonAdapter.applications.find(a => a.id === modelData.id).isFavourite = isFavourite? null : Date.now();
+										// console.log("Startmenu: Updated entry.");
+									}
 								}
 								content: IconImage {
-									anchors.centerIn: parent
-									implicitSize: GlobalVariables.controls.iconSize
-									source: Quickshell.iconPath("view-pin", "window-pin")
+									implicitSize: 24
+									source: Quickshell.iconPath("pin")
 								}
 							}
 						}
@@ -447,5 +380,7 @@ Singleton { id: root
 				}
 			}
 		}
+
+		Component.onCompleted: loader.active = false;
 	}
 }
