@@ -53,11 +53,14 @@ Scope { id: root
 	// only show on main/active monitor
 	Notifications {}
 	Brightness {}
-	AppLauncher {}
+	// AppLauncher {}
 
 	// connect to shell services
 	Component.onCompleted: [
 		Service.Shell.init(),
+		AppLauncher.init(
+			10 // the maximum number of lines to display
+		),
 		Service.Redeye.init(
 			5500, // temperature in K
 			95, // gamma (0-100)

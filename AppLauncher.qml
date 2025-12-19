@@ -2,22 +2,29 @@
 --- AppLauncher.qml by andrel ---
 -------------------------------*/
 
-// pragma Singleton
+pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Controls.Basic
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Widgets
 import Quickshell.Io
-import qs
 import qs.controls as Ctrl
 import qs.styles as Style
 import "fuse.js" as FuseLib
 
 Singleton { id: root
+	property int maxLines
+
+	function init(lines = 10) {
+		root.maxLines = lines;
+	}
+
 	// close the launcher
 	function close() {
 		fileView.writeAdapter(); // write changes to file
@@ -108,6 +115,8 @@ Singleton { id: root
 								focus: true
 								// use arrow keys and tab to navigate entries
 								Keys.onPressed: event => {
+									scrollBar.active = true;
+
 									if (event.key === Qt.Key_Up) listView.decrementCurrentIndex();
 									else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) listView.incrementCurrentIndex();
 									else if (event.key === Qt.Key_Escape) root.close();
@@ -164,11 +173,28 @@ Singleton { id: root
 
 				ScrollView { id: scrollView
 					width: parent.width
-					height: Math.min((32 +GlobalVariables.controls.spacing) *10 +GlobalVariables.controls.padding *2, listView.contentHeight +GlobalVariables.controls.padding *2)
+					height: Math.min((32 +GlobalVariables.controls.spacing) *root.maxLines +GlobalVariables.controls.padding *2, listView.contentHeight +GlobalVariables.controls.padding *2)
 					topPadding: GlobalVariables.controls.padding
 					bottomPadding: GlobalVariables.controls.padding
-					ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+					ScrollBar.vertical: ScrollBar { id: scrollBar
+						anchors {
+							right: parent.right
+							rightMargin: 3
+							top: parent.top
+							topMargin: GlobalVariables.controls.spacing
+						}
+						height: parent.availableHeight
+						contentItem: Rectangle {
+							implicitWidth: 6
+							radius: width /2
+							color: scrollBar.pressed? GlobalVariables.colours.text : GlobalVariables.colours.windowText
+							opacity: (scrollBar.active && scrollBar.size < 1.0) ? 0.75 : 0
 
+							Behavior on opacity {
+								NumberAnimation { duration: 250; }
+							}
+						}
+					}
 					background: Rectangle {
 						anchors.fill: parent
 						bottomLeftRadius: GlobalVariables.controls.radius
