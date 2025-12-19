@@ -66,7 +66,7 @@ Singleton { id: root
 
 			Column { id: layout
 				spacing: -1
-				width: parent.width
+				width: screen.width *(1 /6)
 
 				Rectangle { id: header
 					readonly property TextMetrics textMetrics: TextMetrics {
@@ -75,98 +75,101 @@ Singleton { id: root
 					}
 
 					width: parent.width
-					height: textMetrics.height +GlobalVariables.controls.padding *3
+					height: headerLayout.height
 					topLeftRadius: GlobalVariables.controls.radius
 					topRightRadius: GlobalVariables.controls.radius
 					color: GlobalVariables.colours.base
 
-					Rectangle {
-						anchors.centerIn: parent
-						width: parent.width -GlobalVariables.controls.padding *2 +2
-						height: parent.height -GlobalVariables.controls.padding *2
-						radius: GlobalVariables.controls.radius *(2 /3)
-						color: GlobalVariables.colours.dark
-						border { width: 2; color: GlobalVariables.colours.light; }
+					ColumnLayout { id: headerLayout
+						width: parent.width
 
-						Rectangle { anchors.fill: parent; radius: parent.radius; color: "transparent"; border { width: 1; color: GlobalVariables.colours.dark; }}
+						// searchbar
+						Rectangle {
+							Layout.margins: GlobalVariables.controls.padding
+							Layout.fillWidth: true
+							height: searchLayout.height
+							radius: GlobalVariables.controls.radius *(2 /3)
+							color: GlobalVariables.colours.dark
+							border { width: 2; color: GlobalVariables.colours.light; }
 
-						Row {
-							anchors.verticalCenter: parent.verticalCenter
-							leftPadding: GlobalVariables.controls.spacing
-							width: parent.width
+							Rectangle { anchors.fill: parent; radius: parent.radius; color: "transparent"; border { width: 1; color: GlobalVariables.colours.dark; }}
 
-							IconImage {
-								implicitSize: GlobalVariables.controls.iconSize
-								source: Quickshell.iconPath("search")
-							}
-
-							TextInput { id: textInput
-								readonly property Component cursorRect: Rectangle { id: cursor
-									width: 1
-									height: textInput.height
-									opacity: textInput.blink? 0.0 : 1.0
-								}
-
-								property bool blink
-
-								leftPadding: GlobalVariables.controls.spacing /2
+							RowLayout { id: searchLayout
+								spacing: 0
 								width: parent.width
-								clip: true
-								focus: true
-								Keys.onPressed: event => {
-									scrollBar.active = true;
 
-									// use arrow keys and tab to navigate entries
-									if (event.key === Qt.Key_Up) listView.decrementCurrentIndex();
-									else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) listView.incrementCurrentIndex();
-									else if (event.key === Qt.Key_Escape) root.close();
-
-									else if ((event.key === Qt.Key_P) && (event.modifiers & Qt.ControlModifier)) listView.currentItem.pin();
-								}
-								onAccepted: switch (true) {
-									case listView.currentItem !== null:
-										listView.currentItem.clicked(null);
-										break;
-									default:
-										root.close();
-										break;
-								}
-								onTextChanged: {
-									listView.currentIndex = 0;
-									blinkInterval.restart();
-									blink = false;
-								}
-								font: GlobalVariables.font.regular
-								// color: GlobalVariables.colours.text
-								color: "transparent"
-								cursorDelegate: cursorRect
-
-								Timer { id: blinkInterval
-									running: true
-									repeat: true
-									interval: 500
-									onTriggered: parent.blink = !parent.blink
+								IconImage {
+									Layout.leftMargin: GlobalVariables.controls.spacing
+									implicitSize: GlobalVariables.controls.iconSize
+									source: Quickshell.iconPath("search")
 								}
 
-								// display text
-								Text {
-									leftPadding: GlobalVariables.controls.spacing /2
-									text: parent.displayText
-									color: GlobalVariables.colours.text
+								TextInput { id: textInput
+									readonly property Component cursorRect: Rectangle { id: cursor
+										width: 1
+										height: textInput.height
+										opacity: textInput.blink? 0.0 : 1.0
+									}
+
+									property bool blink
+
+									Layout.margins: GlobalVariables.controls.spacing /2
+									Layout.fillWidth: true
+									clip: true
+									focus: true
+									Keys.onPressed: event => {
+										scrollBar.active = true;
+
+										// use arrow keys and tab to navigate entries
+										if (event.key === Qt.Key_Up) listView.decrementCurrentIndex();
+										else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) listView.incrementCurrentIndex();
+										else if (event.key === Qt.Key_Escape) root.close();
+										// use ctrl+p to pin entry
+										else if ((event.key === Qt.Key_P) && (event.modifiers & Qt.ControlModifier)) listView.currentItem.pin();
+									}
+									onAccepted: switch (true) {
+										case listView.currentItem !== null:
+											listView.currentItem.clicked(null);
+											break;
+										default:
+											root.close();
+											break;
+									}
+									onTextChanged: {
+										listView.currentIndex = 0;
+										blinkInterval.restart();
+										blink = false;
+									}
 									font: GlobalVariables.font.regular
-								}
+									color: GlobalVariables.colours.text
+									// color: "transparent"
+									cursorDelegate: cursorRect
 
-								// placeholder text
-								Text {
-									visible: !parent.displayText
-									leftPadding: GlobalVariables.controls.spacing /2
-									width: parent.width
-									height: parent.height
-									verticalAlignment: Text.AlignVCenter
-									text: " Start typing..."
-									font: GlobalVariables.font.italic
-									color: GlobalVariables.colours.windowText
-									opacity: 0.4
+									Timer { id: blinkInterval
+										running: true
+										repeat: true
+										interval: 500
+										onTriggered: parent.blink = !parent.blink
+									}
+
+									// display text
+									// Text {
+									// 	text: parent.displayText
+									// 	color: GlobalVariables.colours.text
+									// 	font: GlobalVariables.font.regular
+									// }
+
+									// placeholder text
+									Text {
+										visible: !parent.displayText
+										width: parent.width
+										height: parent.height
+										verticalAlignment: Text.AlignVCenter
+										text: "Start typing..."
+										font: GlobalVariables.font.italic
+										color: GlobalVariables.colours.windowText
+										opacity: 0.4
+									}
 								}
 							}
 						}
@@ -312,6 +315,11 @@ Singleton { id: root
 							required property var modelData
 
 							readonly property var isFavourite: jsonAdapter.applications.find(a => a.id === modelData.id)?.isFavourite || false
+							readonly property Text tooltipContent: Text {
+								text: modelData.genericName
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.regular
+							}
 
 							signal pin()
 
@@ -347,6 +355,7 @@ Singleton { id: root
 								modelData.execute();
 								root.close();
 							}
+							tooltip: if (modelData.genericName) return tooltipContent
 							content: RowLayout {
 								width: scrollView.availableWidth
 
