@@ -81,11 +81,15 @@ Singleton { id: root
 					color: GlobalVariables.colours.base
 
 					ColumnLayout { id: headerLayout
-						width: parent.width
+						anchors.horizontalCenter: parent.horizontalCenter
+						width: parent.width -GlobalVariables.controls.padding *2
+
+						// top spacer
+						Item { Layout.preferredHeight: GlobalVariables.controls.padding -parent.spacing; }
 
 						// searchbar
 						Rectangle {
-							Layout.margins: GlobalVariables.controls.padding
+							// Layout.margins: GlobalVariables.controls.padding
 							Layout.fillWidth: true
 							height: searchLayout.height
 							radius: GlobalVariables.controls.radius *(2 /3)
@@ -173,6 +177,9 @@ Singleton { id: root
 								}
 							}
 						}
+
+						// bottom spacer
+						Item { Layout.preferredHeight: GlobalVariables.controls.padding -parent.spacing; }
 					}
 				}
 
@@ -315,11 +322,6 @@ Singleton { id: root
 							required property var modelData
 
 							readonly property var isFavourite: jsonAdapter.applications.find(a => a.id === modelData.id)?.isFavourite || false
-							readonly property Text tooltipContent: Text {
-								text: modelData.genericName
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
 
 							signal pin()
 
@@ -355,7 +357,6 @@ Singleton { id: root
 								modelData.execute();
 								root.close();
 							}
-							tooltip: if (modelData.genericName) return tooltipContent
 							content: RowLayout {
 								width: scrollView.availableWidth
 
