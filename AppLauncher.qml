@@ -113,13 +113,15 @@ Singleton { id: root
 								width: parent.width
 								clip: true
 								focus: true
-								// use arrow keys and tab to navigate entries
 								Keys.onPressed: event => {
 									scrollBar.active = true;
 
+									// use arrow keys and tab to navigate entries
 									if (event.key === Qt.Key_Up) listView.decrementCurrentIndex();
 									else if (event.key === Qt.Key_Down || event.key === Qt.Key_Tab) listView.incrementCurrentIndex();
 									else if (event.key === Qt.Key_Escape) root.close();
+
+									else if ((event.key === Qt.Key_P) && (event.modifiers & Qt.ControlModifier)) listView.currentItem.pin();
 								}
 								onAccepted: switch (true) {
 									case listView.currentItem !== null:
@@ -309,6 +311,24 @@ Singleton { id: root
 						delegate: Ctrl.QsButton { id: application
 							required property var modelData
 
+							readonly property var isFavourite: jsonAdapter.applications.find(a => a.id === modelData.id)?.isFavourite || false
+
+							signal pin()
+
+							onPin: {
+								// add an etry if none exist
+								if (!jsonAdapter.applications.find(a => a.id === modelData.id)) {
+									jsonAdapter.applications.push({
+										"id": modelData.id,
+										"isFavourite": Date.now()
+									});
+									// console.log("Startmenu: Added entry.");
+									// update entry if there's already one
+								} else {
+									jsonAdapter.applications.find(a => a.id === modelData.id).isFavourite = isFavourite? null : Date.now();
+									// console.log("Startmenu: Updated entry.");
+								}
+							}
 							onClicked: {
 								// add an etry if none exist
 								if (!jsonAdapter.applications.find(a => a.id === modelData.id)) {
@@ -374,28 +394,13 @@ Singleton { id: root
 							}
 
 							Ctrl.QsButton { id: pin
-								readonly property var isFavourite: jsonAdapter.applications.find(a => a.id === modelData.id)?.isFavourite || false
-
 								visible: containsMouse || parent.containsMouse || isFavourite
 								anchors {
 									right: parent.right
 									rightMargin: GlobalVariables.controls.padding
 									verticalCenter: parent.verticalCenter
 								}
-								onClicked: {
-									// add an etry if none exist
-									if (!jsonAdapter.applications.find(a => a.id === modelData.id)) {
-										jsonAdapter.applications.push({
-											"id": modelData.id,
-											"isFavourite": Date.now()
-										});
-										// console.log("Startmenu: Added entry.");
-										// update entry if there's already one
-									} else {
-										jsonAdapter.applications.find(a => a.id === modelData.id).isFavourite = isFavourite? null : Date.now();
-										// console.log("Startmenu: Updated entry.");
-									}
-								}
+								onClicked: parent.pin();
 								content: IconImage {
 									implicitSize: 24
 									source: Quickshell.iconPath("pin")
