@@ -16,12 +16,14 @@ PanelWindow { id: root
 	property list<Item> centreItems
 	property list<Item> rightItems
 
-	screen: modelData
+	property int barHeight: GlobalVariables.controls.barHeight
+
 	anchors {
 		left: true
 		right: true
 		top: true
 	}
+	screen: modelData
 	exclusionMode: ExclusionMode.Ignore
 	mask: Region {}
 	implicitHeight: parent.height +30
@@ -35,7 +37,7 @@ PanelWindow { id: root
 			topMargin: GlobalVariables.controls.padding
 		}
 		width: screen.width -GlobalVariables.controls.padding *2
-		height: GlobalVariables.controls.barHeight
+		height: barHeight
 		radius: height /4
 		color: "transparent"
 	}
@@ -55,8 +57,9 @@ PanelWindow { id: root
 			right: true
 			top: true
 		}
+		screen: modelData
 		mask: Region { item: bar; }
-		implicitHeight: GlobalVariables.controls.barHeight +GlobalVariables.controls.spacing
+		implicitHeight: barHeight +GlobalVariables.controls.spacing
 		color: "transparent"
 
 		Rectangle { id: bar
@@ -65,7 +68,7 @@ PanelWindow { id: root
 				bottom: parent.bottom
 			}
 			width: screen.width -GlobalVariables.controls.padding *2
-			height: GlobalVariables.controls.barHeight +2
+			height: barHeight +2
 			radius: height /4
 			color: GlobalVariables.colours.dark
 			border { width: 2; color: GlobalVariables.colours.light; }
