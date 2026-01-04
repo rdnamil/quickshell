@@ -105,6 +105,7 @@ PanelWindow { id: root
 			right: true
 			top: true
 		}
+		screen: modelData
 		margins.top: GlobalVariables.controls.barHeight
 		exclusionMode: ExclusionMode.Ignore
 		mask: Region {}
