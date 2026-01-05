@@ -1,6 +1,9 @@
-/*---------------------------------
---- Notifications.qml by andrel ---
----------------------------------*/
+/*----------------------------------------------
+--- Notifications.qml - quickshell by andrel ---
+----------------------------------------------*/
+
+pragma Singleton
+pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Effects
@@ -8,160 +11,194 @@ import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Wayland
-import qs.services
-import qs.controls
+import Quickshell.Widgets
+import qs.services as Service
+import qs.controls as Ctrl
 
-PanelWindow { id: root
-	property string horizontalPosition
+Singleton { id: root
+	function init() {}
 
-	anchors {
-		left: horizontalPosition === "left"
-		right: horizontalPosition === "right"
-		top: true
-		// bottom: true
+	Connections {
+		target: Service.Notifications.model
+		function onCountChanged() {
+			if (loader.active && !(Service.Notifications.model.count > 0)) {
+				loader.active = false;
+				console.log(`NotificationsNew: active = ${loader.active}`);
+			} else if (!loader.active && (Service.Notifications.model.count > 0)) {
+				loader.active = true;
+				console.log(`NotificationsNew: active = ${loader.active}`);
+			}
+		}
 	}
-	margins.top: GlobalVariables.controls.barHeight
-	exclusionMode: ExclusionMode.Ignore
-	WlrLayershell.layer: WlrLayer.Overlay
-	WlrLayershell.namespace: "qs:notifications"
-	mask: Region { item: list; }
-	implicitWidth: screen.width /6 +60
-	implicitHeight: repeater.count > 0? list.height +60 : 0
-	color: "transparent"
 
-	Column { id: list
-		topPadding: GlobalVariables.controls.spacing
-		spacing: GlobalVariables.controls.spacing
-		anchors.horizontalCenter: parent.horizontalCenter
-		move: Transition { NumberAnimation { property: "y"; duration: 200; easing.type: Easing.OutCubic; }}
+	Loader { id: loader
+		sourceComponent: PanelWindow {
+			anchors.top: true
+			exclusiveZone: 0
+			WlrLayershell.layer: WlrLayer.Overlay
+			WlrLayershell.namespace: "qs:notifications"
+			mask: Region { item: list; }
+			implicitWidth: screen.width /6 +60
+			implicitHeight: repeater.count > 0? list.height +15 : 0
+			// color: "#10ff0000"
+			color: "transparent"
 
-		Repeater { id: repeater
-			model: Notifications.model
-			delegate: Item { id: notificationWrapper
-				readonly property var match: Notifications.server.trackedNotifications.values.find(n => n.id === model.id)
+			Column { id: list
+				topPadding: GlobalVariables.controls.spacing
+				spacing: GlobalVariables.controls.spacing
+				anchors.horizontalCenter: parent.horizontalCenter
+				move: Transition { NumberAnimation { property: "y"; duration: 200; easing.type: Easing.OutCubic; }}
 
-				property bool expired
+				Repeater { id: repeater
+					model: Service.Notifications.model
+					delegate: Item { id: notifWrapper
+						required property var model
+						required property int index
 
-				width: notification.width
-				height: notification.height
-				transform: Translate { id: notificationTranslate; }
+						readonly property var match: Service.Notifications.server.trackedNotifications.values.find(n => n.id === model.id)
 
-				Connections {
-					target: Notifications.server.trackedNotifications.values.find(n => n.id === model.id) || null
-					function onClosed(reason) { timeoutAnim.complete(); }
-				}
+						property bool expired
 
-				// anim on create or destroy notification
-				ParallelAnimation { id: godAnim
-					running: true
-					onFinished: if (expired) Notifications.model.remove(index, 1);
-
-					NumberAnimation {
-						target: notificationTranslate
-						property: "y"
-						from: expired? 0 : -height
-						to: expired? height : 0
-						duration: 250
-						easing.type: Easing.OutCubic;
-					}
-
-					NumberAnimation {
-						target: notificationWrapper
-						property: "opacity"
-						from: expired? 0.975 : 0.0
-						to: expired? 0.0 : 0.975
-						duration: 250
-						easing.type: Easing.OutCubic
-					}
-				}
-
-				RectangularShadow {
-					anchors.fill: notification
-					radius: GlobalVariables.controls.radius
-					spread: 0
-					blur: 30
-					opacity: 0.4
-				}
-
-				QsButton { id: notification
-					onMouseEntered: timeoutAnim.pause();	// pause expiration timer when mouse hovering over
-					onMouseExited: timeoutAnim.resume();
-					// do default notification action or else dismiss on click then destroy popup
-					onClicked: {
-						try {
-							notificationWrapper.match.actions[0].invoke();
-						} catch(err) {
-							notificationWrapper.match.dismiss();
-						}
-						timeoutAnim.complete();
-					}
-					content: Rectangle { id: content
 						width: screen.width /6
-						height: notificationLayout.height
-						radius: GlobalVariables.controls.radius
-						color: GlobalVariables.colours.mid
-						layer.enabled: true
-						layer.effect: OpacityMask {
-							maskSource: Rectangle {
-								width: notification.width
-								height: notification.height
-								radius: GlobalVariables.controls.radius
+						height: notification.height
+						transform: Translate { id: notifTranslate; }
+
+						Connections {
+							target: Service.Notifications.server.trackedNotifications.values.find(n => n.id === model.id) || null
+							function onClosed(reason) { timeoutAnim.complete(); }
+						}
+
+						// anim on create or destroy notification
+						ParallelAnimation { id: godAnim
+							running: true
+							onFinished: if (expired) Service.Notifications.model.remove(index, 1);
+
+							NumberAnimation {
+								target: notifTranslate
+								property: "y"
+								from: expired? 0 : height
+								to: expired? -height : 0
+								duration: 250
+								easing.type: Easing.OutCubic;
+							}
+
+							NumberAnimation {
+								target: notifWrapper
+								property: "opacity"
+								from: expired? 0.975 : 0.0
+								to: expired? 0.0 : 0.975
+								duration: 250
+								easing.type: Easing.OutCubic
 							}
 						}
 
-						ColumnLayout { id: notificationLayout
-							width: parent.width
-							spacing: 0
+						RectangularShadow {
+							anchors.fill: notification
+							radius: GlobalVariables.controls.radius
+							spread: 0
+							blur: 10
+							color: GlobalVariables.colours.shadow
+							opacity: 0.6
+						}
 
-							// expiration timer
-							Rectangle {
-								Layout.leftMargin: GlobalVariables.controls.radius -3
-								width: content.width -GlobalVariables.controls.radius *2 +6
-								height: 1
-								color: GlobalVariables.colours.accent
-
-								NumberAnimation on width { id: timeoutAnim
-									from: width
-									to: 0
-									duration: model.expireTimeout > 0? model.expireTimeout : 5000
-									onFinished: { expired = true; godAnim.start(); } // destroy notification on expiration
+						Ctrl.QsButton { id: notification
+							onMouseEntered: timeoutAnim.pause();	// pause expiration timer when mouse hovering over
+							onMouseExited: timeoutAnim.resume();
+							// do default notification action or else dismiss on click then destroy popup
+							onClicked: {
+								try {
+									notifWrapper.match.actions[0].invoke();
+								} catch(err) {
+									notifWrapper.match.dismiss();
 								}
+								timeoutAnim.complete();
 							}
+							content: Rectangle { id: content
+								width: screen.width /6
+								height: notifLayout.height
+								layer.enabled: true
+								layer.effect: OpacityMask {
+									maskSource: Rectangle {
+										width: content.width
+										height: content.height
+										radius: GlobalVariables.controls.radius
+									}
+								}
+								color: GlobalVariables.colours.mid
 
-							RowLayout {
-								Layout.fillWidth: true
-								Layout.margins: GlobalVariables.controls.padding
-								spacing: GlobalVariables.controls.spacing
+								// expiration timer
+								Rectangle {
+									width: parent.width
+									height: 3
+									color: GlobalVariables.colours.accent
 
-								// notification image, fallback to app icon if none
-								Image {
-									visible: model.image || model.appIcon
-									Layout.preferredWidth: model.image? 52 : 24
-									Layout.preferredHeight: model.image? 39 : 24
-									fillMode: Image.PreserveAspectFit
-									source: model.image || Quickshell.iconPath(model.appIcon, true) || model.appIcon
+									NumberAnimation on width { id: timeoutAnim
+										from: width
+										to: 0
+										duration: model.expireTimeout > 0? model.expireTimeout : 5000
+										onFinished: { expired = true; godAnim.start(); } // destroy notification on expiration
+									}
 								}
 
-								Column {
-									Layout.fillWidth: true
+								Column { id: notifLayout
+									spacing: GlobalVariables.controls.spacing
+									topPadding: GlobalVariables.controls.spacing
+									bottomPadding: GlobalVariables.controls.spacing
+									width: parent.width
 
-									// app name and summary
-									Text {
+									RowLayout {
 										width: parent.width
-										text: `<b>${model.appName || model.desktopEntry} ⏵</b> ${model.summary}`
-										wrapMode: Text.Wrap
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.smallsemibold
-									}
+										spacing: GlobalVariables.controls.spacing
 
-									// body text
-									Text {
-										visible: model.body
-										width: parent.width
-										text: model.body
-										wrapMode: Text.Wrap
-										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.small
+										// notification image, fallback to app icon if none
+										Image { id: image
+											visible: model.image
+											Layout.leftMargin: GlobalVariables.controls.padding
+											Layout.preferredWidth: 40
+											Layout.preferredHeight: 40
+											fillMode: Image.PreserveAspectFit
+											source: model.image
+										}
+
+										Column {
+											Layout.fillWidth: true
+											Layout.leftMargin: image.visible? 0 : GlobalVariables.controls.padding
+											Layout.rightMargin: GlobalVariables.controls.padding
+											topPadding: GlobalVariables.controls.spacing /4
+											bottomPadding: GlobalVariables.controls.spacing /4
+											spacing: 3
+
+											RowLayout {
+												width: parent.width
+
+												IconImage {
+													visible: Quickshell.iconPath(model.appIcon, true) || model.appIcon
+													implicitSize: GlobalVariables.controls.iconSize
+													source: Quickshell.iconPath(model.appIcon, true) || model.appIcon
+												}
+
+												// app name and summary
+												Text {
+													Layout.fillWidth: true
+													text: `<b>${model.appName || model.desktopEntry} ⏵</b> ${model.summary}`
+													elide: Text.ElideRight
+													color: GlobalVariables.colours.text
+													font: GlobalVariables.font.smallsemibold
+												}
+											}
+
+											// body text
+											Text {
+												visible: model.body
+												width: parent.width
+												text: model.body
+												wrapMode: Text.Wrap
+												maximumLineCount: 2
+												elide: Text.ElideRight
+												color: GlobalVariables.colours.text
+												font: GlobalVariables.font.small
+											}
+										}
 									}
 								}
 							}

@@ -51,13 +51,12 @@ Scope { id: root
 	}
 
 	// only show on main/active monitor
-	Notifications {}
 	Brightness {}
-	// AppLauncher {}
 
 	// connect to shell services
 	Component.onCompleted: [
 		Service.Shell.init(),
+		Notifications.init(),
 		AppLauncher.init(
 			10 // the maximum number of lines to display
 		),
