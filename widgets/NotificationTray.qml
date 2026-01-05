@@ -173,6 +173,7 @@ QsButton { id: root
 									width: parent.width
 
 									IconImage {
+										visible: Quickshell.iconPath(modelData.appIcon, true) || modelData.appIcon
 										implicitSize: GlobalVariables.controls.iconSize
 										source: Quickshell.iconPath(modelData.appIcon, true) || modelData.appIcon
 									}
