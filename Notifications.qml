@@ -76,7 +76,7 @@ Singleton { id: root
 							NumberAnimation {
 								target: notifTranslate
 								property: "y"
-								from: expired? 0 : height
+								from: expired? 0 : -height
 								to: expired? -height : 0
 								duration: 250
 								easing.type: Easing.OutCubic;
