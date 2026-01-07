@@ -20,7 +20,8 @@ Scope { id: root
 			// barHeight: 36
 
 			leftItems: [
-				Network {}
+				Power {}
+				,Network {}
 				,Bluetooth {}
 				,Audio {}
 				,MusicPlayer {
