@@ -20,9 +20,11 @@ import "fuse.js" as FuseLib
 
 Singleton { id: root
 	property int maxLines
+	property bool hideFilters
 
-	function init(lines = 10) {
+	function init(lines = 10, hidden = false) {
 		root.maxLines = lines;
+		root.hideFilters = hidden;
 	}
 
 	// close the launcher
@@ -143,6 +145,10 @@ Singleton { id: root
 										listView.currentIndex = 0;
 										blinkInterval.restart();
 										blink = false;
+
+										// set listView filter enum
+										if (text) listView.filter = 2;
+										else listView.filter = 0;
 									}
 									font: GlobalVariables.font.regular
 									color: GlobalVariables.colours.text
@@ -178,6 +184,71 @@ Singleton { id: root
 							}
 						}
 
+						// categories
+						RowLayout { id: cats
+							readonly property var cats: [
+								["Development", "applications-development-symbolic", "Development"],
+								["Education", "applications-education-symbolic", "Education"],
+								["Games", "applications-games-symbolic", "Game"],
+								["Internet", "applications-internet-symbolic", "Network"],
+								["Multimedia", "applications-multimedia-symbolic", "Player"],
+								["Utilities", "applications-utilities-symbolic", "Utility"]
+							]
+
+							property var cat
+
+							visible: !root.hideFilters
+							spacing: 3
+
+							Ctrl.QsButton {
+								Layout.fillWidth: true
+								onClicked: listView.filter = 0;
+								tooltip: Text {
+									text: "All applications"
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+								content: Style.Button {
+									width: parent.width
+									invert: listView.filter === 0
+
+									IconImage {
+										anchors.centerIn: parent
+										implicitSize: GlobalVariables.controls.iconSize
+										source: Quickshell.iconPath("applications-all-symbolic")
+									}
+								}
+							}
+
+							Repeater {
+								model: cats.cats
+								delegate: Ctrl.QsButton {
+									required property var modelData
+
+									Layout.fillWidth: true
+									onClicked: {
+										listView.filter = 1;
+										cats.cat = modelData[2];
+									}
+									tooltip: Text {
+										text: modelData[0]
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.regular
+									}
+									content: Style.Button {
+										width: parent.width
+										invert: (cats.cat === modelData[2]) && (listView.filter === 1)
+
+										IconImage {
+											anchors.centerIn: parent
+											implicitSize: GlobalVariables.controls.iconSize
+											source: Quickshell.iconPath(modelData[1])
+										}
+									}
+								}
+							}
+						}
+
 						// bottom spacer
 						Item { Layout.preferredHeight: GlobalVariables.controls.padding -parent.spacing; }
 					}
@@ -185,9 +256,9 @@ Singleton { id: root
 
 				ScrollView { id: scrollView
 					width: parent.width
-					height: Math.min((32 +GlobalVariables.controls.spacing) *root.maxLines +GlobalVariables.controls.padding *2, listView.contentHeight +GlobalVariables.controls.padding *2)
-					topPadding: GlobalVariables.controls.padding
-					bottomPadding: GlobalVariables.controls.padding
+					height: Math.min((32 +GlobalVariables.controls.spacing) *root.maxLines +GlobalVariables.controls.padding *2, listView.contentHeight +4)
+					topPadding: 2
+					bottomPadding: 2
 					ScrollBar.vertical: ScrollBar { id: scrollBar
 						anchors {
 							right: parent.right
@@ -209,8 +280,8 @@ Singleton { id: root
 					}
 					background: Rectangle {
 						anchors.fill: parent
-						bottomLeftRadius: GlobalVariables.controls.radius
-						bottomRightRadius: GlobalVariables.controls.radius
+						// bottomLeftRadius: GlobalVariables.controls.radius
+						// bottomRightRadius: GlobalVariables.controls.radius
 						color: GlobalVariables.colours.dark
 
 						Rectangle {
@@ -227,6 +298,8 @@ Singleton { id: root
 					ListView { id: listView
 						readonly property real opacityDuration: 150
 						readonly property real translationDuration: 200
+
+						property int filter: 0
 
 						clip: true
 						spacing: GlobalVariables.controls.spacing
@@ -291,6 +364,14 @@ Singleton { id: root
 										const fuse = new Fuse(list, options);
 
 										return fuse.search(textInput.text).map(r => r.item);
+										break;
+									case listView.filter === 1:
+										return list
+										.filter(a => a.categories.includes(cats.cat))
+										.sort((a, b) => {
+											// sort alphabetically
+											return a.name.localeCompare(b.name);
+										});
 										break;
 									default:
 										return list
@@ -425,13 +506,35 @@ Singleton { id: root
 					}
 				}
 
-				// Rectangle { id: footer
-				// 	width: parent.width
-				// 	height: 32
-				// 	bottomLeftRadius: GlobalVariables.controls.radius
-				// 	bottomRightRadius: GlobalVariables.controls.radius
-				// 	color: GlobalVariables.colours.base
-				// }
+				Rectangle { id: footer
+					width: parent.width
+					height: footerLayout.height
+					bottomLeftRadius: GlobalVariables.controls.radius
+					bottomRightRadius: GlobalVariables.controls.radius
+					color: GlobalVariables.colours.dark
+
+					Rectangle {
+						anchors.horizontalCenter: parent.horizontalCenter
+						width: parent.width -GlobalVariables.controls.spacing *2
+						height: 1
+						color: GlobalVariables.colours.light
+						opacity: listView.count >0? 1.0 : 0.0
+					}
+
+					Row { id: footerLayout
+						padding: GlobalVariables.controls.spacing
+						spacing: GlobalVariables.controls.spacing
+						width: parent.width
+						clip: true
+
+						Text {
+							text: { if (textInput.text) return `${listView.count} results.`;
+								else return `${listView.count} entries.`; }
+							color: GlobalVariables.colours.windowText
+							font: GlobalVariables.font.smallitalics
+						}
+					}
+				}
 			}
 		}
 
