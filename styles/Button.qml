@@ -7,10 +7,10 @@ import Qt5Compat.GraphicalEffects
 import qs
 
 Rectangle { id: root
-	property bool inverted
+	property bool invert
 
 	width: GlobalVariables.controls.iconSize +GlobalVariables.controls.spacing
-	height: width
+	height: GlobalVariables.controls.iconSize +GlobalVariables.controls.spacing
 	radius: 6
 	color: GlobalVariables.colours.midlight
 	layer.enabled: true
@@ -23,7 +23,7 @@ Rectangle { id: root
 	}
 
 	Rectangle {
-		visible: !inverted
+		visible: !invert
 		anchors.fill: parent
 		gradient: Gradient {
 			orientation: Gradient.Vertical
@@ -33,12 +33,12 @@ Rectangle { id: root
 	}
 
 	Rectangle {
-		visible: inverted
+		visible: invert
 		anchors.fill: parent
 		gradient: Gradient {
 			orientation: Gradient.Vertical
-			GradientStop { position: 0.0; color: "#80000000" }
-			GradientStop { position: 1.0; color: "#40000000" }
+			GradientStop { position: 0.5; color: "#80000000" }
+			GradientStop { position: 1.0; color: "#60000000" }
 		}
 	}
 
