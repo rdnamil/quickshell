@@ -200,7 +200,7 @@ Singleton { id: root
 							visible: !root.hideFilters
 							spacing: 3
 
-							Ctrl.QsButton {
+							Ctrl.QsButton { id: clear
 								Layout.fillWidth: true
 								onClicked: listView.filter = 0;
 								tooltip: Text {
@@ -209,7 +209,7 @@ Singleton { id: root
 									font: GlobalVariables.font.regular
 								}
 								content: Style.Button {
-									width: parent.width
+									width: clear.width
 									invert: listView.filter === 0
 
 									IconImage {
@@ -222,7 +222,7 @@ Singleton { id: root
 
 							Repeater {
 								model: cats.cats
-								delegate: Ctrl.QsButton {
+								delegate: Ctrl.QsButton { id: filter
 									required property var modelData
 
 									Layout.fillWidth: true
@@ -236,7 +236,7 @@ Singleton { id: root
 										font: GlobalVariables.font.regular
 									}
 									content: Style.Button {
-										width: parent.width
+										width: filter.width
 										invert: (cats.cat === modelData[2]) && (listView.filter === 1)
 
 										IconImage {
