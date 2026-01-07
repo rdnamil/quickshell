@@ -44,7 +44,7 @@ Singleton { id: root
 			color: "transparent"
 
 			Column { id: list
-				topPadding: GlobalVariables.controls.spacing
+				topPadding: GlobalVariables.controls.spacing /2
 				spacing: GlobalVariables.controls.spacing
 				anchors.horizontalCenter: parent.horizontalCenter
 				move: Transition { NumberAnimation { property: "y"; duration: 200; easing.type: Easing.OutCubic; }}

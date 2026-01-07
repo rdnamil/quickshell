@@ -34,7 +34,7 @@ PanelWindow { id: root
 		anchors {
 			horizontalCenter: parent.horizontalCenter
 			top: parent.top
-			topMargin: GlobalVariables.controls.padding
+			topMargin: GlobalVariables.controls.spacing /2
 		}
 		width: screen.width -GlobalVariables.controls.padding *2
 		height: barHeight
@@ -59,7 +59,7 @@ PanelWindow { id: root
 		}
 		screen: modelData
 		mask: Region { item: bar; }
-		implicitHeight: barHeight +GlobalVariables.controls.spacing
+		implicitHeight: barHeight +GlobalVariables.controls.spacing /2
 		color: "transparent"
 
 		Rectangle { id: bar
