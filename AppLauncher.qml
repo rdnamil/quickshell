@@ -233,10 +233,15 @@ Singleton { id: root
 						preferredHighlightBegin: 0
 						preferredHighlightEnd: height
 						highlightRangeMode: ListView.ApplyRange
-						highlightMoveDuration: 250
+						highlightFollowsCurrentItem: false
 						highlight: Rectangle {
+							y: listView.currentItem.y -2
+							width: listView.currentItem.width
+							height: listView.currentItem.height +4
 							color: GlobalVariables.colours.accent
 							opacity: 0.4
+
+							Behavior on y { NumberAnimation{ duration: 250; easing.type: Easing.OutCubic; }}
 						}
 						keyNavigationWraps: true
 						boundsBehavior: Flickable.StopAtBounds
@@ -419,6 +424,14 @@ Singleton { id: root
 						}
 					}
 				}
+
+				// Rectangle { id: footer
+				// 	width: parent.width
+				// 	height: 32
+				// 	bottomLeftRadius: GlobalVariables.controls.radius
+				// 	bottomRightRadius: GlobalVariables.controls.radius
+				// 	color: GlobalVariables.colours.base
+				// }
 			}
 		}
 
