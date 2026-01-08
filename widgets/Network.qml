@@ -151,7 +151,7 @@ QsButton { id: root
 							IconImage {
 								anchors { right: parent.right; bottom: parent.bottom; }
 								implicitSize: 8
-								source: Quickshell.iconPath("network-wireless-encrypted")
+								source: Quickshell.iconPath("network-wireless-encrypted-symbolic", "network-wireless-encrypted")
 							}
 						}
 
@@ -162,7 +162,7 @@ QsButton { id: root
 							Text {
 								text: Network.status.connection || ""
 								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
+								font: GlobalVariables.font.semibold
 							}
 
 							// display on connected network
@@ -200,7 +200,7 @@ QsButton { id: root
 								IconImage {
 									anchors { right: parent.right; bottom: parent.bottom; }
 									implicitSize: 8
-									source: Quickshell.iconPath("network-wireless-encrypted")
+									source: Quickshell.iconPath("network-wireless-encrypted-symbolic", "network-wireless-encrypted")
 								}
 							}
 
