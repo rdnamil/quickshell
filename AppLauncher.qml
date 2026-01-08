@@ -66,6 +66,23 @@ Singleton { id: root
 			implicitHeight: layout.height
 			color: "transparent"
 
+			// click outside launcher to close
+			PanelWindow {
+				anchors {
+					left: true
+					right: true
+					top: true
+					bottom: true
+				}
+				// color: "#10ff0000"
+				color: "transparent"
+
+				MouseArea {
+					anchors.fill: parent
+					onClicked: loader.active = false;
+				}
+			}
+
 			Column { id: layout
 				spacing: -1
 				width: screen.width *(1 /6)
@@ -261,21 +278,21 @@ Singleton { id: root
 					bottomPadding: 2
 					ScrollBar.vertical: ScrollBar { id: scrollBar
 						anchors {
-							right: parent.right
-							rightMargin: 3
+							// right: parent.right
+							// rightMargin: scrollBar.pressed? 3 : 4
 							top: parent.top
-							topMargin: GlobalVariables.controls.spacing
+							topMargin: GlobalVariables.controls.spacing /2
 						}
-						height: parent.availableHeight
+						x: parent.width -width /2 -6
+						height: parent.availableHeight -GlobalVariables.controls.spacing
 						contentItem: Rectangle {
-							implicitWidth: 6
+							implicitWidth: scrollBar.pressed || scrollBar.hovered? 6 : 4
 							radius: width /2
 							color: scrollBar.pressed? GlobalVariables.colours.text : GlobalVariables.colours.windowText
 							opacity: (scrollBar.active && scrollBar.size < 1.0) ? 0.75 : 0
 
-							Behavior on opacity {
-								NumberAnimation { duration: 250; }
-							}
+							Behavior on opacity { NumberAnimation { duration: 250; }}
+							Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutCubic; }}
 						}
 					}
 					background: Rectangle {
