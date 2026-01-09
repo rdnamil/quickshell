@@ -24,32 +24,75 @@ Singleton { id: root
 		onUnlocked: lock.locked = false;
 	}
 
+	Variants { id: placeholder
+		signal start()
+
+		model: Quickshell.screens
+		delegate: PanelWindow {
+			required property var modelData
+
+			screen: modelData
+			anchors {
+				left: true
+				right: true
+				top: true
+				bottom: true
+			}
+			WlrLayershell.layer: WlrLayershell.Overlay
+			WlrLayershell.exclusiveZone: -1
+			mask: Region {}
+			// color: "#10ff0000"
+			color: "transparent"
+
+			Image { id: background
+				// visible: false
+				y: -height
+				width: screen.width
+				height: screen.height
+				source: `${Quickshell.env("HOME")}/Pictures/Wallpapers/.current_wall`
+				fillMode: Image.PreserveAspectCrop
+				layer.enabled: true
+				layer.effect: GaussianBlur { samples: 128; }
+			}
+
+			SequentialAnimation { id: placeholderAnim
+				NumberAnimation {
+					target: background
+					property: "y"
+					to: 0
+					duration: 250
+					easing.type: Easing.OutSine
+				}
+
+				ScriptAction { script: lock.locked = true; }
+			}
+
+
+			Connections {
+				target: placeholder
+				function onStart() {
+					placeholderAnim.start();
+				}
+			}
+
+			Connections {
+				target: lockContext
+				function onUnlocked() { background.y = -height; }
+			}
+		}
+	}
+
 	WlSessionLock { id: lock
 		surface: WlSessionLockSurface { id: surface
 			color: GlobalVariables.colours.window
 
-			Item { id: lockscreen
+			Item {
 				property bool ready
 
 				width: parent.width
 				height: parent.height
-				onHeightChanged: {
-					if (height > 0 && !ready) {
-						ready = true;
-						y = -height
-						lockAnim.restart();
-					}
-				}
 
-				NumberAnimation { id: lockAnim
-					target: lockscreen
-					property: "y"
-					to: 0
-					duration: 300
-					easing.type: Easing.OutSine
-				}
-
-				Image { id: background
+				Image {
 					anchors.fill: parent
 					source: `${Quickshell.env("HOME")}/Pictures/Wallpapers/.current_wall`
 					fillMode: Image.PreserveAspectCrop
@@ -183,7 +226,8 @@ Singleton { id: root
 	Process { id: lockProc
 		command: ['sh', '-c', `cp "$(swww query | head -n 1 | grep -oP '${Quickshell.env("HOME")}/Pictures/Wallpapers/\\S+(jpg|png|jpeg|webp)')" ${Quickshell.env("HOME")}/Pictures/Wallpapers/.current_wall`]
 		stdout: StdioCollector {
-			onStreamFinished: lock.locked = true;
+			// onStreamFinished: lock.locked = true;
+			onStreamFinished: placeholder.start();
 		}
 	}
 
