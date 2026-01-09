@@ -46,7 +46,7 @@ Singleton { id: root
 					property: "y"
 					to: 0
 					duration: 300
-					easing.type: Easing.OutQuint
+					easing.type: Easing.OutSine
 				}
 
 				Image { id: background
