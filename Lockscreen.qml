@@ -17,6 +17,8 @@ import qs.controls as Ctrl
 import qs.styles as Style
 
 Singleton { id: root
+	property string currentWallpaper
+
 	function init() {}
 	function lock() { lock.locked = true; }
 
@@ -45,12 +47,12 @@ Singleton { id: root
 			color: "transparent"
 
 			Image { id: background
-				// visible: false
 				y: -height
 				width: screen.width
 				height: screen.height
-				source: `${Quickshell.env("HOME")}/Pictures/Wallpapers/.current_wall`
+				source: root.currentWallpaper
 				fillMode: Image.PreserveAspectCrop
+				cache: false
 				layer.enabled: true
 				layer.effect: GaussianBlur { samples: 128; }
 			}
@@ -70,9 +72,7 @@ Singleton { id: root
 
 			Connections {
 				target: placeholder
-				function onStart() {
-					placeholderAnim.start();
-				}
+				function onStart() { placeholderAnim.start(); }
 			}
 
 			Connections {
@@ -84,7 +84,7 @@ Singleton { id: root
 
 	WlSessionLock { id: lock
 		surface: WlSessionLockSurface { id: surface
-			color: GlobalVariables.colours.window
+			color: GlobalVariables.colours.dark
 
 			Item {
 				property bool ready
@@ -94,7 +94,7 @@ Singleton { id: root
 
 				Image {
 					anchors.fill: parent
-					source: `${Quickshell.env("HOME")}/Pictures/Wallpapers/.current_wall`
+					source: root.currentWallpaper
 					fillMode: Image.PreserveAspectCrop
 					layer.enabled: true
 					layer.effect: GaussianBlur { samples: 128; }
@@ -161,7 +161,7 @@ Singleton { id: root
 									}
 								}
 								onTextChanged: { lockContext.passwd = this.text; lockContext.showFailure = false; }
-								onAccepted: lockContext.tryUnlock();
+								onAccepted: if (!lockContext.unlockInProgress) lockContext.tryUnlock();
 							}
 
 							Connections {
@@ -224,10 +224,13 @@ Singleton { id: root
 	}
 
 	Process { id: lockProc
-		command: ['sh', '-c', `cp "$(swww query | head -n 1 | grep -oP '${Quickshell.env("HOME")}/Pictures/Wallpapers/\\S+(jpg|png|jpeg|webp)')" ${Quickshell.env("HOME")}/Pictures/Wallpapers/.current_wall`]
+		command: ['sh', '-c', `echo "$(swww query | head -n 1 | grep -oP '${Quickshell.env("HOME")}/Pictures/Wallpapers/\\S+(jpg|png|jpeg|webp)')"`]
 		stdout: StdioCollector {
 			// onStreamFinished: lock.locked = true;
-			onStreamFinished: placeholder.start();
+			onStreamFinished: {
+				root.currentWallpaper = text.trim();
+				placeholder.start();
+			}
 		}
 	}
 
