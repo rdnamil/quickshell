@@ -35,7 +35,7 @@ Singleton { id: root
 		sourceComponent: PanelWindow {
 			anchors.top: true
 			exclusiveZone: 0
-			WlrLayershell.layer: WlrLayer.Overlay
+			WlrLayershell.layer: WlrLayer.Top
 			WlrLayershell.namespace: "qs:notifications"
 			mask: Region { item: list; }
 			implicitWidth: screen.width /6 +60
