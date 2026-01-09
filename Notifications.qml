@@ -23,10 +23,10 @@ Singleton { id: root
 		function onCountChanged() {
 			if (loader.active && !(Service.Notifications.model.count > 0)) {
 				loader.active = false;
-				console.log(`NotificationsNew: active = ${loader.active}`);
+				console.log(`Notifications: active = ${loader.active}`);
 			} else if (!loader.active && (Service.Notifications.model.count > 0)) {
 				loader.active = true;
-				console.log(`NotificationsNew: active = ${loader.active}`);
+				console.log(`Notifications: active = ${loader.active}`);
 			}
 		}
 	}
