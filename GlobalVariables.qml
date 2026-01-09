@@ -17,6 +17,7 @@ Singleton { id: root
 		readonly property string terminal: "ghostty"
 	}
 	readonly property var font: QtObject {
+		readonly property var sans: "Adwaita Sans"
 		readonly property font regular: Qt.font({
 			family: "Adwaita Sans",
 			pointSize: 10
@@ -80,6 +81,11 @@ Singleton { id: root
 			pointSize: 6,
 			weight: 600,
 			letterSpacing: 0.5
+		})
+		readonly property font monolarge: Qt.font({
+			family: "JetBrainsMono Nerd Font",
+			pointSize: 20,
+			letterSpacing: 10
 		})
 	}
 	readonly property SystemPalette colours: SystemPalette { colorGroup: SystemPalette.Active; }
