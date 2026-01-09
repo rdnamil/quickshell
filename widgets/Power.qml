@@ -34,6 +34,22 @@ Ctrl.QsButton { id: root
 				spacing: 3
 
 				Ctrl.QsButton {
+					onClicked: { Lockscreen.lock(); popout.close(); }
+					tooltip: Text {
+						text: "Log out"
+						color: GlobalVariables.colours.text
+						font: GlobalVariables.font.regular
+					}
+					content: Style.Button {
+						IconImage {
+							anchors.centerIn: parent
+							implicitSize: GlobalVariables.controls.iconSize
+							source: Quickshell.iconPath("system-lock-screen")
+						}
+					}
+				}
+
+				Ctrl.QsButton {
 					onClicked: Quickshell.execDetached(['niri', 'msg', 'action', 'quit', '-s'])
 					tooltip: Text {
 						text: "Log out"

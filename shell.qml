@@ -57,6 +57,7 @@ Scope { id: root
 	// connect to shell services
 	Component.onCompleted: [
 		Service.Shell.init(),
+		Lockscreen.init(),
 		Notifications.init(),
 		AppLauncher.init(
 			10 // the maximum number of lines to display
