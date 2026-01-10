@@ -15,7 +15,7 @@ Singleton { id: root
 	}
 	property var weather: null
 
-	function getWeatherIcon(weatherCode, isDay = true) {
+	function getWeatherIcon(weatherCode, isDay = 1) {
 		const preffix = "weather-";
 		var suffix = "app";
 
