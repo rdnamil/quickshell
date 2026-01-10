@@ -132,7 +132,7 @@ Singleton { id: root
 
 						Rectangle { id: passwd
 							width: screen.width /8
-							height: textInput.height
+							height: textInput.height +GlobalVariables.controls.padding
 							radius: height /2
 							// radius: GlobalVariables.controls.radius
 							color: GlobalVariables.colours.base
@@ -185,7 +185,7 @@ Singleton { id: root
 							anim: enabled
 							onClicked: if (enabled) textInput.accepted();
 							content: Rectangle {
-								width: icon.width
+								width: textInput.height +GlobalVariables.controls.padding
 								height: width
 								radius: height /2
 								color: GlobalVariables.colours.base
@@ -200,8 +200,9 @@ Singleton { id: root
 
 								Style.Borders { opacity: 0.4; }
 
-								IconImage { id: icon
-									implicitSize: 32
+								IconImage {
+									anchors.centerIn: parent
+									implicitSize: parent.height -GlobalVariables.controls.spacing /2
 									source: Quickshell.iconPath("draw-arrow-forward")
 								}
 							}
@@ -236,6 +237,6 @@ Singleton { id: root
 
 	IpcHandler {
 		target: "lock"
-		function lockScreen(): void { lockProc.running = true; }
+		function lockScreen(): void { if (!lock.locked) lockProc.running = true; }
 	}
 }
