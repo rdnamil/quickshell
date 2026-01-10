@@ -144,7 +144,7 @@ Singleton { id: root
 					// date and weather
 					Row {
 						anchors.horizontalCenter: parent.horizontalCenter
-						spacing: GlobalVariables.controls.spacing
+						spacing: GlobalVariables.controls.spacing *2
 						layer.enabled: true
 						layer.effect: DropShadow {
 							samples: 64
@@ -161,31 +161,66 @@ Singleton { id: root
 						}
 
 						// weather icon
-						IconImage {
-							implicitSize: 32
-							source: Quickshell.iconPath(Service.Weather.getWeatherIcon(Service.Weather.weather.current.weather_code, Service.Weather.weather.current.is_day))
-						}
+						Item {
+							width: weatherIcon.width
+							height: weatherIcon.height
 
-						// weather temperature
-						Row {
-							anchors.verticalCenter: parent.verticalCenter
+							IconImage { id: weatherIcon
+								implicitSize: 32
+								source: Quickshell.iconPath(Service.Weather.getWeatherIcon(Service.Weather.weather.current.weather_code, Service.Weather.weather.current.is_day))
+								layer.enabled: true
+								layer.effect: OpacityMask {
+									invert: true
+									maskSource: Rectangle {
+										width: weatherIcon.width
+										height: weatherIcon.height
+										color: "transparent"
+
+										Text {
+											anchors {
+												left: parent.right
+												leftMargin: -GlobalVariables.controls.spacing
+												bottom: parent.bottom
+												bottomMargin: -GlobalVariables.controls.spacing /2
+											}
+											text: parseInt(Service.Weather.weather.current.temperature_2m)
+											font.family: GlobalVariables.font.sans
+											font.pixelSize: 20
+											font.weight: 300
+											layer.enabled: true
+											layer.effect: Glow { samples: 8; }
+										}
+									}
+								}
+							}
 
 							Text {
+								anchors {
+									left: parent.right
+									leftMargin: -GlobalVariables.controls.spacing
+									bottom: parent.bottom
+									bottomMargin: -GlobalVariables.controls.spacing /2
+
+								}
 								text: parseInt(Service.Weather.weather.current.temperature_2m)
 								color: GlobalVariables.colours.text
 								font.family: GlobalVariables.font.sans
-								font.pixelSize: 24
-								font.weight: 600
-							}
+								font.pixelSize: 20
+								font.weight: 300
 
-							Text {
-								text: Service.Weather.weather.current_units.temperature_2m
-								color: GlobalVariables.colours.text
-								topPadding: 3
-								font: GlobalVariables.font.semibold
+								Text {
+									anchors.left: parent.right
+									text: Service.Weather.weather.current_units.temperature_2m
+									color: GlobalVariables.colours.text
+									topPadding: 1
+									font: GlobalVariables.font.regular
+								}
 							}
 						}
 					}
+
+					// spacer
+					Item { width: 1; height: 48; }
 
 					// password text field
 					Rectangle { id: passwd
