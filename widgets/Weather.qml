@@ -90,7 +90,7 @@ Loader { id: root
 			IconImage { id: weatherIcon
 				anchors.verticalCenter: parent.verticalCenter
 				implicitSize: GlobalVariables.controls.iconSize
-				source: Quickshell.iconPath(`weather${getWeatherIcon(Service.Weather.weather.current.weather_code, Service.Weather.weather.current.is_day)}`)
+				source: Quickshell.iconPath(Service.Weather.getWeatherIcon(Service.Weather.weather.current.weather_code, Service.Weather.weather.current.is_day))
 			}
 
 			Row {
@@ -158,7 +158,7 @@ Loader { id: root
 								Layout.fillWidth: true
 								Layout.alignment: Qt.AlignHCenter
 								implicitSize: GlobalVariables.controls.iconSize
-								source: Quickshell.iconPath(`weather${getWeatherIcon(Service.Weather.weather.daily.weather_code[index], true)}`)
+								source: Quickshell.iconPath(Service.Weather.getWeatherIcon(Service.Weather.weather.daily.weather_code[index]))
 							}
 
 							Text {
