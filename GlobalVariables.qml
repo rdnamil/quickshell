@@ -84,7 +84,7 @@ Singleton { id: root
 		})
 		readonly property font monolarge: Qt.font({
 			family: "JetBrainsMono Nerd Font",
-			pointSize: 20,
+			pointSize: 16,
 			letterSpacing: 10
 		})
 	}
