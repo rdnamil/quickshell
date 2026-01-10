@@ -173,7 +173,7 @@ Row { id: root
 							Quickshell.execDetached(["niri", "msg", "action", "focus-window", "--id", modelData.id]);
 							Quickshell.execDetached(["niri", "msg", "action", "center-window"]);
 						}
-						content: Rectangle{
+						content: Rectangle {
 							anchors.centerIn: parent
 							width: modelData.is_focused? 6 : 6
 							height: width
