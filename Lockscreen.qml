@@ -15,6 +15,7 @@ import qs
 import qs.services as Service
 import qs.controls as Ctrl
 import qs.styles as Style
+import qs.widgets as Widget
 
 Singleton { id: root
 	property string currentWallpaper
@@ -100,94 +101,155 @@ Singleton { id: root
 					layer.effect: GaussianBlur { samples: 128; }
 				}
 
-				ColumnLayout {
+				SystemClock { id: clock
+					precision: SystemClock.Seconds
+				}
+
+				// for debug
+				// Rectangle {
+				// 	anchors.centerIn: parent
+				// 	width: parent.width
+				// 	height: 1
+    //
+				// 	Text {
+				// 		text: passwd.y
+				// 		color: GlobalVariables.colours.text
+				// 		font: GlobalVariables.font.regular
+				// 	}
+				// }
+
+				Column {
 					anchors {
 						horizontalCenter: parent.horizontalCenter
 						top: parent.top
-						topMargin: parent.height /2 -label.height
+						topMargin: parent.height /2 -(passwd.y +passwd.height /2) // centre on password entry field
 					}
-					spacing: 0
+					spacing: GlobalVariables.controls.spacing
 
-					Text { id: label
-						Layout.alignment: Qt.AlignHCenter
+					// time
+					Text {
+						anchors.horizontalCenter: parent.horizontalCenter
+						height: 192
 						text: Qt.formatDateTime(clock.date, "hh:mm")
-						color: GlobalVariables.colours.text
 						font.family: GlobalVariables.font.sans
-						font.pixelSize: screen.height /7.5
+						font.pixelSize: 192
+						color: GlobalVariables.colours.text
 						layer.enabled: true
 						layer.effect: DropShadow {
 							samples: 128
 							color: GlobalVariables.colours.shadow
 						}
+					}
 
-						SystemClock { id: clock
-							precision: SystemClock.Seconds
+					// date and weather
+					Row {
+						anchors.horizontalCenter: parent.horizontalCenter
+						spacing: GlobalVariables.controls.spacing
+						layer.enabled: true
+						layer.effect: DropShadow {
+							samples: 64
+							color: GlobalVariables.colours.shadow
+						}
+
+						// date
+						Text {
+							anchors.verticalCenter: parent.verticalCenter
+							text: Qt.formatDateTime(clock.date, "dddd, MMMM d")
+							font.family: GlobalVariables.font.sans
+							font.pixelSize: 24
+							color: GlobalVariables.colours.text
+						}
+
+						// weather icon
+						IconImage {
+							implicitSize: 32
+							source: Quickshell.iconPath(Service.Weather.getWeatherIcon(Service.Weather.weather.current.weather_code, Service.Weather.weather.current.is_day))
+						}
+
+						// weather temperature
+						Row {
+							anchors.verticalCenter: parent.verticalCenter
+
+							Text {
+								text: parseInt(Service.Weather.weather.current.temperature_2m)
+								color: GlobalVariables.colours.text
+								font.family: GlobalVariables.font.sans
+								font.pixelSize: 24
+								font.weight: 600
+							}
+
+							Text {
+								text: Service.Weather.weather.current_units.temperature_2m
+								color: GlobalVariables.colours.text
+								topPadding: 3
+								font: GlobalVariables.font.semibold
+							}
 						}
 					}
 
 					// password text field
-					Row {
-						Layout.alignment: Qt.AlignHCenter
-						spacing: GlobalVariables.controls.spacing
+					Rectangle { id: passwd
+						anchors.horizontalCenter: parent.horizontalCenter
+						width: screen.width /8
+						height: textInput.height +GlobalVariables.controls.padding
+						// radius: height /2
+						radius: GlobalVariables.controls.radius
+						color: GlobalVariables.colours.base
+						opacity: 0.975
 
-						Rectangle { id: passwd
-							width: screen.width /8
-							height: textInput.height +GlobalVariables.controls.padding
-							radius: height /2
-							// radius: GlobalVariables.controls.radius
-							color: GlobalVariables.colours.base
-							opacity: 0.975
+						Style.Borders { opacity: 0.4; }
 
-							Style.Borders { opacity: 0.4; }
-
-							TextInput { id: textInput
-								anchors.centerIn: parent
-								width: parent.width -8
-								focus: true
-								cursorDelegate: Item {}
-								font: GlobalVariables.font.monolarge
-								horizontalAlignment: Text.AlignHCenter
-								color: lockContext.unlockInProgress? GlobalVariables.colours.windowText : GlobalVariables.colours.text
-								echoMode: TextInput.Password;
-								passwordCharacter: ""
-								inputMethodHints: Qt.ImhSensitiveData
-								enabled: !lockContext.unlockInProgress
-								layer.enabled: true
-								layer.effect: OpacityMask {
-									maskSource: Rectangle {
-										width: textInput.width
-										height: textInput.height
-										radius: height /2
-									}
+						TextInput { id: textInput
+							anchors.centerIn: parent
+							width: parent.width -8
+							focus: true
+							cursorDelegate: Item {}
+							font: GlobalVariables.font.monolarge
+							horizontalAlignment: Text.AlignHCenter
+							color: lockContext.unlockInProgress? GlobalVariables.colours.windowText : GlobalVariables.colours.text
+							echoMode: TextInput.Password;
+							passwordCharacter: ""
+							inputMethodHints: Qt.ImhSensitiveData
+							enabled: !lockContext.unlockInProgress
+							layer.enabled: true
+							layer.effect: OpacityMask {
+								maskSource: Rectangle {
+									width: textInput.width
+									height: textInput.height
+									radius: GlobalVariables.controls.radius
 								}
-								onTextChanged: { lockContext.passwd = this.text; lockContext.showFailure = false; }
-								onAccepted: if (!lockContext.unlockInProgress) lockContext.tryUnlock();
 							}
+							onTextChanged: { lockContext.passwd = this.text; lockContext.showFailure = false; }
+							onAccepted: if (!lockContext.unlockInProgress) lockContext.tryUnlock();
+						}
 
-							Connections {
-								target: lockContext
-								function onFailed() { textInput.clear(); lockContext.showFailure = true; }
-							}
+						Connections {
+							target: lockContext
+							function onFailed() { textInput.clear(); lockContext.showFailure = true; }
+						}
 
-							Text {
-								anchors.centerIn: parent
-								visible: lockContext.showFailure
-								text: "Incorrect password"
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.italic
-							}
+						Text {
+							anchors.centerIn: parent
+							visible: lockContext.showFailure
+							text: "Incorrect password"
+							color: GlobalVariables.colours.text
+							font: GlobalVariables.font.italic
 						}
 
 						Ctrl.QsButton { id: btn
 							readonly property bool enabled: !lockContext.unlockInProgress && textInput.text
 
+							anchors {
+								left: parent.right
+								leftMargin: GlobalVariables.controls.spacing
+							}
 							shade: enabled
 							anim: enabled
 							onClicked: if (enabled) textInput.accepted();
 							content: Rectangle {
 								width: textInput.height +GlobalVariables.controls.padding
 								height: width
-								radius: height /2
+								radius: GlobalVariables.controls.radius
 								color: GlobalVariables.colours.base
 								opacity: 0.975
 								layer.enabled: true
