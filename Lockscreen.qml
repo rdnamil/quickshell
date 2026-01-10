@@ -21,7 +21,7 @@ Singleton { id: root
 	property string currentWallpaper
 
 	function init() {}
-	function lock() { lock.locked = true; }
+	function lock() { lockProc.running = true; }
 
 	Service.LockContext { id: lockContext
 		onUnlocked: lock.locked = false;
@@ -299,6 +299,6 @@ Singleton { id: root
 
 	IpcHandler {
 		target: "lock"
-		function lockScreen(): void { if (!lock.locked) lockProc.running = true; }
+		function lockScreen(): void { if (!lock.locked) root.lock(); }
 	}
 }
