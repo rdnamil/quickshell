@@ -38,6 +38,7 @@ Item { id: root
 
 	onScrollChanged: restart();
 	onContentWidthChanged: root.restart();
+	width: content.width
 	height: content.height
 	clip: true
 
