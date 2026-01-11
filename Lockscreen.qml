@@ -48,19 +48,19 @@ Singleton { id: root
 			color: "transparent"
 
 			Image { id: background
-				y: -height
 				width: screen.width
 				height: screen.height
 				source: root.currentWallpaper
 				fillMode: Image.PreserveAspectCrop
 				cache: false
+				transform: Translate { id: backTrans; y: -height; }
 				layer.enabled: true
 				layer.effect: GaussianBlur { samples: 128; }
 			}
 
 			SequentialAnimation { id: placeholderAnim
 				NumberAnimation {
-					target: background
+					target: backTrans
 					property: "y"
 					to: 0
 					duration: 250
@@ -78,7 +78,7 @@ Singleton { id: root
 
 			Connections {
 				target: lockContext
-				function onUnlocked() { background.y = -height; }
+				function onUnlocked() { backTrans.y = -height; }
 			}
 		}
 	}
@@ -88,8 +88,6 @@ Singleton { id: root
 			color: GlobalVariables.colours.dark
 
 			Item {
-				property bool ready
-
 				width: parent.width
 				height: parent.height
 
@@ -108,11 +106,11 @@ Singleton { id: root
 				// for debug
 				// Rectangle {
 				// 	anchors.centerIn: parent
-				// 	width: parent.width
-				// 	height: 1
+				// 	width: 1
+				// 	height: parent.height
     //
 				// 	Text {
-				// 		text: passwd.y
+				// 		text: nowPlaying.width
 				// 		color: GlobalVariables.colours.text
 				// 		font: GlobalVariables.font.regular
 				// 	}
@@ -127,7 +125,7 @@ Singleton { id: root
 					spacing: GlobalVariables.controls.spacing
 
 					// time
-					Text {
+					Text { id: time
 						anchors.horizontalCenter: parent.horizontalCenter
 						height: 192
 						text: Qt.formatDateTime(clock.date, "hh:mm")
@@ -220,7 +218,7 @@ Singleton { id: root
 					}
 
 					// spacer
-					Item { width: 1; height: 48; }
+					Item { width: parent.width; height: 48; }
 
 					// password text field
 					Rectangle { id: passwd
@@ -301,6 +299,85 @@ Singleton { id: root
 									anchors.centerIn: parent
 									implicitSize: parent.height -GlobalVariables.controls.spacing /2
 									source: Quickshell.iconPath("draw-arrow-forward")
+								}
+							}
+						}
+					}
+
+					// spacer
+					Item { width: parent.width; height: 48; }
+
+					// music player
+					Row {
+						anchors {
+							left: parent.left
+							leftMargin: parent.width /2 -(trackInfo.x +nowPlaying.width +GlobalVariables.controls.spacing)
+						}
+						visible: Service.MusicPlayer.active
+						spacing: GlobalVariables.controls.spacing
+
+						Ctrl.QsButton {
+							onClicked: Service.MusicPlayer.activePlayer.togglePlaying();
+							content: Image {
+								width: 64
+								height: 64
+								source: Service.MusicPlayer.track.art
+								layer.enabled: true
+								layer.effect: OpacityMask {
+									maskSource: Rectangle {
+										width: 64
+										height: 64
+										radius: GlobalVariables.controls.radius
+									}
+								}
+							}
+
+							IconImage {
+								anchors.centerIn: parent
+								visible: parent.containsMouse
+								implicitSize: 32
+								source: Service.MusicPlayer.activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
+							}
+						}
+
+						Column { id: trackInfo
+							spacing: GlobalVariables.controls.spacing /2
+							layer.enabled: true
+							layer.effect: DropShadow {
+								samples: 64
+								color: GlobalVariables.colours.shadow
+							}
+
+							Text { id: nowPlaying
+								text: "Now playing"
+								color: Service.MusicPlayer.accentColour
+								font: GlobalVariables.font.bold
+							}
+
+							Ctrl.Marquee {
+								width: Math.min(content.width, 294)
+								content: Row {
+									spacing: GlobalVariables.controls.spacing /2
+
+									Text {
+										text: Service.MusicPlayer.track.title
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.semibold
+									}
+
+									Rectangle {
+										anchors.verticalCenter: parent.verticalCenter
+										width: 4
+										height: width
+										radius: height /2
+										color: GlobalVariables.colours.text
+									}
+
+									Text {
+										text: Service.MusicPlayer.track.artist
+										color: GlobalVariables.colours.text
+										font: GlobalVariables.font.regular
+									}
 								}
 							}
 						}
