@@ -59,10 +59,10 @@ Scope { id: root
 		Service.Shell.init(),
 		Settings_Beta.init(),
 		Lockscreen.init(),
-		// Notifications.init(),
+		Notifications.init(),
 		AppLauncher.init(
 			10, // the maximum number of lines to display
-			true // hide category filters
+			false // hide category filters
 		),
 		Service.Redeye.init(
 			5500, // temperature in K
