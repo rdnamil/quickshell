@@ -316,7 +316,7 @@ Singleton { id: root
 						Ctrl.QsButton {
 							onClicked: Service.MusicPlayer.activePlayer.togglePlaying();
 							content: Image { id: coverArt
-								height: Math.min(64, sourceSize.width)
+								height: Math.min(64, sourceSize.height)
 								source: Service.MusicPlayer.track.art
 								fillMode: Image.PreserveAspectFit
 								layer.enabled: true
