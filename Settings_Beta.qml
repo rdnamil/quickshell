@@ -18,7 +18,7 @@ Singleton { id: root
 	function init() {}
 
 	FloatingWindow { id: window
-		visible: false
+		// visible: false
 		title: "Qs Settings - Wallpaper"
 		color: GlobalVariables.colours.dark;
 
@@ -29,18 +29,18 @@ Singleton { id: root
 			// pages
 			ColumnLayout {
 				Layout.alignment: Qt.AlignTop
-				Layout.topMargin: GlobalVariables.controls.padding
-				spacing: GlobalVariables.controls.spacing
+				// Layout.topMargin: GlobalVariables.controls.padding
+				// spacing: GlobalVariables.controls.spacing
 				Layout.fillHeight: true
+				spacing: 0
 
 				Ctrl.QsButton {
 					highlight: true
 					shade: false
 					clip: true
 					fill: true
-					content: Row {
-						leftPadding: GlobalVariables.controls.padding
-						rightPadding: GlobalVariables.controls.padding
+					content: Row { id: wallpaper
+						padding: GlobalVariables.controls.spacing
 						spacing: GlobalVariables.controls.spacing
 
 						IconImage {
@@ -85,6 +85,7 @@ Singleton { id: root
 
 					signal dropOpened()
 
+					spacing: 0
 					width: parent.width
 					height: parent.height
 
@@ -143,184 +144,189 @@ Singleton { id: root
 						stdout: StdioCollector { onStreamFinished: { if (text.trim()) fillColourBtn.fillColour = text.trim(); }}
 					}
 
-					// display and wall settings
-					RowLayout {
-						Layout.margins: GlobalVariables.controls.padding
-						Layout.bottomMargin: 0
-						spacing: GlobalVariables.controls.spacing
+					ColumnLayout {
+						Layout.alignment: Qt.AlignTop
+						spacing: 0
 
-						// select display
+						// display and wall settings
 						RowLayout {
-							Text {
-								text: "Display:"
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
+							Layout.margins: GlobalVariables.controls.padding
+							Layout.bottomMargin: 0
+							spacing: 0
 
-							Ctrl.QsDropdown { id: displayDrop
-								Layout.fillWidth: true
-								Layout.minimumWidth: 64
-								selection: "All"
-								options: ["All", ...Quickshell.screens.map(s => s.name)]
-								onSelected: (option) => { selection = option; }
-								onOpened: {
-									whosOpen = displayDrop;
-									wallpaperSettings.dropOpened();
-								}
-
-								Connections {
-									target: wallpaperSettings
-									function onDropOpened() { if (whosOpen !== displayDrop) displayDrop.close(); }
-								}
-							}
-						}
-
-						// spacer
-						Item { Layout.preferredWidth: GlobalVariables.controls.padding; }
-
-						// wallpaper path/selection
-						RowLayout {
-							Text {
-								text: "Wallpaper:"
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
-
-							Ctrl.QsButton {
-								Layout.fillWidth: true
-								Layout.minimumWidth: 128
-								anim: false
-								shade: false
-								tooltip: Text {
-									text: wallpaperSettings.currentWallPath
+							// select display
+							RowLayout {
+								Text {
+									text: "Display:"
 									color: GlobalVariables.colours.text
 									font: GlobalVariables.font.regular
 								}
-								content: Style.Button {
-									width: parent.parent.width
-									invert: true
 
-									Text {
-										anchors.verticalCenter: parent.verticalCenter
-										width: parent.width
-										leftPadding: GlobalVariables.controls.padding
-										rightPadding: GlobalVariables.controls.padding
-										text: wallpaperSettings.currentWallPath
-										color: GlobalVariables.colours.windowText
-										font: GlobalVariables.font.regular
-										elide: Text.ElideLeft
+								Ctrl.QsDropdown { id: displayDrop
+									Layout.fillWidth: true
+									Layout.minimumWidth: 64
+									selection: "All"
+									options: ["All", ...Quickshell.screens.map(s => s.name)]
+									onSelected: (option) => { selection = option; }
+									onOpened: {
+										whosOpen = displayDrop;
+										wallpaperSettings.dropOpened();
+									}
+
+									Connections {
+										target: wallpaperSettings
+										function onDropOpened() { if (whosOpen !== displayDrop) displayDrop.close(); }
 									}
 								}
 							}
 
-							Ctrl.QsButton {
-								onClicked: {
-									whosOpen = null;
-									wallpaperSettings.dropOpened();
-									if (!lockFileSelection) setWall.running = true;
-								}
-								content: Style.Button {
-									width: fileSelectionText.width
-									height: 24
+							// spacer
+							Item { Layout.preferredWidth: GlobalVariables.controls.padding; }
 
-									Text { id: fileSelectionText
-										leftPadding: GlobalVariables.controls.spacing
-										rightPadding: GlobalVariables.controls.spacing
-										text: "..."
+							// wallpaper path/selection
+							RowLayout {
+								Text {
+									text: "Wallpaper:"
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+
+								Ctrl.QsButton {
+									Layout.fillWidth: true
+									Layout.minimumWidth: 128
+									anim: false
+									shade: false
+									tooltip: Text {
+										text: wallpaperSettings.currentWallPath
 										color: GlobalVariables.colours.text
 										font: GlobalVariables.font.regular
 									}
-								}
-							}
-						}
-					}
+									content: Style.Button {
+										width: parent.parent.width
+										invert: true
 
-					// swww settings
-					RowLayout {
-						Layout.margins: GlobalVariables.controls.padding
-						Layout.bottomMargin: 0
-						spacing: GlobalVariables.controls.spacing
-
-						// fill mode
-						RowLayout {
-							Text {
-								text: "Resize:"
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
-
-							Ctrl.QsDropdown { id: resizeDrop
-								Layout.fillWidth: true
-								options: ['no', 'crop', 'fit', 'stretch']
-								selection: 'crop'
-								onSelected: (option) => { selection = option; }
-								onOpened: {
-									whosOpen = resizeDrop;
-									wallpaperSettings.dropOpened();
+										Text {
+											anchors.verticalCenter: parent.verticalCenter
+											width: parent.width
+											leftPadding: GlobalVariables.controls.padding
+											rightPadding: GlobalVariables.controls.padding
+											text: wallpaperSettings.currentWallPath
+											color: GlobalVariables.colours.windowText
+											font: GlobalVariables.font.regular
+											elide: Text.ElideLeft
+										}
+									}
 								}
 
-								Connections {
-									target: wallpaperSettings
-									function onDropOpened() { if (whosOpen !== resizeDrop) resizeDrop.close(); }
-								}
-							}
-						}
+								Ctrl.QsButton {
+									onClicked: {
+										whosOpen = null;
+										wallpaperSettings.dropOpened();
+										if (!lockFileSelection) setWall.running = true;
+									}
+									content: Style.Button {
+										width: fileSelectionText.width
+										height: 24
 
-						// spacer
-						Item { Layout.preferredWidth: GlobalVariables.controls.padding; }
-
-						// fill colour
-						RowLayout {
-							Text {
-								text: "Fill colour:"
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
-
-							Ctrl.QsButton { id: fillColourBtn
-								property color fillColour: "white"
-
-								onClicked: {
-									whosOpen = null;
-									wallpaperSettings.dropOpened();
-									if (!lockColourSelection) getColour.running = true;
-								}
-								anim: false
-								shade: false
-								content: Rectangle {
-									width: 24
-									height: width
-									radius: height /2
-									color: fillColourBtn.fillColour
-									border { width: 2; color: GlobalVariables.colours.accent; }
+										Text { id: fileSelectionText
+											leftPadding: GlobalVariables.controls.spacing
+											rightPadding: GlobalVariables.controls.spacing
+											text: "..."
+											color: GlobalVariables.colours.text
+											font: GlobalVariables.font.regular
+										}
+									}
 								}
 							}
 						}
 
-						// spacer
-						Item { Layout.preferredWidth: GlobalVariables.controls.padding; }
-
-						// transition
+						// swww settings
 						RowLayout {
-							Text {
-								text: "Transition:"
-								color: GlobalVariables.colours.text
-								font: GlobalVariables.font.regular
-							}
+							Layout.margins: GlobalVariables.controls.padding
+							Layout.bottomMargin: 0
+							spacing: GlobalVariables.controls.spacing
 
-							Ctrl.QsDropdown { id: transDrop
-								Layout.fillWidth: true
-								options: ['none', 'simple', 'fade', 'left', 'right', 'top', 'bottom', 'wipe', 'wave', 'grow', 'center', 'any', 'outer', 'random']
-								selection: 'wave'
-								onSelected: (option) => { selection = option; }
-								onOpened: {
-									whosOpen = transDrop;
-									wallpaperSettings.dropOpened();
+							// fill mode
+							RowLayout {
+								Text {
+									text: "Resize:"
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
 								}
 
-								Connections {
-									target: wallpaperSettings
-									function onDropOpened() { if (whosOpen !== transDrop) transDrop.close(); }
+								Ctrl.QsDropdown { id: resizeDrop
+									Layout.fillWidth: true
+									options: ['no', 'crop', 'fit', 'stretch']
+									selection: 'crop'
+									onSelected: (option) => { selection = option; }
+									onOpened: {
+										whosOpen = resizeDrop;
+										wallpaperSettings.dropOpened();
+									}
+
+									Connections {
+										target: wallpaperSettings
+										function onDropOpened() { if (whosOpen !== resizeDrop) resizeDrop.close(); }
+									}
+								}
+							}
+
+							// spacer
+							Item { Layout.preferredWidth: GlobalVariables.controls.padding; }
+
+							// fill colour
+							RowLayout {
+								Text {
+									text: "Fill colour:"
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+
+								Ctrl.QsButton { id: fillColourBtn
+									property color fillColour: "white"
+
+									onClicked: {
+										whosOpen = null;
+										wallpaperSettings.dropOpened();
+										if (!lockColourSelection) getColour.running = true;
+									}
+									anim: false
+									shade: false
+									content: Rectangle {
+										width: 24
+										height: width
+										radius: height /2
+										color: fillColourBtn.fillColour
+										border { width: 2; color: GlobalVariables.colours.accent; }
+									}
+								}
+							}
+
+							// spacer
+							Item { Layout.preferredWidth: GlobalVariables.controls.padding; }
+
+							// transition
+							RowLayout {
+								Text {
+									text: "Transition:"
+									color: GlobalVariables.colours.text
+									font: GlobalVariables.font.regular
+								}
+
+								Ctrl.QsDropdown { id: transDrop
+									Layout.fillWidth: true
+									options: ['none', 'simple', 'fade', 'left', 'right', 'top', 'bottom', 'wipe', 'wave', 'grow', 'center', 'any', 'outer', 'random']
+									selection: 'wave'
+									onSelected: (option) => { selection = option; }
+									onOpened: {
+										whosOpen = transDrop;
+										wallpaperSettings.dropOpened();
+									}
+
+									Connections {
+										target: wallpaperSettings
+										function onDropOpened() { if (whosOpen !== transDrop) transDrop.close(); }
+									}
 								}
 							}
 						}
@@ -356,7 +362,7 @@ Singleton { id: root
 
 					// apply changes
 					Ctrl.QsButton { id: applyBtn
-						Layout.alignment: Qt.AlignRight
+						Layout.alignment: Qt.AlignRight | Qt.AlignBottom
 						Layout.margins: GlobalVariables.controls.padding
 						onClicked: applyWall.running = true;
 						content: Style.Button {
