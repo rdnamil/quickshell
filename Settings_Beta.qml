@@ -19,6 +19,7 @@ Singleton { id: root
 
 	FloatingWindow { id: window
 		visible: false
+		title: "Qs Settings - Wallpaper"
 		color: GlobalVariables.colours.dark;
 
 		RowLayout {
