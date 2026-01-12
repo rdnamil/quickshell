@@ -11,6 +11,7 @@ Item { id: root
 	required property Item content
 
 	readonly property bool containsMouse: mouseArea.containsMouse
+	readonly property bool isPressed: mouseArea.pressed
 	readonly property real mouseX: mouseArea.mouseX
 	readonly property real mouseY: mouseArea.mouseY
 
