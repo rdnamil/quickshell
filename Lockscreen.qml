@@ -116,7 +116,7 @@ Singleton { id: root
 				// 	}
 				// }
 
-				Column {
+				ColumnLayout {
 					anchors {
 						horizontalCenter: parent.horizontalCenter
 						top: parent.top
@@ -126,7 +126,6 @@ Singleton { id: root
 
 					// time
 					Text { id: time
-						anchors.horizontalCenter: parent.horizontalCenter
 						height: 192
 						text: Qt.formatDateTime(clock.date, "hh:mm")
 						font.family: GlobalVariables.font.sans
@@ -141,7 +140,7 @@ Singleton { id: root
 
 					// date and weather
 					Row {
-						anchors.horizontalCenter: parent.horizontalCenter
+						Layout.alignment: Qt.AlignHCenter
 						spacing: GlobalVariables.controls.spacing *2
 						layer.enabled: true
 						layer.effect: DropShadow {
@@ -218,64 +217,66 @@ Singleton { id: root
 					}
 
 					// spacer
-					Item { width: parent.width; height: 48; }
+					Item { Layout.preferredHeight: 48; }
 
 					// password text field
-					Rectangle { id: passwd
-						anchors.horizontalCenter: parent.horizontalCenter
-						width: screen.width /8
-						height: textInput.height +GlobalVariables.controls.padding
-						// radius: height /2
-						radius: GlobalVariables.controls.radius
-						color: GlobalVariables.colours.base
-						opacity: 0.975
+					Row { id: passwd
+						Layout.alignment: Qt.AlignHCenter
+						spacing: GlobalVariables.controls.spacing
 
-						Style.Borders { opacity: 0.4; }
+						Rectangle {
+							width: screen.width /8
+							height: textInput.height +GlobalVariables.controls.padding
+							// radius: height /2
+							radius: GlobalVariables.controls.radius
+							color: GlobalVariables.colours.base
+							opacity: 0.975
 
-						TextInput { id: textInput
-							anchors.centerIn: parent
-							width: parent.width -8
-							focus: true
-							cursorDelegate: Item {}
-							font: GlobalVariables.font.monolarge
-							horizontalAlignment: Text.AlignHCenter
-							color: lockContext.unlockInProgress? GlobalVariables.colours.windowText : GlobalVariables.colours.text
-							echoMode: TextInput.Password;
-							passwordCharacter: ""
-							inputMethodHints: Qt.ImhSensitiveData
-							enabled: !lockContext.unlockInProgress
-							layer.enabled: true
-							layer.effect: OpacityMask {
-								maskSource: Rectangle {
-									width: textInput.width
-									height: textInput.height
-									radius: GlobalVariables.controls.radius
+							Style.Borders { opacity: 0.4; }
+
+							TextInput { id: textInput
+								anchors.centerIn: parent
+								width: parent.width -8
+								focus: true
+								cursorDelegate: Item {}
+								font: GlobalVariables.font.monolarge
+								horizontalAlignment: Text.AlignHCenter
+								color: lockContext.unlockInProgress? GlobalVariables.colours.windowText : GlobalVariables.colours.text
+								echoMode: TextInput.Password;
+								passwordCharacter: ""
+								inputMethodHints: Qt.ImhSensitiveData
+								enabled: !lockContext.unlockInProgress
+								layer.enabled: true
+								layer.effect: OpacityMask {
+									maskSource: Rectangle {
+										width: textInput.width
+										height: textInput.height
+										radius: GlobalVariables.controls.radius
+									}
 								}
+								onTextChanged: { lockContext.passwd = this.text; lockContext.showFailure = false; }
+								onAccepted: if (!lockContext.unlockInProgress) lockContext.tryUnlock();
 							}
-							onTextChanged: { lockContext.passwd = this.text; lockContext.showFailure = false; }
-							onAccepted: if (!lockContext.unlockInProgress) lockContext.tryUnlock();
-						}
 
-						Connections {
-							target: lockContext
-							function onFailed() { textInput.clear(); lockContext.showFailure = true; }
-						}
+							Connections {
+								target: lockContext
+								function onFailed() { textInput.clear(); lockContext.showFailure = true; }
+							}
 
-						Text {
-							anchors.centerIn: parent
-							visible: lockContext.showFailure
-							text: "Incorrect password"
-							color: GlobalVariables.colours.text
-							font: GlobalVariables.font.italic
+							Text {
+								anchors.centerIn: parent
+								visible: lockContext.showFailure
+								text: "Incorrect password"
+								color: GlobalVariables.colours.text
+								font: GlobalVariables.font.italic
+							}
+
+
 						}
 
 						Ctrl.QsButton { id: btn
 							readonly property bool enabled: !lockContext.unlockInProgress && textInput.text
 
-							anchors {
-								left: parent.right
-								leftMargin: GlobalVariables.controls.spacing
-							}
 							shade: enabled
 							anim: enabled
 							onClicked: if (enabled) textInput.accepted();
@@ -305,28 +306,24 @@ Singleton { id: root
 					}
 
 					// spacer
-					Item { width: parent.width; height: 48; }
+					Item { Layout.preferredHeight: 48; }
 
 					// music player
-					Row {
-						anchors {
-							left: parent.left
-							leftMargin: parent.width /2 -(trackInfo.x +nowPlaying.width +GlobalVariables.controls.spacing)
-						}
+					RowLayout {
 						visible: Service.MusicPlayer.active
 						spacing: GlobalVariables.controls.spacing
 
 						Ctrl.QsButton {
 							onClicked: Service.MusicPlayer.activePlayer.togglePlaying();
-							content: Image {
-								width: 64
-								height: 64
+							content: Image { id: coverArt
+								height: Math.min(64, sourceSize.width)
 								source: Service.MusicPlayer.track.art
+								fillMode: Image.PreserveAspectFit
 								layer.enabled: true
 								layer.effect: OpacityMask {
 									maskSource: Rectangle {
-										width: 64
-										height: 64
+										width: coverArt.width
+										height: coverArt.height
 										radius: GlobalVariables.controls.radius
 									}
 								}
@@ -337,10 +334,13 @@ Singleton { id: root
 								visible: parent.containsMouse
 								implicitSize: 32
 								source: Service.MusicPlayer.activePlayer.isPlaying? Quickshell.iconPath("media-playback-pause") : Quickshell.iconPath("media-playback-start")
+								layer.enabled: true
+								layer.effect: ColorOverlay { color: GlobalVariables.colours.text; }
 							}
 						}
 
-						Column { id: trackInfo
+						ColumnLayout { id: trackInfo
+							Layout.alignment: Qt.AlignTop
 							spacing: GlobalVariables.controls.spacing /2
 							layer.enabled: true
 							layer.effect: DropShadow {
@@ -355,7 +355,8 @@ Singleton { id: root
 							}
 
 							Ctrl.Marquee {
-								width: Math.min(content.width, 294)
+								Layout.fillWidth: true
+								leftAlign: true
 								content: Row {
 									spacing: GlobalVariables.controls.spacing /2
 
@@ -365,18 +366,10 @@ Singleton { id: root
 										font: GlobalVariables.font.semibold
 									}
 
-									Rectangle {
-										anchors.verticalCenter: parent.verticalCenter
-										width: 4
-										height: width
-										radius: height /2
-										color: GlobalVariables.colours.text
-									}
-
 									Text {
-										text: Service.MusicPlayer.track.artist
+										text: `by ${Service.MusicPlayer.track.artist}`
 										color: GlobalVariables.colours.text
-										font: GlobalVariables.font.regular
+										font: GlobalVariables.font.italic
 									}
 								}
 							}
