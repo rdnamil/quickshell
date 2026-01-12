@@ -18,8 +18,9 @@ Singleton { id: root
 	function init() {}
 
 	FloatingWindow { id: window
-		// visible: false
+		visible: false
 		title: "Qs Settings - Wallpaper"
+		minimumSize: "590x420"
 		color: GlobalVariables.colours.dark;
 
 		RowLayout {
