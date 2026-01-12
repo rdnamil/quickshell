@@ -273,9 +273,8 @@ Singleton { id: root
 
 				ScrollView { id: scrollView
 					width: parent.width
-					height: Math.min((32 +GlobalVariables.controls.spacing) *root.maxLines, listView.contentHeight +4)
-					topPadding: 2
-					bottomPadding: 2
+					height: Math.min((32 +GlobalVariables.controls.spacing) *root.maxLines, listView.contentHeight +GlobalVariables.controls.padding +4)
+					topPadding: GlobalVariables.controls.padding
 					ScrollBar.vertical: ScrollBar { id: scrollBar
 						anchors {
 							// right: parent.right
@@ -529,14 +528,6 @@ Singleton { id: root
 					bottomLeftRadius: GlobalVariables.controls.radius
 					bottomRightRadius: GlobalVariables.controls.radius
 					color: GlobalVariables.colours.dark
-
-					Rectangle {
-						anchors.horizontalCenter: parent.horizontalCenter
-						width: parent.width -GlobalVariables.controls.spacing *2
-						height: 1
-						color: GlobalVariables.colours.light
-						opacity: listView.count >0? 1.0 : 0.0
-					}
 
 					Row { id: footerLayout
 						padding: GlobalVariables.controls.spacing
