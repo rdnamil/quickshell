@@ -379,7 +379,27 @@ Singleton { id: root
 										};
 										const fuse = new Fuse(list, options);
 
-										return fuse.search(textInput.text).map(r => r.item);
+										return fuse.search(textInput.text)
+										.sort((a, b) => { // return search results sorted based on score and relevance
+											const scoreWeight = 0.6;
+
+											const a_App = jsonAdapter.applications.find(app => app.id === a.item.id);
+											const b_App = jsonAdapter.applications.find(app => app.id === b.item.id);
+
+											function calcWeightedMatch(app, score, now = Date.now()) {
+												const relevance = calcRelevance(app);
+												return scoreWeight *(1 -score) +(1 -scoreWeight) *relevance;
+											}
+
+											const a_weightedMatch = a_App? calcWeightedMatch(a_App, a.score) : null;
+											const b_weightedMatch = b_App? calcWeightedMatch(b_App, b.score) : null;
+
+											if (a_weightedMatch && b_weightedMatch) return b_weightedMatch -a_weightedMatch;
+											else if (a_weightedMatch) return -1;
+											else if (b_weightedMatch) return 1;
+											else return a.score -b.score;
+										})
+										.map(r => r.item);
 										break;
 									case listView.filter === 1:
 										return list
