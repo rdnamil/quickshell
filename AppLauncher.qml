@@ -273,7 +273,7 @@ Singleton { id: root
 
 				ScrollView { id: scrollView
 					width: parent.width
-					height: Math.min((32 +GlobalVariables.controls.spacing) *root.maxLines, listView.contentHeight +GlobalVariables.controls.padding +4)
+					height: Math.min((32 +GlobalVariables.controls.spacing) *root.maxLines +4, listView.contentHeight +GlobalVariables.controls.padding +4)
 					topPadding: GlobalVariables.controls.padding
 					ScrollBar.vertical: ScrollBar { id: scrollBar
 						anchors {
