@@ -50,7 +50,10 @@ QsButton { id: root
 			Process { id: update
 				command: [GlobalVariables.controls.terminal, "-e", "yay", "--noconfirm"]
 				stdout: StdioCollector {
-					onStreamFinished: Notifications.notify("go-down", "Quickshell", "Update", "Updates completed. Reboot for changes to take effect.");
+					onStreamFinished: {
+						NotifyUpdate.refresh();
+						Notifications.notify("go-down", "Quickshell", "Update", "Updates completed. Reboot for changes to take effect.");
+					}
 				}
 			}
 
