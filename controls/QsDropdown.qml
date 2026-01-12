@@ -12,7 +12,7 @@ import qs
 import qs.styles
 
 QsButton { id: root
-	required property list<string> options
+	required property var options
 
 	property string selection: options[0]
 
@@ -92,7 +92,7 @@ QsButton { id: root
 
 			ScrollView { id: scrollView
 				width: root.width
-				height: Math.min(screen.height /3, list.height +GlobalVariables.controls.spacing *2)
+				height: Math.min(480, list.height +GlobalVariables.controls.spacing *2)
 				topPadding: GlobalVariables.controls.spacing
 				bottomPadding: GlobalVariables.controls.spacing
 
@@ -121,7 +121,7 @@ QsButton { id: root
 								width: root.width -GlobalVariables.controls.padding *2
 								text: modelData
 								elide: Text.ElideRight
-								color: GlobalVariables.colours.text
+								color: modelData === selection? GlobalVariables.colours.accent : GlobalVariables.colours.text
 								font: modelData === selection? GlobalVariables.font.semibold : GlobalVariables.font.regular
 							}
 						}
