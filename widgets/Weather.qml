@@ -12,65 +12,6 @@ import qs.controls
 import qs.services as Service
 
 Loader { id: root
-	function getWeatherIcon(weatherCode, isDay = true) {
-		switch (weatherCode) {
-			case 0:
-			case 1:
-				if (isDay === 1) {
-					return "-clear";
-				} else {
-					return "-clear-night";
-				}
-				break;
-			case 2:
-				if (isDay === 1) {
-					return "-few-clouds";
-				} else {
-					return "-few-clouds-night";
-				}
-				break;
-			case 3:
-				return "-overcast";
-				break;
-			case 45:
-			case 48:
-				return "-fog";
-				break;
-			case 51:
-			case 53:
-			case 55:
-			case 56:
-			case 57:
-				return "-showers-scattered";
-				break;
-			case 61:
-			case 63:
-			case 65:
-			case 66:
-			case 67:
-			case 80:
-			case 81:
-			case 82:
-				return "-showers";
-				break;
-			case 71:
-			case 73:
-			case 75:
-			case 77:
-			case 85:
-			case 86:
-				return "-snow";
-				break;
-			case 95:
-			case 96:
-			case 99:
-				return "-storm";
-				break;
-			default:
-				return "-app";
-		}
-	}
-
 	active: Service.Weather.weather
 	sourceComponent: Item { id: root
 		width: layout.width
