@@ -1,9 +1,7 @@
 # Quickshell
 My waybar inspired quickshell config.
 
-![screenshot](resources/Screenshot_002.png)
-
-![screenshot](resources/Screenshot_003.png)
+![screenshot](resources/Screenshot_001.png)
 
 ## About
 A minimalist and customizable quickshell config inspired by waybar.
@@ -74,3 +72,12 @@ qs
 > [!note]
 > Make a line in your WM config to startup quickshell on session start.
 > > Ex. Niri: `spawn-at-startup "qs"`
+
+### IPC
+You can run `qs ipc show` to see a comprehensive list of ip calls. You can make an IPC call with `qs ipc call <target> <function>`.
+
+A short list of common calls: 
+ - `qs ipc call launcher toggle`
+ - `qs ipc call settings launch`
+ - `qs ipc call notificationServer toggleDnd`
+ - `qs ipc call lock lockScreen`
