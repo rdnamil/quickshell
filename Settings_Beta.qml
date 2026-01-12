@@ -7,6 +7,7 @@ pragma Singleton
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Widgets
 import Quickshell.Io
 import qs.controls as Ctrl
 import qs.styles as Style
@@ -18,7 +19,7 @@ Singleton { id: root
 
 	FloatingWindow { id: window
 		visible: false
-		color: GlobalVariables.colours.window;
+		color: GlobalVariables.colours.dark;
 
 		RowLayout {
 			anchors.fill: parent
@@ -35,14 +36,25 @@ Singleton { id: root
 					highlight: true
 					shade: false
 					clip: true
-					content: Text {
+					fill: true
+					content: Row {
 						leftPadding: GlobalVariables.controls.padding
 						rightPadding: GlobalVariables.controls.padding
-						text: "Wallpaper"
-						color: GlobalVariables.colours.text
-						font.family: GlobalVariables.font.sans
-						font.pointSize: 11
-						font.weight: 600
+						spacing: GlobalVariables.controls.spacing
+
+						IconImage {
+							implicitSize: 24
+							source: Quickshell.iconPath("livewallpaper")
+						}
+
+						Text {
+							anchors.verticalCenter: parent.verticalCenter
+							text: "Wallpaper"
+							color: GlobalVariables.colours.text
+							font.family: GlobalVariables.font.sans
+							font.pointSize: 11
+							font.weight: 600
+						}
 					}
 				}
 			}
@@ -363,6 +375,8 @@ Singleton { id: root
 						}
 					}
 				}
+
+				Rectangle { anchors.fill: parent; color: GlobalVariables.colours.window; }
 			}
 		}
 	}
