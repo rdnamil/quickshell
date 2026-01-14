@@ -108,6 +108,12 @@ Singleton { id: root
 		track.artist = artist;
 	}
 
+	// update the active player's position while playing
+	FrameAnimation {
+		running: activePlayer.playbackState == MprisPlaybackState.Playing
+		onTriggered: activePlayer.positionChanged()
+	}
+
 	// unload widget after inactivity
 	Timer { id: grace
 		interval: 1000
