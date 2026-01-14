@@ -421,13 +421,6 @@ Singleton { id: root
 		}
 	}
 
-	Process { id: getWall
-		command: ['sh', '-c', `echo "$(swww query | head -n 1 | grep -oP '${Quickshell.env("HOME")}/Pictures/Wallpapers/\\S+(jpg|png|jpeg|webp)')"`]
-		stdout: StdioCollector {
-			onStreamFinished: { root.wallpaper = text.trim(); }
-		}
-	}
-
 	Process { id: getWallpaper
 		running: true
 		command: ['swww', 'query']
