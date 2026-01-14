@@ -259,7 +259,7 @@ Singleton { id: root
 
 
 					Text { id: nowPlaying
-						text: "Now playing"
+						text: "Now Playing"
 						color: Service.MusicPlayer.track.accentColour
 						font.family: GlobalVariables.font.sans
 						font.pointSize: 10
@@ -267,10 +267,10 @@ Singleton { id: root
 						font.letterSpacing: 1.2
 						layer.enabled: true
 						layer.effect: Glow {
-							samples: 44
+							samples: 48
 							color: {
-								if (nowPlaying.color.hlsLightness > 0.5) return Qt.darker(nowPlaying.color, 0.5);
-								else return Qt.darker(nowPlaying.color, 1.5);
+								if (nowPlaying.color.hslLightness > 0.5) return Qt.darker(nowPlaying.color, 1.5);
+								else return Qt.darker(nowPlaying.color, 0.8);
 							}
 						}
 					}
