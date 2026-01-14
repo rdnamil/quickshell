@@ -152,7 +152,7 @@ Singleton { id: root
 									}
 									onAccepted: switch (true) {
 										case listView.currentItem !== null:
-											listView.currentItem.clicked(null);
+											listView.currentItem.clicked();
 											break;
 										default:
 											root.close();
