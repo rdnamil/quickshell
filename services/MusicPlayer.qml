@@ -41,7 +41,7 @@ Singleton { id: root
 			depth: 8
 			rescaleSize: 64
 		}
-		property color accentColor: {
+		property color accentColour: {
 			// get the average hue and val
 			let avgHue = 0;
 			let avgVal = 0;
