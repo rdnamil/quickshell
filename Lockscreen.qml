@@ -291,15 +291,15 @@ Singleton { id: root
 		}
 
 		// for debug purposes
-		Ctrl.QsButton {
-			// anchors.centerIn: parent
-			onClicked: lockContext.unlocked();
-			content: Text {
-				text: "Unlock me now"
-				color: GlobalVariables.colours.text
-				font: GlobalVariables.font.regular
-			}
-		}
+		// Ctrl.QsButton {
+		// 	// anchors.centerIn: parent
+		// 	onClicked: lockContext.unlocked();
+		// 	content: Text {
+		// 		text: "Unlock me now"
+		// 		color: GlobalVariables.colours.text
+		// 		font: GlobalVariables.font.regular
+		// 	}
+		// }
 	}
 
 	property url wallpaper
