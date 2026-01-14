@@ -44,7 +44,7 @@ Singleton { id: root
 			Text {
 				text: Qt.formatDateTime(clock.date, "hh:mm")
 				color: GlobalVariables.colours.text
-				font.family: GlobalVariables.font.sans
+				font.family: "Adwaita Sans Mono"
 				font.pixelSize: 192
 				layer.enabled: true
 				layer.effect: DropShadow {
@@ -225,6 +225,7 @@ Singleton { id: root
 			RowLayout {
 				visible: Service.MusicPlayer.active
 				spacing: GlobalVariables.controls.spacing
+				clip: false
 
 				Ctrl.QsButton {
 					onClicked: Service.MusicPlayer.activePlayer.togglePlaying();
@@ -255,16 +256,23 @@ Singleton { id: root
 				ColumnLayout { id: trackInfo
 					Layout.alignment: Qt.AlignTop
 					spacing: GlobalVariables.controls.spacing /2
-					layer.enabled: true
-					layer.effect: DropShadow {
-						samples: 64
-						color: GlobalVariables.colours.shadow
-					}
+
 
 					Text { id: nowPlaying
 						text: "Now playing"
 						color: Service.MusicPlayer.track.accentColour
-						font: GlobalVariables.font.bold
+						font.family: GlobalVariables.font.sans
+						font.pointSize: 10
+						font.weight: 600
+						font.letterSpacing: 1.2
+						layer.enabled: true
+						layer.effect: Glow {
+							samples: 44
+							color: {
+								if (nowPlaying.color.hlsLightness > 0.5) return Qt.darker(nowPlaying.color, 0.5);
+								else return Qt.darker(nowPlaying.color, 1.5);
+							}
+						}
 					}
 
 					Ctrl.Marquee {
@@ -284,6 +292,11 @@ Singleton { id: root
 								color: GlobalVariables.colours.text
 								font: GlobalVariables.font.italic
 							}
+						}
+						layer.enabled: true
+						layer.effect: DropShadow {
+							samples: 48
+							color: GlobalVariables.colours.shadow
 						}
 					}
 				}
