@@ -109,7 +109,7 @@ Singleton { id: root
 	}
 
 	// update the active player's position while playing
-	FrameAnimation {
+	FrameAnimation { id: frameAnimation
 		running: activePlayer.playbackState == MprisPlaybackState.Playing
 		onTriggered: activePlayer.positionChanged()
 	}
@@ -148,4 +148,10 @@ Singleton { id: root
 			if (trackChangedWait.running) root.updateArtist();
 		}
 	}
+
+	Component.onCompleted: { if (frameAnimation.running) {
+		root.updateTitle();
+		root.updateArtist();
+		root.active = true;
+	}}
 }
