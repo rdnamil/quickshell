@@ -263,7 +263,7 @@ Singleton { id: root
 
 					Text { id: nowPlaying
 						text: "Now playing"
-						color: Service.MusicPlayer.accentColour
+						color: Service.MusicPlayer.track.accentColour
 						font: GlobalVariables.font.bold
 					}
 
