@@ -24,14 +24,6 @@ Singleton { id: root
 			precision: SystemClock.Seconds
 		}
 
-		Image {
-			anchors.fill: parent
-			source: root.wallpaper
-			fillMode: Image.PreserveAspectCrop
-			layer.enabled: true
-			layer.effect: GaussianBlur { samples: 128; }
-		}
-
 		ColumnLayout {
 			anchors {
 				horizontalCenter: parent.horizontalCenter
@@ -315,7 +307,7 @@ Singleton { id: root
 		// }
 	}
 
-	property url wallpaper
+	property list<var> wallpaper
 
 	function init() {}
 	function lock(transition = true) {
@@ -334,6 +326,14 @@ Singleton { id: root
 		surface: WlSessionLockSurface { id: surface
 			color: GlobalVariables.colours.dark
 
+			Image {
+				anchors.fill: parent
+				source: root.wallpaper.find(w => w.display === surface.screen.name).path
+				fillMode: Image.PreserveAspectCrop
+				layer.enabled: true
+				layer.effect: GaussianBlur { samples: 128; }
+			}
+
 			Loader {
 				anchors.fill: parent
 				focus: true
@@ -347,7 +347,7 @@ Singleton { id: root
 		signal start()
 
 		model: Quickshell.screens
-		delegate: PanelWindow {
+		delegate: PanelWindow { id: window
 			required property var modelData
 
 			screen: modelData
@@ -369,6 +369,14 @@ Singleton { id: root
 				sourceComponent: content
 				opacity: 0.0
 				transform: Translate { id: transitionTrans; y: -height; }
+
+				Image {
+					anchors.fill: parent
+					source: root.wallpaper.find(w => w.display === window.modelData.name).path
+					fillMode: Image.PreserveAspectCrop
+					layer.enabled: true
+					layer.effect: GaussianBlur { samples: 128; }
+				}
 			}
 
 			ParallelAnimation { id: transitionAnim
@@ -413,10 +421,36 @@ Singleton { id: root
 		}
 	}
 
-	Process { id: getWallpaper
+	Process { id: getWall
 		command: ['sh', '-c', `echo "$(swww query | head -n 1 | grep -oP '${Quickshell.env("HOME")}/Pictures/Wallpapers/\\S+(jpg|png|jpeg|webp)')"`]
 		stdout: StdioCollector {
 			onStreamFinished: { root.wallpaper = text.trim(); }
+		}
+	}
+
+	Process { id: getWallpaper
+		running: true
+		command: ['swww', 'query']
+		stdout: StdioCollector {
+			onStreamFinished: {
+				var ws = text.trim().split('\n');
+
+				root.wallpaper = [];
+
+				for (let w of ws) {
+					const parts = w.match(/^:\s*(\S+):\s*([^,]+),\s*scale:\s*(\d+),\s*currently displaying:\s*(\w+):\s*(.+)$/);
+
+					if (!parts) continue;
+
+					root.wallpaper.push({
+						display: parts[1],
+						resolution: parts[2],
+						scale: parts[3],
+						type: parts[4],
+						path: parts[5]
+					});
+				}
+			}
 		}
 	}
 
