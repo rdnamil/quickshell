@@ -346,26 +346,23 @@ Singleton { id: root
 			}
 			WlrLayershell.layer: WlrLayershell.Overlay
 			WlrLayershell.exclusiveZone: -1
-			mask: Region{}
+			mask: Region {}
+			// color: "#10ff0000"
 			color: "transparent"
 
 			Loader { id: transitionContainer
 				anchors.fill: parent
+				active: false
+				sourceComponent: content
 				opacity: 0.0
 				transform: Translate { id: transitionTrans; y: -height; }
-				active: transitionAnim.running
-				sourceComponent: content
 			}
 
 			ParallelAnimation { id: transitionAnim
-				property int duration: 300
+				property int duration: 250
 
 				onStarted: getWallpaper.running = true;
-				onFinished: {
-					lock.locked = true;
-					transitionContainer.opacity = 0.0;
-					transitionTrans.y = -height;
-				}
+				onFinished: { lock.locked = true; }
 
 				NumberAnimation {
 					target: transitionContainer
@@ -386,7 +383,19 @@ Singleton { id: root
 
 			Connections {
 				target: transitionScreens
-				function onStart() { transitionAnim.restart(); }
+				function onStart() {
+					transitionContainer.active = true;
+					transitionAnim.restart();
+				}
+			}
+
+			Connections {
+				target: lockContext
+				function onUnlocked() {
+					transitionContainer.opacity = 0.0;
+					transitionTrans.y = -height;
+					transitionContainer.active = false;
+				}
 			}
 		}
 	}
