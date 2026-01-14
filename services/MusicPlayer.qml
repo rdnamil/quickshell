@@ -108,15 +108,6 @@ Singleton { id: root
 		track.artist = artist;
 	}
 
-	// format time from total seconds to hours:minutes:seconds
-	function formatTime(totalSeconds) {
-		var seconds = totalSeconds %60;
-		var totalMinutes = Math.floor(totalSeconds /60);
-		var hours = Math.floor(totalMinutes /60);
-		var minutes = totalMinutes -(hours *60);
-		return `${hours >0? (hours +":") : ""}${minutes <10 && hours >0? "0" +minutes : minutes}:${seconds <10? "0" +seconds : seconds}`;
-	}
-
 	// unload widget after inactivity
 	Timer { id: grace
 		interval: 1000
