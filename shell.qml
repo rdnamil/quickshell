@@ -57,12 +57,13 @@ Scope { id: root
 	// connect to shell services
 	Component.onCompleted: [
 		Service.Shell.init(),
-		Settings_Beta.init(),
+		Settings_Alpha.init(),
+		// Settings_Beta.init(),
 		Lockscreen.init(),
-		Notifications.init(),
+		// Notifications.init(),
 		AppLauncher.init(
 			10, // the maximum number of lines to display
-			false // hide category filters
+			true // hide category filters
 		),
 		Service.Redeye.init(
 			5500, // temperature in K

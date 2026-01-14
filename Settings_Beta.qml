@@ -388,9 +388,4 @@ Singleton { id: root
 			}
 		}
 	}
-
-	IpcHandler {
-		target: "settings"
-		function launch(): void { window.visible = true; }
-	}
 }
