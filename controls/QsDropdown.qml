@@ -117,8 +117,8 @@ QsButton { id: root
 							background: Rectangle {
 								visible: index %2 === 1
 								anchors.centerIn: parent
-								width: parent.width
-								height: parent.height +4
+								width: parent?.width
+								height: parent?.height +4
 								color: GlobalVariables.colours.mid
 							}
 							content: Text {
