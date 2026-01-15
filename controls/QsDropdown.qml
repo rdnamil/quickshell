@@ -104,6 +104,7 @@ QsButton { id: root
 						model: options
 						delegate: QsButton { id: option
 							required property var modelData
+							required property int index
 
 							Layout.fillWidth: true
 							Layout.preferredHeight: content.height
@@ -112,6 +113,13 @@ QsButton { id: root
 							onClicked: {
 								root.selected(modelData);
 								dropdown.visible = !dropdown.visible;
+							}
+							background: Rectangle {
+								visible: index %2 === 1
+								anchors.centerIn: parent
+								width: parent.width
+								height: parent.height +4
+								color: GlobalVariables.colours.mid
 							}
 							content: Text {
 								anchors {
