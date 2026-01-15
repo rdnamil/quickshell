@@ -22,6 +22,7 @@ Item { id: root
 	property bool isHighlighted: (root.highlight && containsMouse)
 	property Item tooltip
 	property bool debug
+	property Item background
 
 	signal pressed()
 	signal clicked()
@@ -33,6 +34,9 @@ Item { id: root
 	width: content.width
 	height: content.height
 	transform: Translate { id: rootTranslate; }
+
+	// background
+	Item { id: background; anchors.fill: parent; }
 
 	// highlight button on hover
 	Rectangle { id: highlight
@@ -86,10 +90,9 @@ Item { id: root
 	}
 
 	MouseArea { id: mouseArea
-		width: content.width +4
-		height: content.height +4
-		x: content.x -2
-		y: content.y -2
+		anchors.centerIn: parent
+		width: parent.width +4
+		height: parent.height +4
 		hoverEnabled: true
 		onEntered: { root.mouseEntered(); if (root.tooltip) tooltipTimer.restart(); }
 		onExited: {
@@ -144,5 +147,6 @@ Item { id: root
 
 	Component.onCompleted: {
 		content.parent = contentWrapper;
+		if (root.background) root.background.parent = background;
 	}
 }
