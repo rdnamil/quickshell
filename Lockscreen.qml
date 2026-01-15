@@ -449,6 +449,6 @@ Singleton { id: root
 
 	IpcHandler {
 		target: "lock"
-		function lockScreen(transition: bool): void { root.lock(transition); }
+		function lockScreen(transition: bool): void { if (!lock.locked) { root.lock(transition); }}
 	}
 }
