@@ -57,10 +57,10 @@ Scope { id: root
 	// connect to shell services
 	Component.onCompleted: [
 		Service.Shell.init(),
-		Settings_Alpha.init(),
+		// Settings_Alpha.init(),
 		// Settings_Beta.init(),
 		Lockscreen.init(),
-		// Notifications.init(),
+		Notifications.init(),
 		AppLauncher.init(
 			10, // the maximum number of lines to display
 			true // hide category filters
