@@ -172,7 +172,7 @@ QsButton { id: root
 								topPadding: GlobalVariables.controls.spacing /2
 								bottomPadding: GlobalVariables.controls.spacing /2
 								rightPadding: battery.height -battery.width
-								spacing: GlobalVariables.controls.spacing
+								// spacing: GlobalVariables.controls.spacing
 
 								Text {
 									readonly property TextMetrics textMetric: TextMetrics {
@@ -181,15 +181,18 @@ QsButton { id: root
 									}
 
 									width: textMetric.width
-									anchors.verticalCenter: parent.verticalCenter
+									anchors {
+										bottom: parent.bottom
+										bottomMargin: 2
+									}
 									text: `${parseInt(modelData.percentage *100)}%`
 									color: GlobalVariables.colours.text
 									font: GlobalVariables.font.small
 								}
 
-								Battery { id: battery
-									height: 20
-									rotation: 90
+								Style.Battery { id: battery
+									width: 10
+									height: 16
 									material: true
 									percentage: modelData.percentage
 									isCharging: modelData.state === UPowerDeviceState.Charging
