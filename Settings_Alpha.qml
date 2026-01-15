@@ -30,7 +30,7 @@ Singleton { id: root
 
 		// preview display
 		Item { id: preview
-			readonly property size resolution: wallpaper.display.resolution
+			readonly property size resolution: wallpaper.display?.resolution || null
 			readonly property real aspect: resolution.width /resolution.height
 
 			Layout.margins: GlobalVariables.controls.padding
@@ -81,7 +81,7 @@ Singleton { id: root
 							if (positionDrop.selection.toLowerCase() === "no") return parent.height *(sourceSize.height /preview.resolution.height);
 							else return parent.height;
 						}
-						source: wallpaper.display.path
+						source: wallpaper.display?.path || ""
 						mipmap: true
 						fillMode: switch (positionDrop.selection.toLowerCase()) {
 							case "no":
@@ -150,12 +150,12 @@ Singleton { id: root
 						anim: false
 						shade: false
 						tooltip: Text {
-							text: wallpaper.display.path
+							text: wallpaper.display?.path || null
 							color: GlobalVariables.colours.text
 							font: GlobalVariables.font.regular
 						}
 						content: Style.Button {
-							width: parent.parent.width
+							width: parent?.parent.width
 							invert: true
 
 							Text {
@@ -163,7 +163,7 @@ Singleton { id: root
 								width: parent.width
 								leftPadding: GlobalVariables.controls.padding
 								rightPadding: GlobalVariables.controls.padding
-								text: wallpaper.display.path
+								text: wallpaper.display?.path || null
 								color: GlobalVariables.colours.windowText
 								font: GlobalVariables.font.regular
 								elide: Text.ElideLeft
