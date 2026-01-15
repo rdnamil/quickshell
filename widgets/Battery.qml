@@ -11,6 +11,7 @@ import Quickshell.Services.UPower
 import qs
 import qs.services
 import qs.controls
+import qs.styles as Style
 
 QsButton { id: root
 	readonly property bool isLaptopBattery: UPower.displayDevice?.isLaptopBattery
@@ -53,19 +54,12 @@ QsButton { id: root
 	shade: false
 	tooltip: isLaptopBattery? tooltipText : null
 	onClicked: popout.toggle();
-	content: Item {
-		width: isLaptopBattery? icon.height : icon.width
-		height: isLaptopBattery? icon.width : icon.height
-
-		Battery { id: icon
-			anchors.centerIn: parent
-			height: isLaptopBattery? 20 : 16
-			width: isLaptopBattery? 12 : 10
-			rotation: isLaptopBattery? 90 : 0
-			percentage: isLaptopBattery? UPower.displayDevice.percentage : 1.0
-			isCharging: isLaptopBattery? !UPower.onBattery : false
-			material: true
-		}
+	content: Style.Battery {
+		height: isLaptopBattery? 12 : 16
+		width: isLaptopBattery? 20 : 10
+		percentage: isLaptopBattery? UPower.displayDevice.percentage : 1.0
+		isCharging: isLaptopBattery? !UPower.onBattery : false
+		material: true
 	}
 
 	Popout { id: popout
