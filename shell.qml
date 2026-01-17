@@ -31,10 +31,11 @@ Scope { id: root
 			]
 
 			centreItems: [
-				NiriWorkspaces {
-					// colours: [colour.highlight] // list of possible highlight colours
-					clean: false // hide windows' dots
-				}
+				// NiriWorkspaces {
+				// 	// colours: [colour.highlight] // list of possible highlight colours
+				// 	clean: false // hide windows' dots
+				// }
+				NiriWorkspaces_Alt {}
 			]
 
 			rightItems: [
