@@ -1,3 +1,7 @@
+/*--------------------------------------
+--- NiriWorkspaces_Alt.qml by andrel ---
+--------------------------------------*/
+
 import QtQuick
 import Quickshell
 import qs
