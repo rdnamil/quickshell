@@ -38,6 +38,7 @@ Singleton { id: root
 			Layout.fillHeight: true
 
 			Rectangle {
+				visible: previewImage.status === Image.Ready
 				anchors.centerIn: parent
 				width: Math.min(parent.width, parent.height *preview.aspect)
 				height: width /preview.aspect
@@ -71,7 +72,7 @@ Singleton { id: root
 						}
 					}
 
-					Image {
+					Image { id: previewImage
 						anchors.centerIn: parent
 						width: {
 							if (positionDrop.selection.toLowerCase() === "no") return parent.width *(sourceSize.width /preview.resolution.width);
